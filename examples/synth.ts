@@ -12,6 +12,13 @@ const config = mergeConfig({
     buckets: { thanos: 'example-thanos', loki: 'example-loki' },
   },
   smtp: { host: 'mail.example.com', port: 587, from: 'monitoring@example.com', requireTls: true },
+  integrations: {
+    s3ProviderConfig: 'example-s3',
+    s3SecretStore: 'example-s3-store',
+    s3CredentialsKey: 'example-s3-credentials',
+    grafanaSecretStore: 'example-app-secrets-store',
+    grafanaCredentialsKey: 'example-grafana-admin',
+  },
 });
 new MonitoringChart(app, 'monitoring', config);
 app.synth();

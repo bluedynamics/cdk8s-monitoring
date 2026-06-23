@@ -91,6 +91,7 @@ export class MonitoringChart extends Chart {
     // Grafana admin credentials (stable password across Helm upgrades)
     new GrafanaPasswordSecret(this, 'grafana-password', {
       namespace,
+      config,
     });
 
     // =========================================================================

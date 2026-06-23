@@ -11,6 +11,13 @@ const cluster: MonitoringConfigInput = {
     buckets: { thanos: 'thanos-b', loki: 'loki-b' },
   },
   smtp: { host: 'mail.example.com', port: 587, from: 'm@example.com', requireTls: true },
+  integrations: {
+    s3ProviderConfig: 's3p',
+    s3SecretStore: 's3store',
+    s3CredentialsKey: 's3key',
+    grafanaSecretStore: 'gstore',
+    grafanaCredentialsKey: 'gkey',
+  },
 };
 
 test('applies package defaults when no overrides are given', () => {
@@ -25,6 +32,11 @@ test('passes required cluster config through unchanged', () => {
   expect(cfg.namespace).toBe('monitoring');
   expect(cfg.domains.grafana).toBe('grafana.example.com');
   expect(cfg.s3.buckets.thanos).toBe('thanos-b');
+});
+
+test('passes integrations config through unchanged', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.integrations).toEqual(cluster.integrations);
 });
 
 test('deep-overrides a single nested field, keeping siblings at default', () => {
