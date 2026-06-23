@@ -1,0 +1,46 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'documentation/**'
+      - '.github/workflows/documentation.yml'
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0  # Fetch all history and tags for version detection
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-dependency-glob: "documentation/Makefile"
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 18
+
+    - run: npm install -g @mermaid-js/mermaid-cli
+
+    - name: Generate Docs
+      run: cd documentation && make docs
+
+    - name: Deploy Docs
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        publish_branch: gh-pages
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: documentation/html/
+        force_orphan: true
