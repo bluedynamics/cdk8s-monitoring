@@ -1,5 +1,5 @@
 export * from './types';
-// export * from './default-config'; // added in Task 3
+export * from './default-config';
 export * from './monitoring-chart';
 export * from './constructs/namespace';
 export * from './constructs/priority-class';

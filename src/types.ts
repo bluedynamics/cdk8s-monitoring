@@ -115,16 +115,42 @@ export interface VersionConfig {
 }
 
 /**
- * Complete monitoring stack configuration
+ * Configuration the package ships sensible defaults for.
+ * Integration charts may override any of these (deep-merged over DEFAULT_CONFIG).
  */
-export interface MonitoringConfig {
-  namespace: string; // Kubernetes namespace
+export interface DefaultableConfig {
   versions: VersionConfig; // Chart and image versions
-  domains: DomainConfig; // Domain names for ingresses
-  s3: S3Config; // S3 object storage configuration
-  smtp: SmtpConfig; // SMTP alerting configuration
   retention: RetentionConfig; // Data retention policies
   storage: StorageConfig; // PVC storage sizes
   replicas: ReplicaConfig; // Replica counts
   resources: ResourceConfig; // Resource requests and limits
 }
+
+/**
+ * Cluster-specific configuration with no sensible universal default.
+ * Integration charts must provide these.
+ */
+export interface RequiredClusterConfig {
+  namespace: string; // Kubernetes namespace
+  domains: DomainConfig; // Domain names for ingresses
+  s3: S3Config; // S3 object storage configuration
+  smtp: SmtpConfig; // SMTP alerting configuration
+}
+
+/**
+ * Recursive partial — every property (including nested ones) becomes optional.
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+/**
+ * Input accepted by mergeConfig: required cluster values plus optional,
+ * deeply-partial overrides of the package defaults.
+ */
+export type MonitoringConfigInput = RequiredClusterConfig & DeepPartial<DefaultableConfig>;
+
+/**
+ * Complete, resolved monitoring stack configuration consumed by MonitoringChart.
+ */
+export interface MonitoringConfig extends RequiredClusterConfig, DefaultableConfig {}
