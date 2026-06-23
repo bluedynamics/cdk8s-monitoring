@@ -4,9 +4,11 @@ import {
   ExternalSecretSpecTargetCreationPolicy,
   ExternalSecretSpecSecretStoreRefKind,
 } from '../imports/external-secrets.io';
+import { MonitoringConfig } from '../types';
 
 export interface GrafanaPasswordSecretProps {
   readonly namespace: string;
+  readonly config: MonitoringConfig;
 }
 
 /**
@@ -18,8 +20,8 @@ export interface GrafanaPasswordSecretProps {
  *
  * Prerequisites:
  * - External Secrets Operator installed
- * - ClusterSecretStore 'monitoring-app-secrets-store' exists (points to application-secrets)
- * - Secret 'grafana-admin' exists in application-secrets namespace with keys:
+ * - ClusterSecretStore named by config.integrations.grafanaSecretStore exists
+ * - The source secret addressed by config.integrations.grafanaCredentialsKey exists with keys:
  *   - admin-user
  *   - admin-password
  *
@@ -63,7 +65,7 @@ export class GrafanaPasswordSecret extends Construct {
   constructor(scope: Construct, id: string, props: GrafanaPasswordSecretProps) {
     super(scope, id);
 
-    const { namespace } = props;
+    const { namespace, config } = props;
 
     // Create ExternalSecret to replicate Grafana credentials from application-secrets
     // Wave 1: Credentials must exist before Grafana starts (Wave 2)
@@ -86,7 +88,7 @@ export class GrafanaPasswordSecret extends Construct {
 
         // Reference to ClusterSecretStore (application-secrets → monitoring)
         secretStoreRef: {
-          name: 'monitoring-app-secrets-store',
+          name: config.integrations.grafanaSecretStore,
           kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
 
@@ -100,7 +102,7 @@ export class GrafanaPasswordSecret extends Construct {
         dataFrom: [
           {
             extract: {
-              key: 'grafana-admin',
+              key: config.integrations.grafanaCredentialsKey,
             },
           },
         ],

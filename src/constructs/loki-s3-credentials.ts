@@ -19,8 +19,8 @@ export interface LokiS3CredentialsProps {
  *
  * Prerequisites:
  * - External Secrets Operator installed
- * - ClusterSecretStore 'hetzner-s3-cluster-store' exists (points to crossplane-system)
- * - Secret 'hetzner-s3-creds-standard' exists in crossplane-system namespace
+ * - ClusterSecretStore named by config.integrations.s3SecretStore exists
+ * - Source secret addressed by config.integrations.s3CredentialsKey exists in that store
  *
  * Generated Secret:
  * - Name: loki-s3-credentials
@@ -34,7 +34,7 @@ export class LokiS3CredentialsConstruct extends Construct {
   constructor(scope: Construct, id: string, props: LokiS3CredentialsProps) {
     super(scope, id);
 
-    const { namespace } = props;
+    const { namespace, config } = props;
 
     // Create ExternalSecret that replicates S3 credentials
     // Wave 1: External Dependencies - credentials must exist before Loki components
@@ -59,7 +59,7 @@ export class LokiS3CredentialsConstruct extends Construct {
 
         // Use existing ClusterSecretStore for Hetzner S3 (infrastructure-level secrets)
         secretStoreRef: {
-          name: 'hetzner-s3-cluster-store',
+          name: config.integrations.s3SecretStore,
           kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
 
@@ -69,11 +69,11 @@ export class LokiS3CredentialsConstruct extends Construct {
           creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
         },
 
-        // Fetch S3 credentials from crossplane-system/hetzner-s3-creds-standard
+        // Fetch S3 credentials from the configured store/key
         dataFrom: [
           {
             extract: {
-              key: 'hetzner-s3-creds-standard',
+              key: config.integrations.s3CredentialsKey,
             },
           },
         ],

@@ -216,6 +216,34 @@ describe('MonitoringChart Integration Tests', () => {
     expect(queryDeployment.metadata.namespace).toBe('custom-monitoring');
   });
 
+  it('should respect configuration for integration names', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig({
+      integrations: {
+        s3ProviderConfig: 'my-provider',
+        s3SecretStore: 'my-s3-store',
+        s3CredentialsKey: 'my-s3-key',
+        grafanaSecretStore: 'my-grafana-store',
+        grafanaCredentialsKey: 'my-grafana-key',
+      },
+    });
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const buckets = findResourcesByKind(manifests, 'Bucket');
+    const grafanaSecret = findResource(manifests, 'ExternalSecret', 'grafana-admin-credentials-es');
+
+    buckets.forEach((bucket) => {
+      expect(bucket.spec.providerConfigRef.name).toBe('my-provider');
+    });
+    expect(grafanaSecret.spec.secretStoreRef.name).toBe('my-grafana-store');
+    expect(grafanaSecret.spec.dataFrom[0].extract.key).toBe('my-grafana-key');
+  });
+
   it('should respect configuration for versions', () => {
     // Arrange
     const app = new App();

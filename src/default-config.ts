@@ -69,6 +69,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     domains: input.domains,
     s3: input.s3,
     smtp: input.smtp,
+    integrations: input.integrations,
     versions: deepmerge(DEFAULT_CONFIG.versions, input.versions ?? {}) as VersionConfig,
     retention: deepmerge(DEFAULT_CONFIG.retention, input.retention ?? {}) as RetentionConfig,
     storage: deepmerge(DEFAULT_CONFIG.storage, input.storage ?? {}) as StorageConfig,

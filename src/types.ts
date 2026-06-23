@@ -47,6 +47,19 @@ export interface DomainConfig {
 }
 
 /**
+ * Names of the external Crossplane and External Secrets Operator resources this
+ * stack references. These are not created by the library; they must already exist
+ * in your cluster. There are no defaults — every consumer wires its own names.
+ */
+export interface IntegrationsConfig {
+  s3ProviderConfig: string; // Crossplane ProviderConfig name the Bucket resources reconcile against
+  s3SecretStore: string; // ESO ClusterSecretStore name holding the S3 credentials
+  s3CredentialsKey: string; // Remote key in the store to extract S3 credentials from (provides AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY)
+  grafanaSecretStore: string; // ESO ClusterSecretStore name holding the Grafana admin credentials
+  grafanaCredentialsKey: string; // Remote key in the store to extract the Grafana admin credentials from
+}
+
+/**
  * Retention policies for metrics and logs
  */
 export interface RetentionConfig {
@@ -135,6 +148,7 @@ export interface RequiredClusterConfig {
   domains: DomainConfig; // Domain names for ingresses
   s3: S3Config; // S3 object storage configuration
   smtp: SmtpConfig; // SMTP alerting configuration
+  integrations: IntegrationsConfig; // Names of external Crossplane/ESO resources to reference
 }
 
 /**

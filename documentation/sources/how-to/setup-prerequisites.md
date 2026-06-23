@@ -36,16 +36,17 @@ The library emits `ExternalSecret` resources; the operator turns them into Kuber
 
 If the operator is not yet installed, follow the [External Secrets Operator installation guide](https://external-secrets.io/latest/introduction/getting-started/).
 
-The integration chart references two stores by name.
-Create the ones your cluster uses and point them at the namespaces that hold the source secrets.
+The integration chart references two stores by name, supplied through its `integrations` block.
+Create the stores your cluster uses, point them at the namespaces that hold the source secrets, and pass their names to the chart.
 
-- A `ClusterSecretStore` for the S3 credentials, pointing at the namespace that holds the Hetzner S3 credentials secret.
-- A `ClusterSecretStore` for application secrets, pointing at the namespace that holds the Grafana admin secret.
+- A `ClusterSecretStore` for the S3 credentials, named by `integrations.s3SecretStore`, pointing at the namespace that holds the S3 credentials secret.
+- A `ClusterSecretStore` for the Grafana admin credentials, named by `integrations.grafanaSecretStore`, pointing at the namespace that holds the Grafana admin secret.
 
 Create the Grafana admin source secret so the operator has something to replicate.
+The secret name and its namespace are your cluster's choice; the chart reaches it through `integrations.grafanaCredentialsKey`.
 
 ```shell
-kubectl create secret generic grafana-admin -n application-secrets \
+kubectl create secret generic my-grafana-admin -n application-secrets \
   --from-literal=admin-user=admin \
   --from-literal=admin-password='change-me'
 ```
@@ -58,6 +59,7 @@ Crossplane and the Upbound `provider-aws-s3` must be installed, and a `ProviderC
 If Crossplane is not yet installed, follow the [Crossplane installation guide](https://docs.crossplane.io/latest/software/install/) and the [provider-aws-s3 documentation](https://marketplace.upbound.io/providers/upbound/provider-aws-s3).
 
 Provide credentials and a `ProviderConfig` that the `Bucket` resources can reference, with the S3 endpoint and region your integration chart will use.
+Pass the provider config name to the chart as `integrations.s3ProviderConfig`.
 
 ```{important}
 The `Bucket` resources land in the `crossplane-system` namespace, not the monitoring namespace.

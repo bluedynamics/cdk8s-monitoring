@@ -39,7 +39,7 @@ describe('ThanosS3BucketConstruct', () => {
 
     expect(bucket.spec.deletionPolicy).toBe('Delete');
     expect(bucket.spec.forProvider.region).toBe(config.s3.region);
-    expect(bucket.spec.providerConfigRef.name).toBe('hetzner-s3');
+    expect(bucket.spec.providerConfigRef.name).toBe(config.integrations.s3ProviderConfig);
   });
 
   it('should skip Update management policy', () => {

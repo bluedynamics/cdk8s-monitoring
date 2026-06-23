@@ -32,6 +32,7 @@ const config = mergeConfig({
   domains: { grafana: 'grafana.ops.example.net' },
   s3: { /* ... */ },
   smtp: { /* ... */ },
+  integrations: { /* ... */ },
   resources: {
     prometheus: {
       limits: { memory: '6000Mi' },

@@ -39,6 +39,14 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       requireTls: true,
     },
 
+    integrations: {
+      s3ProviderConfig: 'test-s3-provider',
+      s3SecretStore: 'test-s3-store',
+      s3CredentialsKey: 'test-s3-creds',
+      grafanaSecretStore: 'test-grafana-store',
+      grafanaCredentialsKey: 'test-grafana-creds',
+    },
+
     retention: {
       prometheus: '3d',
       prometheusS3Raw: 30,

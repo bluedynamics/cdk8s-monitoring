@@ -29,6 +29,27 @@ const config = mergeConfig({
 });
 ```
 
+## Name the external resources
+
+The stack does not create the Crossplane provider config or the External Secrets stores it relies on.
+You create those in your cluster under names of your choosing and pass the names through the `integrations` block.
+
+```typescript
+const config = mergeConfig({
+  // other required cluster values ...
+  integrations: {
+    s3ProviderConfig: 'my-s3-provider',
+    s3SecretStore: 'my-s3-secret-store',
+    s3CredentialsKey: 'my-s3-credentials',
+    grafanaSecretStore: 'my-app-secret-store',
+    grafanaCredentialsKey: 'my-grafana-admin',
+  },
+});
+```
+
+The names above are placeholders.
+Replace each with the name your cluster uses for that resource.
+
 ## What the library creates
 
 From this block the stack synthesizes:
@@ -44,18 +65,19 @@ The synthesized resources expect these to already exist.
 The Crossplane provider config and credentials
 :   The `Bucket` resources are reconciled by Crossplane in `crossplane-system`.
     A `ProviderConfig` and its credentials secret must point at your S3 endpoint.
+    Pass the provider config name as `integrations.s3ProviderConfig`.
 
 The S3 `ClusterSecretStore`
-:   Both `ExternalSecret`s reference a store named `hetzner-s3-cluster-store`.
+:   Both `ExternalSecret`s reference the store named by `integrations.s3SecretStore`.
     Create that store and point it at the namespace holding the source credentials.
 
 The source credentials secret
-:   Both `ExternalSecret`s extract from a source secret named `hetzner-s3-creds-standard`.
-    That secret must hold `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+:   Both `ExternalSecret`s extract from the remote key named by `integrations.s3CredentialsKey` in that store.
+    The resolved secret must hold `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
 ```{important}
-The credential names, `hetzner-s3-cluster-store` and `hetzner-s3-creds-standard`, are fixed in the library.
-Create the store and source secret under exactly those names, or the External Secrets will fail to resolve.
+The store and key names are not fixed in the library; you choose them and surface them through `integrations`.
+Make sure the values you pass for `integrations.s3SecretStore` and `integrations.s3CredentialsKey` match resources that actually exist, or the External Secrets will fail to resolve.
 ```
 
 ## Verify

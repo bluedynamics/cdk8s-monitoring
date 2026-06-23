@@ -41,6 +41,13 @@ const config = mergeConfig({
     buckets: { thanos: 'metrics-thanos', loki: 'logs-loki' },
   },
   smtp: { host: 'mail.example.com', port: 587, from: 'monitoring@example.com', requireTls: true },
+  integrations: {
+    s3ProviderConfig: 'my-s3-provider',          // Crossplane ProviderConfig (buckets)
+    s3SecretStore: 'my-s3-secret-store',         // ESO ClusterSecretStore (S3 credentials)
+    s3CredentialsKey: 'my-s3-credentials',       // remote key holding AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+    grafanaSecretStore: 'my-app-secret-store',   // ESO ClusterSecretStore (Grafana admin)
+    grafanaCredentialsKey: 'my-grafana-admin',   // remote key holding admin-user / admin-password
+  },
   // Override any default, e.g. storage: { prometheus: '30Gi' }
 });
 
@@ -50,7 +57,7 @@ app.synth();
 
 ### Required vs. defaulted configuration
 
-- **Required (`RequiredClusterConfig`)**: `namespace`, `domains`, `s3`, `smtp`. No universal default exists, so you must provide them.
+- **Required (`RequiredClusterConfig`)**: `namespace`, `domains`, `s3`, `smtp`, `integrations`. No universal default exists, so you must provide them. `integrations` names the external Crossplane ProviderConfig and ESO ClusterSecretStores/keys this stack references (nothing is hardcoded — wire your own).
 - **Defaulted (`DefaultableConfig`)**: `versions`, `retention`, `storage`, `replicas`, `resources`. Shipped in `DEFAULT_CONFIG`; override any subset via `mergeConfig` (deep-merged).
 
 ### Adding application dashboards and alerts

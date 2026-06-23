@@ -45,7 +45,7 @@ describe('ThanosS3CredentialsConstruct', () => {
     const externalSecret = findResource(manifests, 'ExternalSecret');
 
     expect(externalSecret.spec.secretStoreRef.kind).toBe('ClusterSecretStore');
-    expect(externalSecret.spec.secretStoreRef.name).toBe('hetzner-s3-cluster-store');
+    expect(externalSecret.spec.secretStoreRef.name).toBe(config.integrations.s3SecretStore);
   });
 
   it('should reference crossplane-system namespace secret', () => {
@@ -65,7 +65,7 @@ describe('ThanosS3CredentialsConstruct', () => {
 
     const dataFrom = externalSecret.spec.dataFrom;
     expect(dataFrom).toHaveLength(1);
-    expect(dataFrom[0].extract.key).toBe('hetzner-s3-creds-standard');
+    expect(dataFrom[0].extract.key).toBe(config.integrations.s3CredentialsKey);
   });
 
   it('should use template engine v2', () => {

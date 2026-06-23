@@ -39,7 +39,12 @@ The package is TypeScript-only and ships no generated API document; this curated
 :   The input to `mergeConfig`: `RequiredClusterConfig` plus a `DeepPartial` of `DefaultableConfig`.
 
 `RequiredClusterConfig`
-:   The fields with no default: `namespace`, `domains`, `s3`, `smtp`.
+:   The fields with no default: `namespace`, `domains`, `s3`, `smtp`, `integrations`.
+
+`IntegrationsConfig`
+:   The names of external Crossplane and External Secrets Operator resources the stack references but does not create.
+    Fields: `s3ProviderConfig`, `s3SecretStore`, `s3CredentialsKey`, `grafanaSecretStore`, `grafanaCredentialsKey`.
+    All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
 :   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`.

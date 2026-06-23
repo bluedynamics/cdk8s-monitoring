@@ -18,7 +18,7 @@ export interface ThanosS3BucketProps {
  * Prerequisites:
  * - Crossplane operator installed
  * - Upbound provider-aws-s3 installed
- * - ProviderConfig 'hetzner-s3' configured (points to Hetzner S3)
+ * - Crossplane ProviderConfig named by config.integrations.s3ProviderConfig exists
  * - Hetzner S3 credentials secret exists in crossplane-system
  *
  * Sync Wave: 1 (external dependencies - must exist before pods access S3)
@@ -64,7 +64,7 @@ export class ThanosS3BucketConstruct extends Construct {
           region: region, // Production region (endpoint determines actual location)
         },
         providerConfigRef: {
-          name: 'hetzner-s3',
+          name: config.integrations.s3ProviderConfig,
         },
       },
     });
@@ -99,7 +99,7 @@ export class ThanosS3BucketConstruct extends Construct {
           },
         },
         providerConfigRef: {
-          name: 'hetzner-s3',
+          name: config.integrations.s3ProviderConfig,
         },
       },
     });
@@ -144,7 +144,7 @@ export class ThanosS3BucketConstruct extends Construct {
           ],
         },
         providerConfigRef: {
-          name: 'hetzner-s3',
+          name: config.integrations.s3ProviderConfig,
         },
       },
     });

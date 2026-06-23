@@ -20,8 +20,8 @@ export interface ThanosS3CredentialsProps {
  *
  * Prerequisites:
  * - External Secrets Operator installed
- * - ClusterSecretStore 'hetzner-s3-cluster-store' exists (points to crossplane-system)
- * - Secret 'hetzner-s3-creds-standard' exists in crossplane-system namespace
+ * - ClusterSecretStore named by config.integrations.s3SecretStore exists
+ * - Source secret addressed by config.integrations.s3CredentialsKey exists in that store
  *
  * Generated Secret:
  * - Name: thanos-objstore-config
@@ -58,7 +58,7 @@ export class ThanosS3CredentialsConstruct extends Construct {
 
         // Use existing ClusterSecretStore for Hetzner S3 (infrastructure-level secrets)
         secretStoreRef: {
-          name: 'hetzner-s3-cluster-store',
+          name: config.integrations.s3SecretStore,
           kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
 
@@ -92,11 +92,11 @@ config:
           },
         },
 
-        // Fetch S3 credentials from crossplane-system/hetzner-s3-creds-standard
+        // Fetch S3 credentials from the configured store/key
         dataFrom: [
           {
             extract: {
-              key: 'hetzner-s3-creds-standard',
+              key: config.integrations.s3CredentialsKey,
             },
           },
         ],
