@@ -20,4 +20,7 @@ const project = new typescript.TypeScriptProject({
   gitignore: ['dist/', '*.k8s.yaml'],
 });
 
+// Generated cdk8s imports are not hand-edited; keep them out of lint/style checks.
+project.eslint?.addIgnorePattern('src/imports/');
+
 project.synth();

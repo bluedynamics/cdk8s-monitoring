@@ -45,6 +45,7 @@
     "node_modules/",
     "*.generated.ts",
     "coverage",
+    "src/imports/",
     "!.projenrc.ts",
     "!projenrc/**/*.ts"
   ],

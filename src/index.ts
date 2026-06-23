@@ -1,5 +1,16 @@
-export class Hello {
-  public sayHello() {
-    return 'hello, world!';
-  }
-}
+export * from './types';
+// export * from './default-config'; // added in Task 3
+export * from './monitoring-chart';
+export * from './constructs/namespace';
+export * from './constructs/priority-class';
+export * from './constructs/thanos-s3-bucket';
+export * from './constructs/loki-s3-bucket';
+export * from './constructs/thanos-s3-credentials';
+export * from './constructs/loki-s3-credentials';
+export * from './constructs/grafana-password-secret';
+export * from './constructs/prometheus-stack';
+export * from './constructs/loki';
+export * from './constructs/alloy';
+export * from './constructs/thanos-query';
+export * from './constructs/thanos-store';
+export * from './constructs/thanos-compactor';
