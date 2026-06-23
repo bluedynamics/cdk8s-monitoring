@@ -23,4 +23,7 @@ const project = new typescript.TypeScriptProject({
 // Generated cdk8s imports are not hand-edited; keep them out of lint/style checks.
 project.eslint?.addIgnorePattern('src/imports/');
 
+// Keep the Sphinx docs site (and its built HTML) out of the npm tarball.
+project.npmignore?.addPatterns('/documentation/');
+
 project.synth();
