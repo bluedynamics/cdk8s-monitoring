@@ -70,13 +70,22 @@ const config = mergeConfig({
     from: 'monitoring@example.com',
     requireTls: true,
   },
+  integrations: {
+    s3ProviderConfig: 'my-s3-provider',
+    s3SecretStore: 'my-s3-secret-store',
+    s3CredentialsKey: 'my-s3-credentials',
+    grafanaSecretStore: 'my-app-secret-store',
+    grafanaCredentialsKey: 'my-grafana-admin',
+  },
 });
 
 new MonitoringChart(app, 'monitoring', config);
 app.synth();
 ```
 
-Notice that you provide only the four cluster-specific blocks: `namespace`, `domains`, `s3`, and `smtp`.
+Replace the `integrations` names with the Crossplane provider config and External Secrets stores your cluster actually has; see {doc}`../how-to/configure-s3-credentials`.
+
+Notice that you provide only the five cluster-specific blocks: `namespace`, `domains`, `s3`, `smtp`, and `integrations`.
 You do not set any versions, retention, storage, replicas, or resources.
 `mergeConfig` fills those in from the package defaults, so this short input is a complete configuration.
 

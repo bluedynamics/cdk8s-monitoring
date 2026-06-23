@@ -15,7 +15,7 @@ You provide the first set and call `mergeConfig` to obtain a complete configurat
 
 ## Required cluster values
 
-Four blocks have no sensible universal default, so the type `RequiredClusterConfig` makes them mandatory.
+Five blocks have no sensible universal default, so the type `RequiredClusterConfig` makes them mandatory.
 
 `namespace`
 :   The Kubernetes namespace the stack runs in.
@@ -28,6 +28,10 @@ Four blocks have no sensible universal default, so the type `RequiredClusterConf
 
 `smtp`
 :   The mail server settings Alertmanager uses to send alerts.
+
+`integrations`
+:   The names of the external Crossplane and External Secrets Operator resources the stack references.
+    The library does not create these; they must already exist in your cluster, and you wire your own names here.
 
 The compiler rejects an integration chart that omits any of these.
 
@@ -59,6 +63,13 @@ const config = mergeConfig({
     password: process.env.SMTP_PASSWORD,
     requireTls: true,
   },
+  integrations: {
+    s3ProviderConfig: 'my-s3-provider',
+    s3SecretStore: 'my-s3-secret-store',
+    s3CredentialsKey: 'my-s3-credentials',
+    grafanaSecretStore: 'my-app-secret-store',
+    grafanaCredentialsKey: 'my-grafana-admin',
+  },
 });
 
 new MonitoringChart(app, 'monitoring', config);
@@ -78,6 +89,7 @@ const config = mergeConfig({
   domains: { grafana: 'grafana.ops.example.net' },
   s3: { /* ... */ },
   smtp: { /* ... */ },
+  integrations: { /* ... */ },
   storage: { prometheus: '30Gi' },
 });
 ```

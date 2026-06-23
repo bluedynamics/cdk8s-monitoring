@@ -65,6 +65,20 @@ These fields belong to `RequiredClusterConfig` and have no default.
 | `smtp.password` | `string` (optional) | SMTP password; inject at synth time. |
 | `smtp.requireTls` | `boolean` | Require TLS for the SMTP connection. |
 
+### integrations
+
+These fields name external Crossplane and External Secrets Operator resources that the stack references but does not create.
+Each must already exist in your cluster.
+All are required strings with no default.
+
+| Field | Type | Description |
+|---|---|---|
+| `integrations.s3ProviderConfig` | `string` | Crossplane `ProviderConfig` name the `Bucket` resources reconcile against. |
+| `integrations.s3SecretStore` | `string` | ESO `ClusterSecretStore` name holding the S3 credentials. |
+| `integrations.s3CredentialsKey` | `string` | Remote key in that store providing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. |
+| `integrations.grafanaSecretStore` | `string` | ESO `ClusterSecretStore` name holding the Grafana admin credentials. |
+| `integrations.grafanaCredentialsKey` | `string` | Remote key in that store providing `admin-user` and `admin-password`. |
+
 ## Defaultable configuration
 
 These fields belong to `DefaultableConfig`.
