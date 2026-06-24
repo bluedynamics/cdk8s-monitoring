@@ -262,14 +262,19 @@ prometheus:
   prometheusSpec:
     retention: ${config.retention.prometheus}  # Reduced from 7d - Thanos provides long-term storage in S3
 
-    # Discover ALL ServiceMonitors and PodMonitors in ALL namespaces
+    # Discover ALL ServiceMonitors, PodMonitors and PrometheusRules in ALL namespaces
     # Setting NilUsesHelmValues: false means nil selectors = "select all"
     # Empty namespace selectors {} mean "search all namespaces"
+    # Without the rule* settings, ruleSelector keeps the chart default
+    # (matchLabels: {release: <name>}) and hand-authored PrometheusRules that
+    # lack the release label are silently ignored.
     # Note: This does NOT affect Thanos sidecar - controlled by thanos.objectStorageConfig
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
     serviceMonitorNamespaceSelector: {}
     podMonitorNamespaceSelector: {}
+    ruleNamespaceSelector: {}
 
     replicas: ${config.replicas.prometheus}
     podAntiAffinity: "hard"
