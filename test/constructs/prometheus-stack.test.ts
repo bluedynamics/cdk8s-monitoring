@@ -133,6 +133,30 @@ describe('PrometheusStackConstruct', () => {
     expect(values).toContain('storage: 3Gi');
   });
 
+  it('should discover ServiceMonitors, PodMonitors and PrometheusRules cluster-wide', () => {
+    // Arrange
+    const chart = Testing.chart();
+    const config = createTestConfig();
+
+    // Act
+    new PrometheusStackConstruct(chart, 'test-helm', {
+      namespace: 'monitoring',
+      config,
+    });
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const helmChart = findResource(manifests, 'HelmChart');
+    const values = helmChart.spec.valuesContent;
+
+    // Rules must use a select-all selector too, otherwise hand-authored
+    // PrometheusRules without the release label are silently ignored.
+    expect(values).toContain('serviceMonitorSelectorNilUsesHelmValues: false');
+    expect(values).toContain('podMonitorSelectorNilUsesHelmValues: false');
+    expect(values).toContain('ruleSelectorNilUsesHelmValues: false');
+    expect(values).toContain('ruleNamespaceSelector: {}');
+  });
+
   it('should configure Thanos sidecar', () => {
     // Arrange
     const chart = Testing.chart();
