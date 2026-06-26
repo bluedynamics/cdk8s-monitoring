@@ -65,6 +65,22 @@ export class PrometheusStackConstruct extends Construct {
   }
 
   private generateHelmValues(config: MonitoringConfig): string {
+    // Tempo datasource is only provisioned when tracing is enabled. When
+    // disabled this is empty, so the Grafana block is byte-identical to before.
+    const tempoDatasource = config.tempo.enabled ? `
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        access: proxy
+        url: http://tempo.${config.namespace}.svc.cluster.local:3200
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+            spanStartTimeShift: "-1h"
+            spanEndTimeShift: "1h"
+            filterByTraceID: true
+          tracesToMetrics:
+            datasourceUid: thanos` : '';
     return `kubeEtcd:
   enabled: false
 
@@ -444,7 +460,7 @@ grafana:
         access: proxy
         url: http://loki-gateway.${config.namespace}.svc.cluster.local
         jsonData:
-          maxLines: 1000
+          maxLines: 1000${tempoDatasource}
 
 prometheusOperator:
   resources:

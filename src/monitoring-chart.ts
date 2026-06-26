@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 // Import all constructs
 import { AlloyConstruct } from './constructs/alloy';
+import { AlloyTracesConstruct } from './constructs/alloy-traces';
 import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
 import { LokiConstruct } from './constructs/loki';
 import { LokiS3BucketConstruct } from './constructs/loki-s3-bucket';
@@ -10,6 +11,9 @@ import { LokiS3CredentialsConstruct } from './constructs/loki-s3-credentials';
 import { NamespaceConstruct } from './constructs/namespace';
 import { PriorityClassConstruct } from './constructs/priority-class';
 import { PrometheusStackConstruct } from './constructs/prometheus-stack';
+import { TempoConstruct } from './constructs/tempo';
+import { TempoS3BucketConstruct } from './constructs/tempo-s3-bucket';
+import { TempoS3CredentialsConstruct } from './constructs/tempo-s3-credentials';
 import { ThanosCompactorConstruct } from './constructs/thanos-compactor';
 import { ThanosQueryConstruct } from './constructs/thanos-query';
 import { ThanosS3BucketConstruct } from './constructs/thanos-s3-bucket';
@@ -136,5 +140,24 @@ export class MonitoringChart extends Chart {
       namespace,
       config,
     });
+
+    // =========================================================================
+    // Tempo tracing (opt-in)
+    // =========================================================================
+    // Only created when config.tempo.enabled is true. Apps send OTLP to the
+    // alloy-traces gateway, which tail-samples and forwards to Tempo (S3-backed).
+    if (config.tempo.enabled) {
+      new TempoS3BucketConstruct(this, 'tempo-s3-bucket', { config });
+      const tempoCreds = new TempoS3CredentialsConstruct(this, 'tempo-s3-credentials', {
+        namespace,
+        config,
+      });
+      new TempoConstruct(this, 'tempo', {
+        namespace,
+        config,
+        s3CredentialsSecretName: tempoCreds.secretName,
+      });
+      new AlloyTracesConstruct(this, 'alloy-traces', { namespace, config });
+    }
   }
 }

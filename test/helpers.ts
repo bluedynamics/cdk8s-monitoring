@@ -14,6 +14,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       loki: '6.23.0',
       alloy: 'v1.6.1',
       thanos: 'v0.37.2',
+      tempo: 'latest',
     },
 
     domains: {
@@ -63,6 +64,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       lokiWrite: '10Gi',
       thanosStore: '10Gi',
       thanosCompactor: '20Gi',
+      tempo: '5Gi',
     },
 
     replicas: {
@@ -74,6 +76,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       lokiWrite: 2,
       thanosQuery: 2,
       thanosStore: 2,
+      tempo: 1,
     },
 
     resources: {
@@ -129,6 +132,24 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
         requests: { cpu: '10m', memory: '50Mi' },
         limits: { cpu: '100m', memory: '100Mi' },
       },
+      tempo: {
+        requests: { cpu: '100m', memory: '256Mi' },
+        limits: { cpu: '1', memory: '1Gi' },
+      },
+      alloyTraces: {
+        requests: { cpu: '100m', memory: '256Mi' },
+        limits: { cpu: '500m', memory: '512Mi' },
+      },
+    },
+
+    tempo: {
+      // Disabled by default so base-stack tests see no extra resources;
+      // tempo-specific tests enable it explicitly. bucket stays set so the
+      // direct construct tests (which ignore `enabled`) have a value.
+      enabled: false,
+      bucket: 'traces-tempo-test',
+      retention: '336h',
+      tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },
     },
   };
 

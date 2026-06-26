@@ -367,4 +367,23 @@ describe('PrometheusStackConstruct', () => {
 
     expect(values).toContain('priorityClassName: high-priority');
   });
+
+  it('adds a Tempo datasource with log/metric correlation when tempo is enabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({ tempo: { ...createTestConfig().tempo, enabled: true, bucket: 'b' } });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('type: tempo');
+    expect(values).toContain('http://tempo.monitoring.svc.cluster.local:3200');
+    expect(values).toContain('tracesToLogsV2');
+    expect(values).toContain('tracesToMetrics');
+  });
+
+  it('omits the Tempo datasource when tempo is disabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({ tempo: { ...createTestConfig().tempo, enabled: false, bucket: '' } });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).not.toContain('type: tempo');
+  });
 });

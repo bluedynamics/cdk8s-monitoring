@@ -253,6 +253,7 @@ describe('MonitoringChart Integration Tests', () => {
         loki: '7.0.0',
         alloy: 'v2.0.0',
         thanos: 'v0.38.0',
+        tempo: 'latest',
       },
     });
 
@@ -452,5 +453,18 @@ describe('MonitoringChart Integration Tests', () => {
     expect(queryDeployment.spec.template.spec.nodeSelector).toBeUndefined();
     expect(storeStatefulSet.spec.template.spec.nodeSelector).toBeUndefined();
     expect(compactorStatefulSet.spec.template.spec.nodeSelector).toBeUndefined();
+  });
+
+  it('creates Tempo resources only when tempo is enabled', () => {
+    const enabled = createTestConfig({ tempo: { ...createTestConfig().tempo, enabled: true, bucket: 'traces-b' } });
+    const onManifests = synthesizeChart(new MonitoringChart(new App(), 'm', enabled));
+    expect(findResource(onManifests, 'Bucket', 'traces-b')).toBeDefined();
+    expect(onManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'tempo')).toHaveLength(1);
+    expect(onManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'alloy-traces')).toHaveLength(1);
+
+    const disabled = createTestConfig({ tempo: { ...createTestConfig().tempo, enabled: false, bucket: '' } });
+    const offManifests = synthesizeChart(new MonitoringChart(new App(), 'm2', disabled));
+    expect(offManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'tempo')).toHaveLength(0);
+    expect(offManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'alloy-traces')).toHaveLength(0);
   });
 });

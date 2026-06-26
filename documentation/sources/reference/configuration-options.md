@@ -92,8 +92,10 @@ Each one shows the value shipped in `DEFAULT_CONFIG`.
 | `versions.loki` | `string` | `7.0.0` |
 | `versions.alloy` | `string` | `1.10.0` |
 | `versions.thanos` | `string` | `v0.41.0` |
+| `versions.tempo` | `string` | `1.24.4` |
 
 A version of `latest` omits the version field and lets the Helm controller resolve the newest chart.
+The Alloy traces gateway uses `versions.alloy`; it has no separate version field.
 
 ### retention
 
@@ -118,6 +120,9 @@ The `prometheusS3Raw`, `prometheusS35m`, and `prometheusS31h` values are Thanos 
 | `storage.lokiWrite` | `string` | `3Gi` |
 | `storage.thanosStore` | `string` | `10Gi` |
 | `storage.thanosCompactor` | `string` | `20Gi` |
+| `storage.tempo` | `string` | `5Gi` |
+
+The `tempo` value sizes the Tempo write-ahead-log and local-blocks PVC; persisted trace blocks live in S3.
 
 ### replicas
 
@@ -131,6 +136,9 @@ The `prometheusS3Raw`, `prometheusS35m`, and `prometheusS31h` values are Thanos 
 | `replicas.lokiWrite` | `number` | `2` |
 | `replicas.thanosQuery` | `number` | `2` |
 | `replicas.thanosStore` | `number` | `2` |
+| `replicas.tempo` | `number` | `1` |
+
+The Alloy traces gateway is fixed at one replica and has no replica field; tail sampling requires a single instance to see every span of a trace.
 
 ### resources
 
@@ -151,9 +159,29 @@ Each `resources` entry is a `ResourceRequirements` object with `requests` and `l
 | `resources.thanosCompactor` | `500m` / `2Gi` | `2000m` / `4Gi` |
 | `resources.configReloader` | `10m` / `50Mi` | `50m` / `100Mi` |
 | `resources.thanosSidecar` | `10m` / `50Mi` | `100m` / `100Mi` |
+| `resources.tempo` | `100m` / `256Mi` | `1` / `1Gi` |
+| `resources.alloyTraces` | `100m` / `256Mi` | `500m` / `512Mi` |
 
 The `configReloader` entry applies to the config-reloader sidecar of Prometheus, Alertmanager, and Alloy.
 The `thanosSidecar` entry applies to the Thanos sidecar attached to Prometheus.
+The `tempo` entry applies to the monolithic Tempo workload, and `alloyTraces` to the Alloy traces gateway.
+
+### tempo
+
+The `tempo` block configures the opt-in distributed tracing pillar.
+It belongs to `DefaultableConfig`, so it defaults to disabled and you override only what you need.
+When `tempo.enabled` is false, no tracing resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `tempo.enabled` | `boolean` | `false` | Master switch; when false, no Tempo, gateway, bucket, or datasource is created. |
+| `tempo.bucket` | `string` | `''` | S3 bucket for trace blocks. Required when `tempo.enabled` is true. |
+| `tempo.retention` | `string` | `336h` | Tempo block retention, enforced by the compactor (`336h` is 14 days). |
+| `tempo.tailSampling.latencyThresholdMs` | `number` | `1000` | Keep traces slower than this many milliseconds. |
+| `tempo.tailSampling.probabilisticPercent` | `number` | `10` | Keep this percentage of the remaining traces as a representative sample. |
+
+`mergeConfig` throws `tempo.bucket is required when tempo.enabled is true` when you enable tracing without a bucket name.
+The gateway always keeps traces that contain an error span, in addition to the slow and probabilistic policies above.
 
 ## See also
 

@@ -81,6 +81,7 @@ export interface StorageConfig {
   lokiWrite: string; // Loki write PVC size
   thanosStore: string; // Thanos store PVC size (per replica)
   thanosCompactor: string; // Thanos compactor PVC size
+  tempo: string; // Tempo WAL/local-blocks PVC size
 }
 
 /**
@@ -95,6 +96,7 @@ export interface ReplicaConfig {
   lokiWrite: number; // Loki write replicas
   thanosQuery: number; // Thanos Query replicas
   thanosStore: number; // Thanos Store replicas
+  tempo: number; // Tempo replicas
 }
 
 /**
@@ -115,6 +117,8 @@ export interface ResourceConfig {
   // Sidecar containers (added 2025-11-18)
   configReloader: ResourceRequirements; // config-reloader sidecar (Prometheus, Alertmanager, Alloy)
   thanosSidecar: ResourceRequirements; // thanos-sidecar for Prometheus
+  tempo: ResourceRequirements; // Tempo (monolithic)
+  alloyTraces: ResourceRequirements; // Alloy traces OTLP gateway
 }
 
 /**
@@ -125,6 +129,25 @@ export interface VersionConfig {
   loki: string; // Loki chart version
   alloy: string; // Alloy chart version
   thanos: string; // Thanos image version (e.g., "v0.36.1")
+  tempo: string; // grafana/tempo chart version
+}
+
+/**
+ * Tail-sampling policy for the Alloy traces gateway.
+ */
+export interface TempoTailSamplingConfig {
+  latencyThresholdMs: number; // keep traces slower than this
+  probabilisticPercent: number; // keep this % of the remaining ("normal") traces
+}
+
+/**
+ * Grafana Tempo tracing configuration (opt-in).
+ */
+export interface TempoConfig {
+  enabled: boolean; // default false — when false, no Tempo resources are created
+  bucket: string; // S3 bucket for traces (required when enabled)
+  retention: string; // block retention, e.g. '336h' (14 days)
+  tailSampling: TempoTailSamplingConfig;
 }
 
 /**
@@ -137,6 +160,7 @@ export interface DefaultableConfig {
   storage: StorageConfig; // PVC storage sizes
   replicas: ReplicaConfig; // Replica counts
   resources: ResourceConfig; // Resource requests and limits
+  tempo: TempoConfig; // Grafana Tempo tracing (opt-in)
 }
 
 /**
