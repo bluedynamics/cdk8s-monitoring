@@ -4,6 +4,7 @@ import { MonitoringChart, mergeConfig } from '../src';
 const app = new App();
 const config = mergeConfig({
   namespace: 'monitoring',
+  clusterName: 'example-cluster',
   domains: { grafana: 'grafana.example.com' },
   s3: {
     endpoint: 'https://s3.example.com',
