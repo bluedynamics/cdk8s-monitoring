@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     loki: '7.0.0',
     alloy: '1.10.0',
     thanos: 'v0.41.0',
-    tempo: 'latest',
+    tempo: '1.24.4', // grafana/tempo chart (Tempo app 2.9.0)
   },
   retention: {
     prometheus: '2d',
