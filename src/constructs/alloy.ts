@@ -184,12 +184,6 @@ alloy:
         }
       }
 
-  extraEnv:
-    - name: HOSTNAME
-      valueFrom:
-        fieldRef:
-          fieldPath: spec.nodeName
-
 resources:
   limits:
     cpu: ${config.resources.alloy.limits.cpu}

@@ -86,6 +86,17 @@ describe('AlloyConstruct', () => {
     expect(values).toContain('type: daemonset');
   });
 
+  it('relies on the chart-provided HOSTNAME env (no duplicate extraEnv)', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new AlloyConstruct(chart, 'test-alloy', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    // The alloy chart already injects HOSTNAME=spec.nodeName; the config uses it.
+    expect(values).toContain('sys.env("HOSTNAME")');
+    // The package must NOT add its own env (would duplicate HOSTNAME -> SSA reject on k8s >=1.34).
+    expect(values).not.toContain('extraEnv:');
+  });
+
   it('tags logs with config.clusterName, not a hardcoded cluster', () => {
     const chart = Testing.chart();
     const config = createTestConfig();
