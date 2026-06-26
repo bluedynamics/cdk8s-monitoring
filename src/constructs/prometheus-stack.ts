@@ -125,29 +125,6 @@ additionalPrometheusRulesMap:
               description: |
                 PDB {{ $labels.namespace }}/{{ $labels.poddisruptionbudget }} has blocked
                 voluntary disruptions for over an hour. A k3s agent upgrade would stall on this node.
-  # Detect an EX dedicated worker stuck NotReady — likely a MicroOS reboot hang
-  # (pings but sshd/kubelet dead). A hung node also holds the cluster-wide kured
-  # lock, blocking all further graceful reboots, so this must be caught fast.
-  ex-worker-reboot:
-    groups:
-      - name: ex-worker.rules
-        interval: 1m
-        rules:
-          - alert: ExWorkerNotReady
-            expr: kube_node_status_condition{condition="Ready",status="true",node=~"kup6s-ex-.*"} == 0
-            for: 15m
-            labels:
-              severity: critical
-              component: node
-            annotations:
-              summary: "EX worker {{ $labels.node }} NotReady for >15m"
-              description: |
-                EX dedicated worker {{ $labels.node }} has been NotReady for over 15 minutes.
-                Possible MicroOS reboot hang (pings but sshd/kubelet/longhorn-manager dead) — the
-                node may still hold the cluster-wide kured lock, blocking all further reboots.
-                Recovery: Hetzner Robot hardware reset. Do NOT force-detach Longhorn volumes.
-              runbook_url: "https://docs.kup6s.com/how-to/troubleshooting/ex-worker-ping-but-dead.html"
-
 # Drop high-cardinality API server and etcd histogram buckets to reduce memory usage
 # These metrics alone account for ~200k series (47% of total cardinality)
 # We keep _sum and _count suffixes which are sufficient for rate calculations
@@ -314,7 +291,7 @@ prometheus:
 
     # External labels for multi-cluster identification and Thanos
     externalLabels:
-      cluster: kup6s
+      cluster: ${config.clusterName}
       replica: "$(POD_NAME)"
 
     # Thanos sidecar for long-term metrics storage in S3

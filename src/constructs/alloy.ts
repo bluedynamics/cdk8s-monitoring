@@ -15,7 +15,7 @@ export interface AlloyProps {
  * - Collects logs from all pods via Kubernetes API
  * - Parses JSON structured logs
  * - Extracts structured metadata (trace_id, request_id, etc.)
- * - Tags logs with cluster=kup6s label
+ * - Tags logs with cluster=<clusterName> label
  * - Forwards logs to Loki gateway
  *
  * Prerequisites:
@@ -180,7 +180,7 @@ alloy:
           url = "http://loki-gateway.${config.namespace}.svc.cluster.local/loki/api/v1/push"
         }
         external_labels = {
-          cluster = "kup6s",
+          cluster = "${config.clusterName}",
         }
       }
 
