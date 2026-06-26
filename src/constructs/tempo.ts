@@ -50,7 +50,13 @@ export class TempoConstruct extends Construct {
   }
 
   private generateHelmValues(config: MonitoringConfig, s3CredentialsSecretName: string): string {
-    return `tempo:
+    // Values follow the monolithic grafana/tempo chart schema: storage,
+    // receivers, resources, extraEnv live under `tempo:`; replicas/persistence/
+    // tempoQuery are top-level. S3 credentials are NOT inlined into the config;
+    // Tempo's S3 client picks up AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY from the
+    // environment (set below from the ESO-synced secret) via the default chain.
+    return `replicas: ${config.replicas.tempo}
+tempo:
   retention: ${config.tempo.retention}
   storage:
     trace:
@@ -60,42 +66,40 @@ export class TempoConstruct extends Construct {
         endpoint: ${config.s3.endpointNoProtocol}
         region: ${config.s3.region}
         forcepathstyle: false
-        access_key: \${AWS_ACCESS_KEY_ID}
-        secret_key: \${AWS_SECRET_ACCESS_KEY}
+        insecure: false
+      wal:
+        path: /var/tempo/wal
   receivers:
     otlp:
       protocols:
         grpc:
-          endpoint: 0.0.0.0:4317
+          endpoint: "0.0.0.0:4317"
         http:
-          endpoint: 0.0.0.0:4318
-tempoQuery:
-  enabled: false
-replicas: ${config.replicas.tempo}
-extraArgs:
-  - -config.expand-env=true
-extraEnv:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: ${s3CredentialsSecretName}
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: ${s3CredentialsSecretName}
-        key: AWS_SECRET_ACCESS_KEY
+          endpoint: "0.0.0.0:4318"
+  resources:
+    requests:
+      cpu: ${config.resources.tempo.requests.cpu}
+      memory: ${config.resources.tempo.requests.memory}
+    limits:
+      cpu: ${config.resources.tempo.limits.cpu}
+      memory: ${config.resources.tempo.limits.memory}
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: ${s3CredentialsSecretName}
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ${s3CredentialsSecretName}
+          key: AWS_SECRET_ACCESS_KEY
 persistence:
   enabled: true
   storageClassName: longhorn
   size: ${config.storage.tempo}
-resources:
-  requests:
-    cpu: ${config.resources.tempo.requests.cpu}
-    memory: ${config.resources.tempo.requests.memory}
-  limits:
-    cpu: ${config.resources.tempo.limits.cpu}
-    memory: ${config.resources.tempo.limits.memory}
+tempoQuery:
+  enabled: false
 `;
   }
 }
