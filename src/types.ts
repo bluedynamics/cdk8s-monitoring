@@ -169,6 +169,7 @@ export interface DefaultableConfig {
  */
 export interface RequiredClusterConfig {
   namespace: string; // Kubernetes namespace
+  clusterName: string; // value of the `cluster` external label on metrics and logs
   domains: DomainConfig; // Domain names for ingresses
   s3: S3Config; // S3 object storage configuration
   smtp: SmtpConfig; // SMTP alerting configuration

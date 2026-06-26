@@ -81,6 +81,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   }
   return {
     namespace: input.namespace,
+    clusterName: input.clusterName,
     domains: input.domains,
     s3: input.s3,
     smtp: input.smtp,

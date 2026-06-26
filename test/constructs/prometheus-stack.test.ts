@@ -386,4 +386,15 @@ describe('PrometheusStackConstruct', () => {
     const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
     expect(values).not.toContain('type: tempo');
   });
+
+  it('uses config.clusterName for the cluster external label and ships no kup6s-specific alert', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain(`cluster: ${config.clusterName}`);
+    expect(values).not.toContain('cluster: kup6s');
+    expect(values).not.toContain('ExWorkerNotReady');
+    expect(values).not.toContain('kup6s-ex-');
+  });
 });

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="./">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>cdk8s-monitoring 0.0.8 documentation</title><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tutorials" href="tutorials/index.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=9454f7d5" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/"/>
+  <meta property="og:title" content="cdk8s-monitoring documentation"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to/setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/index.html">Explanation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#about-cdk8s-monitoring">About cdk8s-monitoring</a></li>
+<li><a class="reference internal" href="#documentation-structure">Documentation structure</a></li>
+<li><a class="reference internal" href="#quick-links">Quick links</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#common-tasks">Common tasks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#table-of-contents">Table of contents</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="#"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">cdk8s-monitoring documentation</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/index.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/index.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/index.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/index.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/index.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="cdk8s-monitoring-documentation">
+<h1>cdk8s-monitoring documentation<a class="headerlink" href="#cdk8s-monitoring-documentation" title="Link to this heading">¶</a></h1>
+<a class="reference internal image-reference" href="_images/kup6s-icon-monitoring.svg"><img alt="cdk8s-monitoring logo" class="align-center" src="_images/kup6s-icon-monitoring.svg" style="width: 200px;" />
+</a>
+<p><strong>A generic cdk8s construct library for a Kubernetes monitoring stack.</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;bluedynamics/cdk8s-monitoring</span></code> synthesizes a complete observability stack with <a class="reference external" href="https://cdk8s.io/">cdk8s</a>: Prometheus, Thanos, Loki, Grafana, and Alloy, with Thanos long-term storage on S3-compatible object storage.</p>
+<section id="about-cdk8s-monitoring">
+<h2>About cdk8s-monitoring<a class="headerlink" href="#about-cdk8s-monitoring" title="Link to this heading">¶</a></h2>
+<p>The library is application-agnostic.
+It ships only the stack, with sensible production defaults you override where needed.
+Your own dashboards and alert rules live in your integration chart and attach beside the stack, so the same stack code is shared across clusters with no copy-paste.</p>
+<p><strong>Key features:</strong></p>
+<ul class="simple">
+<li><p>Prometheus, Alertmanager, and Grafana through the kube-prometheus-stack Helm chart.</p></li>
+<li><p>Thanos Query, Store, and Compactor for long-term metrics with downsampling.</p></li>
+<li><p>Loki and Alloy for log aggregation and collection.</p></li>
+<li><p>S3 buckets and credentials wired through Crossplane and External Secrets Operator.</p></li>
+<li><p>ArgoCD sync-wave ordering baked into the orchestrator.</p></li>
+<li><p>A typed configuration split into required cluster values and overridable package defaults.</p></li>
+</ul>
+</section>
+<section id="documentation-structure">
+<h2>Documentation structure<a class="headerlink" href="#documentation-structure" title="Link to this heading">¶</a></h2>
+<p>This documentation follows the <a class="reference external" href="https://diataxis.fr/">Diátaxis framework</a>, organized by what you need.</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<img alt="" class="sd-card-img-top" src="_images/kup6s-icon-tutorials.svg" />
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Tutorials</div>
+<p class="sd-card-text"><strong>Learning-oriented</strong>: step-by-step lessons to build skills.</p>
+<p class="sd-card-text"><em>Start here if you are new to cdk8s-monitoring.</em></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="tutorials/index.html"><span class="doc">Tutorials</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<img alt="" class="sd-card-img-top" src="_images/kup6s-icon-howto.svg" />
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+How-to guides</div>
+<p class="sd-card-text"><strong>Goal-oriented</strong>: solutions to specific problems.</p>
+<p class="sd-card-text"><em>Use these when you need to accomplish something.</em></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="how-to/index.html"><span class="doc">How-to guides</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<img alt="" class="sd-card-img-top" src="_images/kup6s-icon-reference.svg" />
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Reference</div>
+<p class="sd-card-text"><strong>Information-oriented</strong>: technical specifications and configuration.</p>
+<p class="sd-card-text"><em>Consult when you need detailed facts.</em></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="reference/index.html"><span class="doc">Reference</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<img alt="" class="sd-card-img-top" src="_images/kup6s-icon-explanation.svg" />
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Explanation</div>
+<p class="sd-card-text"><strong>Understanding-oriented</strong>: concepts and design decisions.</p>
+<p class="sd-card-text"><em>Read to deepen your understanding.</em></p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="explanation/index.html"><span class="doc">Explanation</span></a></div>
+</div>
+</div>
+</div>
+</section>
+<section id="quick-links">
+<h2>Quick links<a class="headerlink" href="#quick-links" title="Link to this heading">¶</a></h2>
+<section id="getting-started">
+<h3>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="tutorials/01-quick-start.html"><span class="doc">Quick start</span></a> — synthesize and deploy a minimal stack.</p></li>
+<li><p><a class="reference internal" href="how-to/setup-prerequisites.html"><span class="doc">Set up prerequisites</span></a> — prepare cluster infrastructure.</p></li>
+<li><p><a class="reference internal" href="explanation/architecture.html"><span class="doc">Architecture</span></a> — see how the components fit together.</p></li>
+</ul>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/provide-config.html"><span class="doc">Provide cluster configuration</span></a> — build your integration chart with <code class="docutils literal notranslate"><span class="pre">mergeConfig</span></code>.</p></li>
+<li><p><a class="reference internal" href="reference/configuration-options.html"><span class="doc">Configuration options</span></a> — complete configuration reference.</p></li>
+</ul>
+</section>
+<section id="common-tasks">
+<h3>Common tasks<a class="headerlink" href="#common-tasks" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/add-app-dashboards.html"><span class="doc">Add application dashboards and alerts</span></a> — attach your own dashboards and alerts.</p></li>
+<li><p><a class="reference internal" href="how-to/override-defaults.html"><span class="doc">Override the defaults</span></a> — change resources, retention, and replicas.</p></li>
+</ul>
+</section>
+</section>
+<section id="table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to/setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/index.html">Explanation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explanation/retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-next">
+    <a href="tutorials/index.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Tutorials</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="_static/documentation_options.js?v=53b53b71"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/shibuya.js?v=50760d75"></script>
+      <script src="_static/logo-fix.js?v=75f22b15"></script></body>
+</html>

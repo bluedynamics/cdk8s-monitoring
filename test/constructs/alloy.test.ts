@@ -86,6 +86,15 @@ describe('AlloyConstruct', () => {
     expect(values).toContain('type: daemonset');
   });
 
+  it('tags logs with config.clusterName, not a hardcoded cluster', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new AlloyConstruct(chart, 'test-alloy', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain(`cluster = "${config.clusterName}"`);
+    expect(values).not.toContain('cluster = "kup6s"');
+  });
+
   it('should configure Alloy resources', () => {
     // Arrange
     const chart = Testing.chart();
@@ -156,7 +165,7 @@ describe('AlloyConstruct', () => {
     // Collects logs from all pods (no namespace filter)
     expect(values).toContain('loki.source.kubernetes "pods"');
     expect(values).toContain('discovery.relabel "pod_logs"');
-    expect(values).toContain('cluster = "kup6s"');
+    expect(values).toContain(`cluster = "${config.clusterName}"`);
   });
 
   it('should configure JSON log processing', () => {

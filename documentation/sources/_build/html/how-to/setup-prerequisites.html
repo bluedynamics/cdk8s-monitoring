@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Set up prerequisites - cdk8s-monitoring 0.0.8 documentation</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Provide cluster configuration" href="provide-config.html" /><link rel="prev" title="How-to guides" href="index.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/how-to/setup-prerequisites.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=9454f7d5" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/how-to/setup-prerequisites.html"/>
+  <meta property="og:title" content="Set up prerequisites"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/index.html">Explanation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#install-the-build-tools">Install the build tools</a></li>
+<li><a class="reference internal" href="#install-external-secrets-operator">Install External Secrets Operator</a></li>
+<li><a class="reference internal" href="#install-crossplane-and-an-s3-provider-config">Install Crossplane and an S3 provider config</a></li>
+<li><a class="reference internal" href="#apply-the-prometheus-operator-crds">Apply the prometheus-operator CRDs</a></li>
+<li><a class="reference internal" href="#verify-the-cluster">Verify the cluster</a></li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">How-to guides</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Set up prerequisites</strong>
+        <meta itemprop="position" content="3" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/setup-prerequisites.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/setup-prerequisites.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/setup-prerequisites.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/setup-prerequisites.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/setup-prerequisites.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="set-up-prerequisites">
+<h1>Set up prerequisites<a class="headerlink" href="#set-up-prerequisites" title="Link to this heading">¶</a></h1>
+<p>This guide shows you how to prepare a cluster so that a cdk8s-monitoring integration chart synthesizes and deploys cleanly.
+The library produces resources for other operators to reconcile, so those operators and their configuration must exist first.</p>
+<section id="install-the-build-tools">
+<h2>Install the build tools<a class="headerlink" href="#install-the-build-tools" title="Link to this heading">¶</a></h2>
+<p>You build and synthesize an integration chart on your workstation.</p>
+<p>Install <a class="reference external" href="https://nodejs.org/">Node.js</a> (LTS) and the cdk8s CLI.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>cdk8s-cli
+</span></pre></div>
+</div>
+<p>Verify both.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">node<span class="w"> </span>--version
+</span><span data-line="2">cdk8s<span class="w"> </span>--version
+</span></pre></div>
+</div>
+</section>
+<section id="install-external-secrets-operator">
+<h2>Install External Secrets Operator<a class="headerlink" href="#install-external-secrets-operator" title="Link to this heading">¶</a></h2>
+<p>The stack reads S3 credentials and the Grafana admin password through External Secrets Operator.
+The library emits <code class="docutils literal notranslate"><span class="pre">ExternalSecret</span></code> resources; the operator turns them into Kubernetes secrets.</p>
+<p>If the operator is not yet installed, follow the <a class="reference external" href="https://external-secrets.io/latest/introduction/getting-started/">External Secrets Operator installation guide</a>.</p>
+<p>The integration chart references two stores by name, supplied through its <code class="docutils literal notranslate"><span class="pre">integrations</span></code> block.
+Create the stores your cluster uses, point them at the namespaces that hold the source secrets, and pass their names to the chart.</p>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">ClusterSecretStore</span></code> for the S3 credentials, named by <code class="docutils literal notranslate"><span class="pre">integrations.s3SecretStore</span></code>, pointing at the namespace that holds the S3 credentials secret.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">ClusterSecretStore</span></code> for the Grafana admin credentials, named by <code class="docutils literal notranslate"><span class="pre">integrations.grafanaSecretStore</span></code>, pointing at the namespace that holds the Grafana admin secret.</p></li>
+</ul>
+<p>Create the Grafana admin source secret so the operator has something to replicate.
+The secret name and its namespace are your cluster’s choice; the chart reaches it through <code class="docutils literal notranslate"><span class="pre">integrations.grafanaCredentialsKey</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>my-grafana-admin<span class="w"> </span>-n<span class="w"> </span>application-secrets<span class="w"> </span><span class="se">\</span>
+</span><span data-line="2"><span class="w">  </span>--from-literal<span class="o">=</span>admin-user<span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+</span><span data-line="3"><span class="w">  </span>--from-literal<span class="o">=</span>admin-password<span class="o">=</span><span class="s1">&#39;change-me&#39;</span>
+</span></pre></div>
+</div>
+</section>
+<section id="install-crossplane-and-an-s3-provider-config">
+<h2>Install Crossplane and an S3 provider config<a class="headerlink" href="#install-crossplane-and-an-s3-provider-config" title="Link to this heading">¶</a></h2>
+<p>The stack provisions its Thanos and Loki buckets as Crossplane <code class="docutils literal notranslate"><span class="pre">Bucket</span></code> resources in the <code class="docutils literal notranslate"><span class="pre">crossplane-system</span></code> namespace.
+Crossplane and the Upbound <code class="docutils literal notranslate"><span class="pre">provider-aws-s3</span></code> must be installed, and a <code class="docutils literal notranslate"><span class="pre">ProviderConfig</span></code> must point at your S3 endpoint.</p>
+<p>If Crossplane is not yet installed, follow the <a class="reference external" href="https://docs.crossplane.io/latest/software/install/">Crossplane installation guide</a> and the <a class="reference external" href="https://marketplace.upbound.io/providers/upbound/provider-aws-s3">provider-aws-s3 documentation</a>.</p>
+<p>Provide credentials and a <code class="docutils literal notranslate"><span class="pre">ProviderConfig</span></code> that the <code class="docutils literal notranslate"><span class="pre">Bucket</span></code> resources can reference, with the S3 endpoint and region your integration chart will use.
+Pass the provider config name to the chart as <code class="docutils literal notranslate"><span class="pre">integrations.s3ProviderConfig</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Bucket</span></code> resources land in the <code class="docutils literal notranslate"><span class="pre">crossplane-system</span></code> namespace, not the monitoring namespace.
+The provider config and its credentials secret must live where Crossplane expects them.</p>
+</div>
+</section>
+<section id="apply-the-prometheus-operator-crds">
+<h2>Apply the prometheus-operator CRDs<a class="headerlink" href="#apply-the-prometheus-operator-crds" title="Link to this heading">¶</a></h2>
+<p>The kube-prometheus-stack Helm chart installs Prometheus, Grafana, and Alertmanager, but the prometheus-operator custom resource definitions are not Helm-managed.
+Apply them server-side, pinned to the operator version your chart deploys.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">kubectl<span class="w"> </span>apply<span class="w"> </span>--server-side<span class="w"> </span>-f<span class="w"> </span><span class="se">\</span>
+</span><span data-line="2"><span class="w">  </span>https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.92.0/stripped-down-crds.yaml
+</span></pre></div>
+</div>
+<p>Use the CRD release that matches the kube-prometheus-stack version in your configuration.
+See <a class="reference internal" href="../reference/configuration-options.html"><span class="doc">Configuration options</span></a> for the default versions the package ships.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Skipping the server-side CRD apply leaves Prometheus, Alertmanager, and the operator unable to start.
+Apply the CRDs before you deploy the stack, and re-apply them whenever you bump the chart to a new major operator version.</p>
+</div>
+</section>
+<section id="verify-the-cluster">
+<h2>Verify the cluster<a class="headerlink" href="#verify-the-cluster" title="Link to this heading">¶</a></h2>
+<p>Confirm the operators and a default storage class are present.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>external-secrets
+</span><span data-line="2">kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>crossplane-system
+</span><span data-line="3">kubectl<span class="w"> </span>get<span class="w"> </span>crds<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>monitoring.coreos.com
+</span><span data-line="4">kubectl<span class="w"> </span>get<span class="w"> </span>storageclasses
+</span></pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="provide-config.html"><span class="doc">Provide cluster configuration</span></a> — build your integration chart.</p></li>
+<li><p><a class="reference internal" href="configure-s3-credentials.html"><span class="doc">Configure S3 credentials</span></a> — wire the buckets and credentials in detail.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/architecture.html"><span class="doc">Architecture</span></a> — how the components depend on one another.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="index.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">How-to guides</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="provide-config.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Provide cluster configuration</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=53b53b71"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script>
+      <script src="../_static/logo-fix.js?v=75f22b15"></script></body>
+</html>
