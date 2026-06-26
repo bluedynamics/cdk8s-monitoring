@@ -143,7 +143,10 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
     },
 
     tempo: {
-      enabled: true,
+      // Disabled by default so base-stack tests see no extra resources;
+      // tempo-specific tests enable it explicitly. bucket stays set so the
+      // direct construct tests (which ignore `enabled`) have a value.
+      enabled: false,
       bucket: 'traces-tempo-test',
       retention: '336h',
       tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },

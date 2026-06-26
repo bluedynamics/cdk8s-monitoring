@@ -17,3 +17,7 @@ export * from './constructs/alloy';
 export * from './constructs/thanos-query';
 export * from './constructs/thanos-store';
 export * from './constructs/thanos-compactor';
+export * from './constructs/tempo-s3-bucket';
+export * from './constructs/tempo-s3-credentials';
+export * from './constructs/tempo';
+export * from './constructs/alloy-traces';
