@@ -1,7 +1,7 @@
 import { deepmerge } from 'deepmerge-ts';
 import {
   DefaultableConfig, MonitoringConfig, MonitoringConfigInput,
-  VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig,
+  VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig, TempoConfig,
 } from './types';
 
 /**
@@ -15,6 +15,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     loki: '7.0.0',
     alloy: '1.10.0',
     thanos: 'v0.41.0',
+    tempo: 'latest',
   },
   retention: {
     prometheus: '2d',
@@ -31,6 +32,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     lokiWrite: '3Gi',
     thanosStore: '10Gi',
     thanosCompactor: '20Gi',
+    tempo: '5Gi',
   },
   replicas: {
     prometheus: 2,
@@ -41,6 +43,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     lokiWrite: 2,
     thanosQuery: 2,
     thanosStore: 2,
+    tempo: 1,
   },
   resources: {
     prometheus: { requests: { cpu: '100m', memory: '1500Mi' }, limits: { cpu: '2', memory: '3000Mi' } },
@@ -56,6 +59,14 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     thanosCompactor: { requests: { cpu: '500m', memory: '2Gi' }, limits: { cpu: '2000m', memory: '4Gi' } },
     configReloader: { requests: { cpu: '10m', memory: '50Mi' }, limits: { cpu: '50m', memory: '100Mi' } },
     thanosSidecar: { requests: { cpu: '10m', memory: '50Mi' }, limits: { cpu: '100m', memory: '100Mi' } },
+    tempo: { requests: { cpu: '100m', memory: '256Mi' }, limits: { cpu: '1', memory: '1Gi' } },
+    alloyTraces: { requests: { cpu: '100m', memory: '256Mi' }, limits: { cpu: '500m', memory: '512Mi' } },
+  },
+  tempo: {
+    enabled: false,
+    bucket: '',
+    retention: '336h',
+    tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },
   },
 };
 
@@ -64,6 +75,10 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
  * DEFAULT_CONFIG. Required cluster values are passed through verbatim.
  */
 export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
+  const tempo = deepmerge(DEFAULT_CONFIG.tempo, input.tempo ?? {}) as TempoConfig;
+  if (tempo.enabled && !tempo.bucket) {
+    throw new Error('tempo.bucket is required when tempo.enabled is true');
+  }
   return {
     namespace: input.namespace,
     domains: input.domains,
@@ -75,5 +90,6 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     storage: deepmerge(DEFAULT_CONFIG.storage, input.storage ?? {}) as StorageConfig,
     replicas: deepmerge(DEFAULT_CONFIG.replicas, input.replicas ?? {}) as ReplicaConfig,
     resources: deepmerge(DEFAULT_CONFIG.resources, input.resources ?? {}) as ResourceConfig,
+    tempo,
   };
 }

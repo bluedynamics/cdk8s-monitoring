@@ -49,3 +49,32 @@ test('deep-overrides a single nested field, keeping siblings at default', () => 
   expect(cfg.resources.prometheus.requests.cpu).toBe(DEFAULT_CONFIG.resources.prometheus.requests.cpu);
   expect(cfg.resources.grafana.limits.memory).toBe(DEFAULT_CONFIG.resources.grafana.limits.memory);
 });
+
+test('defaults tempo to disabled with sane sampling values', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.tempo.enabled).toBe(false);
+  expect(cfg.tempo.retention).toBe('336h');
+  expect(cfg.tempo.tailSampling.latencyThresholdMs).toBe(1000);
+  expect(cfg.tempo.tailSampling.probabilisticPercent).toBe(10);
+  expect(cfg.versions.tempo).toBeDefined();
+  expect(cfg.replicas.tempo).toBe(1);
+  expect(cfg.storage.tempo).toBe('5Gi');
+  expect(cfg.resources.tempo.limits.memory).toBeDefined();
+  expect(cfg.resources.alloyTraces.limits.memory).toBeDefined();
+});
+
+test('deep-merges tempo overrides, keeping sibling defaults', () => {
+  const cfg = mergeConfig({
+    ...cluster,
+    tempo: { enabled: true, bucket: 'traces-b', tailSampling: { latencyThresholdMs: 2000 } } as any,
+  });
+  expect(cfg.tempo.enabled).toBe(true);
+  expect(cfg.tempo.bucket).toBe('traces-b');
+  expect(cfg.tempo.tailSampling.latencyThresholdMs).toBe(2000);
+  expect(cfg.tempo.tailSampling.probabilisticPercent).toBe(10);
+  expect(cfg.tempo.retention).toBe('336h');
+});
+
+test('throws when tempo is enabled without a bucket', () => {
+  expect(() => mergeConfig({ ...cluster, tempo: { enabled: true } as any })).toThrow(/tempo\.bucket/);
+});

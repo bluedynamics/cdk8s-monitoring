@@ -253,6 +253,7 @@ describe('MonitoringChart Integration Tests', () => {
         loki: '7.0.0',
         alloy: 'v2.0.0',
         thanos: 'v0.38.0',
+        tempo: 'latest',
       },
     });
 
