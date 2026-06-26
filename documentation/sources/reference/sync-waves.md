@@ -54,6 +54,18 @@ Collection, querying, and long-term storage start after the core services.
 | Thanos Store `StatefulSet` and `Service`s | `ThanosStoreConstruct` |
 | Thanos Compactor `StatefulSet` and `Service` | `ThanosCompactorConstruct` |
 
+## Tracing resources
+
+These resources exist only when `config.tempo.enabled` is true.
+They occupy the same waves as their non-tracing counterparts: storage and credentials in wave `1`, workloads in wave `3`.
+
+| Resource | Construct | Wave |
+|---|---|---|
+| Tempo S3 `Bucket` (Crossplane) | `TempoS3BucketConstruct` | 1 |
+| Tempo S3 `ExternalSecret` | `TempoS3CredentialsConstruct` | 1 |
+| Tempo `HelmChart` | `TempoConstruct` | 3 |
+| Alloy traces `HelmChart` | `AlloyTracesConstruct` | 3 |
+
 ## Application dashboards and alerts
 
 The library does not place application dashboards or alerts in any wave; it ships none.

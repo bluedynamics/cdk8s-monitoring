@@ -41,6 +41,8 @@ provide-config
 override-defaults
 configure-s3-credentials
 configure-smtp-alerting
+enable-tracing
+configure-tail-sampling
 ```
 
 ## Extending the stack

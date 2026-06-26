@@ -27,7 +27,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
 
 `DEFAULT_CONFIG`
-:   The package-shipped `DefaultableConfig` for versions, retention, storage, replicas, and resources.
+:   The package-shipped `DefaultableConfig` for versions, retention, storage, replicas, resources, and the opt-in `tempo` tracing block.
     See {doc}`../configuration-options` for every value.
 
 ## Configuration interfaces
@@ -47,7 +47,17 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`.
+
+`TempoConfig`
+:   The opt-in distributed tracing block.
+    Fields: `enabled` (default `false`), `bucket` (required when enabled), `retention`, and `tailSampling`.
+    See {doc}`../configuration-options` for each one.
+
+`TempoTailSamplingConfig`
+:   The tail-sampling policy for the Alloy traces gateway.
+    Fields: `latencyThresholdMs` and `probabilisticPercent`.
+    Error traces are always kept in addition to these.
 
 `DeepPartial<T>`
 :   A recursive partial type used to type selective overrides.
@@ -96,6 +106,22 @@ The sub-interfaces `VersionConfig`, `RetentionConfig`, `StorageConfig`, `Replica
 
 `ThanosCompactorConstruct`
 :   Creates the Thanos Compactor `StatefulSet` and `Service`. Wave 3.
+
+The following four constructs are created only when `config.tempo.enabled` is true.
+
+`TempoS3BucketConstruct`
+:   Creates the Crossplane `Bucket` for trace storage. Wave 1.
+
+`TempoS3CredentialsConstruct`
+:   Creates the `ExternalSecret` that renders the Tempo S3 credentials as `tempo-s3-credentials`. Wave 1.
+
+`TempoConstruct`
+:   Creates the monolithic Grafana Tempo `HelmChart` backed by S3. Wave 3.
+
+`AlloyTracesConstruct`
+:   Creates the single-replica Alloy `HelmChart` deployment that acts as the OTLP tail-sampling gateway. Wave 3.
+
+When tracing is enabled, `PrometheusStackConstruct` also adds a Tempo datasource to Grafana, wired for traces-to-logs and traces-to-metrics correlation.
 
 ## Re-exported helper
 

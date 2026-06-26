@@ -28,6 +28,7 @@ maxdepth: 1
 titlesonly: true
 ---
 architecture
+tracing-architecture
 design-philosophy
 retention-and-downsampling
 ```
