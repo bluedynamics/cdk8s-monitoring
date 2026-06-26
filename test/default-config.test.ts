@@ -3,6 +3,7 @@ import { MonitoringConfigInput } from '../src/types';
 
 const cluster: MonitoringConfigInput = {
   namespace: 'monitoring',
+  clusterName: 'test-cluster',
   domains: { grafana: 'grafana.example.com' },
   s3: {
     endpoint: 'https://s3.example.com',
@@ -77,4 +78,9 @@ test('deep-merges tempo overrides, keeping sibling defaults', () => {
 
 test('throws when tempo is enabled without a bucket', () => {
   expect(() => mergeConfig({ ...cluster, tempo: { enabled: true } as any })).toThrow(/tempo\.bucket/);
+});
+
+test('passes clusterName through unchanged', () => {
+  const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
+  expect(cfg.clusterName).toBe('my-cluster');
 });

@@ -8,6 +8,7 @@ import { MonitoringConfig } from '../src/types';
 export function createTestConfig(overrides?: Partial<MonitoringConfig>): MonitoringConfig {
   const defaultConfig: MonitoringConfig = {
     namespace: 'monitoring',
+    clusterName: 'test-cluster',
 
     versions: {
       prometheusStack: 'v69.2.0',
