@@ -19,6 +19,12 @@ const config = mergeConfig({
     grafanaSecretStore: 'example-app-secrets-store',
     grafanaCredentialsKey: 'example-grafana-admin',
   },
+  tempo: {
+    enabled: true,
+    bucket: 'example-tempo',
+    retention: '336h',
+    tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },
+  },
 });
 new MonitoringChart(app, 'monitoring', config);
 app.synth();
