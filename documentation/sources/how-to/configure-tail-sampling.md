@@ -55,6 +55,10 @@ To keep only the genuinely slow ones, raise it.
 If you want a denser sample of ordinary traffic, raise `probabilisticPercent`.
 To cut storage and trace volume, lower it; errors and slow traces are still kept in full.
 
+Set `probabilisticPercent` to `0` to keep **only** errors and slow traces.
+At `0` the probabilistic policy is omitted entirely, so every fast, non-error trace is dropped at the gateway and never reaches Tempo.
+This is the most aggressive volume reduction and pairs well with a latency threshold set to where "good enough" ends for your service (for example `300`).
+
 ```{important}
 The gateway runs as a single replica so that one instance sees every span of a trace, which tail sampling requires.
 Changing the sampling thresholds does not change this; do not scale the gateway up to increase throughput, because that would split a trace's spans across replicas and corrupt the sampling decision.
