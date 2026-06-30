@@ -21,6 +21,20 @@ describe('TempoConstruct', () => {
     expectSyncWave(helm, '3');
   });
 
+  it('softens the liveness probe so query load does not trigger SIGKILL', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new TempoConstruct(chart, 'test-tempo', {
+      namespace: 'monitoring',
+      config,
+      s3CredentialsSecretName: 'tempo-s3-credentials',
+    });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('livenessProbe:');
+    expect(values).toContain('timeoutSeconds: 15');
+    expect(values).toContain('failureThreshold: 6');
+  });
+
   it('injects S3 credentials via env from the secret, not inline in the config', () => {
     const chart = Testing.chart();
     const config = createTestConfig();
