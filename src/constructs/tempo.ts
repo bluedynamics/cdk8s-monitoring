@@ -58,6 +58,20 @@ export class TempoConstruct extends Construct {
     return `replicas: ${config.replicas.tempo}
 tempo:
   retention: ${config.tempo.retention}
+  # Soften the liveness probe: a single-binary Tempo serving expensive trace
+  # searches can make /ready slow, and the chart default (timeout 5s,
+  # failureThreshold 3) then SIGKILLs it under load. Readiness stays at the
+  # chart default (sharp) so an overloaded instance is pulled from the Service
+  # without being killed.
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: 3200
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 15
+    failureThreshold: 6
+    successThreshold: 1
   storage:
     trace:
       backend: s3

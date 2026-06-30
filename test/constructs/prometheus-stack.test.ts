@@ -377,6 +377,7 @@ describe('PrometheusStackConstruct', () => {
     expect(values).toContain('http://tempo.monitoring.svc.cluster.local:3200');
     expect(values).toContain('tracesToLogsV2');
     expect(values).toContain('tracesToMetrics');
+    expect(values).toContain('timeout: 60'); // slow trace searches must not surface as "connect failed"
   });
 
   it('omits the Tempo datasource when tempo is disabled', () => {

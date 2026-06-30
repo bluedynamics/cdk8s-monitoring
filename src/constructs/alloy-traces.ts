@@ -51,6 +51,16 @@ export class AlloyTracesConstruct extends Construct {
 
   private generateHelmValues(config: MonitoringConfig): string {
     const ts = config.tempo.tailSampling;
+    // The probabilistic policy keeps a percentage of the traces that no other
+    // policy matched (i.e. fast, non-error traces). Omit it entirely when set to
+    // 0 so those traces are dropped instead of leaking a fraction to Tempo.
+    const probabilisticPolicy = ts.probabilisticPercent > 0 ? `
+
+        policy {
+          name = "rest"
+          type = "probabilistic"
+          probabilistic { sampling_percentage = ${ts.probabilisticPercent} }
+        }` : '';
     return `controller:
   type: deployment
   replicas: 1
@@ -85,13 +95,7 @@ alloy:
           name = "slow"
           type = "latency"
           latency { threshold_ms = ${ts.latencyThresholdMs} }
-        }
-
-        policy {
-          name = "rest"
-          type = "probabilistic"
-          probabilistic { sampling_percentage = ${ts.probabilisticPercent} }
-        }
+        }${probabilisticPolicy}
 
         output { traces = [otelcol.exporter.otlp.tempo.input] }
       }

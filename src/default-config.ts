@@ -59,7 +59,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     thanosCompactor: { requests: { cpu: '500m', memory: '2Gi' }, limits: { cpu: '2000m', memory: '4Gi' } },
     configReloader: { requests: { cpu: '10m', memory: '50Mi' }, limits: { cpu: '50m', memory: '100Mi' } },
     thanosSidecar: { requests: { cpu: '10m', memory: '50Mi' }, limits: { cpu: '100m', memory: '100Mi' } },
-    tempo: { requests: { cpu: '100m', memory: '256Mi' }, limits: { cpu: '1', memory: '1Gi' } },
+    tempo: { requests: { cpu: '100m', memory: '512Mi' }, limits: { cpu: '1', memory: '2Gi' } },
     alloyTraces: { requests: { cpu: '100m', memory: '256Mi' }, limits: { cpu: '500m', memory: '512Mi' } },
   },
   tempo: {
