@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Design philosophy - cdk8s-monitoring 0.0.10 documentation</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Retention and downsampling" href="retention-and-downsampling.html" /><link rel="prev" title="Tracing architecture" href="tracing-architecture.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/explanation/design-philosophy.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=9454f7d5" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/explanation/design-philosophy.html"/>
+  <meta property="og:title" content="Design philosophy"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Explanation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#why-the-library-is-application-agnostic">Why the library is application-agnostic</a></li>
+<li><a class="reference internal" href="#why-configuration-is-split">Why configuration is split</a></li>
+<li><a class="reference internal" href="#how-the-two-decisions-reinforce-each-other">How the two decisions reinforce each other</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">Explanation</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Design philosophy</strong>
+        <meta itemprop="position" content="3" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/design-philosophy.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/design-philosophy.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/design-philosophy.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/design-philosophy.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/design-philosophy.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="design-philosophy">
+<h1>Design philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading">¶</a></h1>
+<p>This page explains the two decisions that shape the library: it is application-agnostic, and it splits configuration into package defaults and required cluster values.
+Both choices serve the same goal, which is to let several clusters share one stack without copying code.</p>
+<section id="why-the-library-is-application-agnostic">
+<h2>Why the library is application-agnostic<a class="headerlink" href="#why-the-library-is-application-agnostic" title="Link to this heading">¶</a></h2>
+<p>A monitoring stack is the same everywhere.
+What differs between deployments is which applications they watch, and therefore which dashboards and alerts they carry.
+If the library bundled application dashboards, every consumer would inherit dashboards for applications it does not run, and adding a new application would mean changing the shared library.</p>
+<p>So the library ships only the stack.
+It enables the Grafana sidecar that discovers dashboards and lets the prometheus-operator select alert rules, but it provides none of its own.
+An integration chart attaches its dashboards and alerts beside the <code class="docutils literal notranslate"><span class="pre">MonitoringChart</span></code>, in the same namespace, and the running stack finds them.
+The plug-in mechanism is just two conventions: a <code class="docutils literal notranslate"><span class="pre">ConfigMap</span></code> labeled <code class="docutils literal notranslate"><span class="pre">grafana_dashboard:</span> <span class="pre">&quot;1&quot;</span></code> and a <code class="docutils literal notranslate"><span class="pre">PrometheusRule</span></code> in the namespace.</p>
+<p>The benefit is decoupling.
+The stack code lives in one place and is identical across clusters.
+Each cluster owns only what is unique to it.
+The <a class="reference internal" href="../how-to/add-app-dashboards.html"><span class="doc">Add application dashboards and alerts</span></a> guide is the litmus test that this decoupling is genuinely usable.</p>
+<p>An alternative would have been a callback or registration API in the library through which consumers inject dashboards.
+That would add surface area and coupling for no gain, since the integration chart can simply instantiate its own constructs.
+The library stays smaller by doing less.</p>
+</section>
+<section id="why-configuration-is-split">
+<h2>Why configuration is split<a class="headerlink" href="#why-configuration-is-split" title="Link to this heading">¶</a></h2>
+<p>The configuration falls into two natural classes.</p>
+<p>Some values are universal.
+The chart versions, the resource requests and limits, the retention windows, the storage sizes, and the replica counts are sensible defaults that most clusters can use unchanged.
+These live in <code class="docutils literal notranslate"><span class="pre">DEFAULT_CONFIG</span></code> as <code class="docutils literal notranslate"><span class="pre">DefaultableConfig</span></code>.</p>
+<p>Other values have no sensible universal default.
+The namespace, the Grafana domain, the S3 endpoint and buckets, and the SMTP server are specific to each cluster.
+These are <code class="docutils literal notranslate"><span class="pre">RequiredClusterConfig</span></code>, and the type system makes them mandatory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mergeConfig</span></code> joins the two: it takes the required values verbatim and deep-merges any overrides over the defaults.
+Because the merge is deep, an integration chart can override a single nested key without restating the surrounding object.</p>
+<p>The payoff is a short, honest integration chart.
+A consumer writes only what is true about its cluster, and the compiler refuses to let it forget a required value.
+The roughly one hundred lines of environment-variable boilerplate that a hand-rolled stack would carry simply disappear.</p>
+</section>
+<section id="how-the-two-decisions-reinforce-each-other">
+<h2>How the two decisions reinforce each other<a class="headerlink" href="#how-the-two-decisions-reinforce-each-other" title="Link to this heading">¶</a></h2>
+<p>Application-agnostic code and split configuration are the same idea applied to behavior and to data.
+The library owns what is common, in code and in defaults.
+The integration chart owns what is specific, in attached constructs and in required values.
+Drawing the line in the same place for both keeps the shared part genuinely shareable.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="architecture.html"><span class="doc">Architecture</span></a> — the components this philosophy organizes.</p></li>
+<li><p><a class="reference internal" href="../how-to/provide-config.html"><span class="doc">Provide cluster configuration</span></a> — the split configuration in practice.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="tracing-architecture.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Tracing architecture</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="retention-and-downsampling.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Retention and downsampling</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=a83ce22a"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script>
+      <script src="../_static/logo-fix.js?v=75f22b15"></script></body>
+</html>

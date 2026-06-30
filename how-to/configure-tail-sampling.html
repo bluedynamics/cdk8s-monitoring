@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Configure tail sampling - cdk8s-monitoring 0.0.10 documentation</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Add application dashboards and alerts" href="add-app-dashboards.html" /><link rel="prev" title="Enable tracing" href="enable-tracing.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/how-to/configure-tail-sampling.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=9454f7d5" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/how-to/configure-tail-sampling.html"/>
+  <meta property="og:title" content="Configure tail sampling"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/index.html">Explanation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#the-sampling-policy">The sampling policy</a></li>
+<li><a class="reference internal" href="#set-the-thresholds">Set the thresholds</a></li>
+<li><a class="reference internal" href="#tune-for-your-traffic">Tune for your traffic</a></li>
+<li><a class="reference internal" href="#verify">Verify</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">How-to guides</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Configure tail sampling</strong>
+        <meta itemprop="position" content="3" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/configure-tail-sampling.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/configure-tail-sampling.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/configure-tail-sampling.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/configure-tail-sampling.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/configure-tail-sampling.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="configure-tail-sampling">
+<h1>Configure tail sampling<a class="headerlink" href="#configure-tail-sampling" title="Link to this heading">¶</a></h1>
+<p>This guide shows you how to tune which traces the Alloy gateway keeps.
+It assumes tracing is already enabled; if not, see <a class="reference internal" href="enable-tracing.html"><span class="doc">Enable tracing</span></a> first.</p>
+<p>The gateway tail-samples: it waits for a trace to complete, then decides whether to store it.
+You control that decision through the <code class="docutils literal notranslate"><span class="pre">tempo.tailSampling</span></code> fields.
+For the reasoning behind tail sampling, see <a class="reference internal" href="../explanation/tracing-architecture.html"><span class="doc">Tracing architecture</span></a>.</p>
+<section id="the-sampling-policy">
+<h2>The sampling policy<a class="headerlink" href="#the-sampling-policy" title="Link to this heading">¶</a></h2>
+<p>The gateway keeps a trace when any of these hold.</p>
+<ul class="simple">
+<li><p>The trace contains an error span. This rule is always on and is not configurable.</p></li>
+<li><p>The trace is slower than <code class="docutils literal notranslate"><span class="pre">tempo.tailSampling.latencyThresholdMs</span></code> milliseconds.</p></li>
+<li><p>The trace is in the <code class="docutils literal notranslate"><span class="pre">tempo.tailSampling.probabilisticPercent</span></code> percent of the remaining traces kept as a representative sample.</p></li>
+</ul>
+<p>Every error and every slow trace is kept regardless of the probabilistic percentage.
+The percentage applies only to the traces that are neither errors nor slow.</p>
+</section>
+<section id="set-the-thresholds">
+<h2>Set the thresholds<a class="headerlink" href="#set-the-thresholds" title="Link to this heading">¶</a></h2>
+<p>Override the two fields in your <code class="docutils literal notranslate"><span class="pre">mergeConfig</span></code> input.
+The values below show the defaults.</p>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">mergeConfig</span><span class="p">({</span>
+</span><span data-line="2"><span class="w">  </span><span class="c1">// other required cluster values ...</span>
+</span><span data-line="3"><span class="w">  </span><span class="nx">tempo</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="4"><span class="w">    </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span data-line="5"><span class="w">    </span><span class="nx">bucket</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;traces-tempo-prod&#39;</span><span class="p">,</span>
+</span><span data-line="6"><span class="w">    </span><span class="nx">tailSampling</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="7"><span class="w">      </span><span class="nx">latencyThresholdMs</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
+</span><span data-line="8"><span class="w">      </span><span class="nx">probabilisticPercent</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
+</span><span data-line="9"><span class="w">    </span><span class="p">},</span>
+</span><span data-line="10"><span class="w">  </span><span class="p">},</span>
+</span><span data-line="11"><span class="p">});</span>
+</span></pre></div>
+</div>
+</section>
+<section id="tune-for-your-traffic">
+<h2>Tune for your traffic<a class="headerlink" href="#tune-for-your-traffic" title="Link to this heading">¶</a></h2>
+<p>If you want to keep more of your slow traces, lower <code class="docutils literal notranslate"><span class="pre">latencyThresholdMs</span></code>.
+For example, set it to <code class="docutils literal notranslate"><span class="pre">500</span></code> to keep every trace slower than half a second.
+To keep only the genuinely slow ones, raise it.</p>
+<p>If you want a denser sample of ordinary traffic, raise <code class="docutils literal notranslate"><span class="pre">probabilisticPercent</span></code>.
+To cut storage and trace volume, lower it; errors and slow traces are still kept in full.</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">probabilisticPercent</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code> to keep <strong>only</strong> errors and slow traces.
+At <code class="docutils literal notranslate"><span class="pre">0</span></code> the probabilistic policy is omitted entirely, so every fast, non-error trace is dropped at the gateway and never reaches Tempo.
+This is the most aggressive volume reduction and pairs well with a latency threshold set to where “good enough” ends for your service (for example <code class="docutils literal notranslate"><span class="pre">300</span></code>).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The gateway runs as a single replica so that one instance sees every span of a trace, which tail sampling requires.
+Changing the sampling thresholds does not change this; do not scale the gateway up to increase throughput, because that would split a trace’s spans across replicas and corrupt the sampling decision.</p>
+</div>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading">¶</a></h2>
+<p>The thresholds are baked into the gateway’s Alloy configuration at synth time.
+After deployment, confirm the gateway restarted with the new values.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deployment/alloy-traces<span class="w"> </span>-n<span class="w"> </span>monitoring
+</span></pre></div>
+</div>
+<p>Send traffic through an instrumented application, then confirm in Grafana that error and slow traces appear while ordinary traces are present only as a sample.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="enable-tracing.html"><span class="doc">Enable tracing</span></a> — turn tracing on and point applications at the gateway.</p></li>
+<li><p><a class="reference internal" href="../reference/configuration-options.html"><span class="doc">Configuration options</span></a> — the <code class="docutils literal notranslate"><span class="pre">tempo.tailSampling</span></code> fields and defaults.</p></li>
+<li><p><a class="reference internal" href="../explanation/tracing-architecture.html"><span class="doc">Tracing architecture</span></a> — why the gateway is a single replica.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="enable-tracing.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Enable tracing</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="add-app-dashboards.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Add application dashboards and alerts</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=a83ce22a"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script>
+      <script src="../_static/logo-fix.js?v=75f22b15"></script></body>
+</html>
