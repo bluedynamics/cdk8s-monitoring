@@ -74,6 +74,7 @@ export class PrometheusStackConstruct extends Construct {
         access: proxy
         url: http://tempo.${config.namespace}.svc.cluster.local:3200
         jsonData:
+          timeout: 60
           tracesToLogsV2:
             datasourceUid: loki
             spanStartTimeShift: "-1h"
