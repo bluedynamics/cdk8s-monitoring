@@ -152,6 +152,18 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       retention: '336h',
       tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },
     },
+
+    // Generic infra monitors: disabled by default; opt-in tests enable them.
+    traefik: {
+      enabled: false,
+      namespace: 'traefik',
+      dashboard: true,
+    },
+    longhorn: {
+      enabled: false,
+      namespace: 'longhorn-system',
+      alerts: true,
+    },
   };
 
   return { ...defaultConfig, ...overrides };
