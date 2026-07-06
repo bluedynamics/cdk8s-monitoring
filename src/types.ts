@@ -151,6 +151,27 @@ export interface TempoConfig {
 }
 
 /**
+ * Traefik ingress-controller monitoring (generic infra, opt-in).
+ * PodMonitor (not ServiceMonitor: the k3s-bundled Traefik exposes the metrics
+ * port on the Pod, not the Service) plus an optional Grafana dashboard.
+ */
+export interface TraefikConfig {
+  enabled: boolean; // default false — when false, no Traefik monitoring resources are created
+  namespace: string; // namespace Traefik runs in (PodMonitor namespaceSelector); default 'traefik'
+  dashboard: boolean; // ship the Traefik Grafana dashboard ConfigMap; default true
+}
+
+/**
+ * Longhorn storage monitoring (generic infra, opt-in).
+ * ServiceMonitor for longhorn-manager metrics plus optional volume-health alerts.
+ */
+export interface LonghornConfig {
+  enabled: boolean; // default false — when false, no Longhorn monitoring resources are created
+  namespace: string; // namespace Longhorn runs in (ServiceMonitor namespaceSelector); default 'longhorn-system'
+  alerts: boolean; // ship the volume-health PrometheusRule; default true
+}
+
+/**
  * Configuration the package ships sensible defaults for.
  * Integration charts may override any of these (deep-merged over DEFAULT_CONFIG).
  */
@@ -161,6 +182,8 @@ export interface DefaultableConfig {
   replicas: ReplicaConfig; // Replica counts
   resources: ResourceConfig; // Resource requests and limits
   tempo: TempoConfig; // Grafana Tempo tracing (opt-in)
+  traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
+  longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
 }
 
 /**

@@ -8,6 +8,7 @@ import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
 import { LokiConstruct } from './constructs/loki';
 import { LokiS3BucketConstruct } from './constructs/loki-s3-bucket';
 import { LokiS3CredentialsConstruct } from './constructs/loki-s3-credentials';
+import { LonghornMonitorConstruct } from './constructs/longhorn-monitor';
 import { NamespaceConstruct } from './constructs/namespace';
 import { PriorityClassConstruct } from './constructs/priority-class';
 import { PrometheusStackConstruct } from './constructs/prometheus-stack';
@@ -19,6 +20,7 @@ import { ThanosQueryConstruct } from './constructs/thanos-query';
 import { ThanosS3BucketConstruct } from './constructs/thanos-s3-bucket';
 import { ThanosS3CredentialsConstruct } from './constructs/thanos-s3-credentials';
 import { ThanosStoreConstruct } from './constructs/thanos-store';
+import { TraefikMonitorConstruct } from './constructs/traefik-monitor';
 import { MonitoringConfig } from './types';
 
 /**
@@ -44,10 +46,16 @@ import { MonitoringConfig } from './types';
  * - Thanos Store (S3 gateway)
  * - Thanos Compactor (downsampling)
  *
- * App-specific dashboards and alert rules are intentionally NOT part of this
- * chart. Integration charts attach their own dashboard/alert constructs beside
- * this one (the Grafana sidecar discovers ConfigMaps labeled
+ * Cluster- and application-specific dashboards and alert rules are intentionally
+ * NOT part of this chart. Integration charts attach their own dashboard/alert
+ * constructs beside this one (the Grafana sidecar discovers ConfigMaps labeled
  * `grafana_dashboard: "1"` in the same namespace).
+ *
+ * Exception: monitors for GENERIC infrastructure components that ship with the
+ * stack's environment (Traefik ingress, Longhorn storage) are available as
+ * opt-in, off-by-default constructs here (config.traefik / config.longhorn), so
+ * every consumer can enable them without re-implementing the same scrape/alert
+ * specs. They stay disabled unless explicitly turned on.
  *
  * Configuration is provided via the MonitoringConfig interface, which combines:
  * - config.yaml (default values)
@@ -158,6 +166,24 @@ export class MonitoringChart extends Chart {
         s3CredentialsSecretName: tempoCreds.secretName,
       });
       new AlloyTracesConstruct(this, 'alloy-traces', { namespace, config });
+    }
+
+    // =========================================================================
+    // Generic infrastructure monitors (opt-in, off by default)
+    // =========================================================================
+    // Scrape configs (and optional dashboard/alerts) for infra components that
+    // ship with the environment. Only created when explicitly enabled.
+    if (config.traefik.enabled) {
+      new TraefikMonitorConstruct(this, 'traefik-monitor', {
+        monitoringNamespace: namespace,
+        traefik: config.traefik,
+      });
+    }
+    if (config.longhorn.enabled) {
+      new LonghornMonitorConstruct(this, 'longhorn-monitor', {
+        monitoringNamespace: namespace,
+        longhorn: config.longhorn,
+      });
     }
   }
 }

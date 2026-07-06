@@ -2,6 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   DefaultableConfig, MonitoringConfig, MonitoringConfigInput,
   VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig, TempoConfig,
+  TraefikConfig, LonghornConfig,
 } from './types';
 
 /**
@@ -68,6 +69,16 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     retention: '336h',
     tailSampling: { latencyThresholdMs: 1000, probabilisticPercent: 10 },
   },
+  traefik: {
+    enabled: false,
+    namespace: 'traefik',
+    dashboard: true,
+  },
+  longhorn: {
+    enabled: false,
+    namespace: 'longhorn-system',
+    alerts: true,
+  },
 };
 
 /**
@@ -78,6 +89,14 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   const tempo = deepmerge(DEFAULT_CONFIG.tempo, input.tempo ?? {}) as TempoConfig;
   if (tempo.enabled && !tempo.bucket) {
     throw new Error('tempo.bucket is required when tempo.enabled is true');
+  }
+  const traefik = deepmerge(DEFAULT_CONFIG.traefik, input.traefik ?? {}) as TraefikConfig;
+  if (traefik.enabled && !traefik.namespace) {
+    throw new Error('traefik.namespace is required when traefik.enabled is true');
+  }
+  const longhorn = deepmerge(DEFAULT_CONFIG.longhorn, input.longhorn ?? {}) as LonghornConfig;
+  if (longhorn.enabled && !longhorn.namespace) {
+    throw new Error('longhorn.namespace is required when longhorn.enabled is true');
   }
   return {
     namespace: input.namespace,
@@ -92,5 +111,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     replicas: deepmerge(DEFAULT_CONFIG.replicas, input.replicas ?? {}) as ReplicaConfig,
     resources: deepmerge(DEFAULT_CONFIG.resources, input.resources ?? {}) as ResourceConfig,
     tempo,
+    traefik,
+    longhorn,
   };
 }

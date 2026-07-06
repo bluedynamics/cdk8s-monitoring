@@ -46,6 +46,7 @@ documentation/        # Sphinx/MyST docs (Diataxis, plone-doc-style)
 ## Design Rules
 
 - **App-agnostic**: never add cluster- or application-specific resources (dashboards, alert rules, domains) to this library. Integration charts attach those beside `MonitoringChart`.
+  - *Exception — generic infra monitors*: monitors for infrastructure components that are generic across clusters using this stack (Traefik ingress, Longhorn storage) may live here as **opt-in, off-by-default** constructs (`config.traefik`, `config.longhorn`), including their scrape config and — gated by their own sub-toggle — the matching generic dashboard/alert. They must stay disabled unless a consumer explicitly enables them. This is *not* a license for anything cluster- or app-specific.
 - **Defaults in the package, overrides in the chart**: universal values live in `DEFAULT_CONFIG`; cluster-specific values are required input. `mergeConfig` deep-merges.
 - **Generated `imports/` are not hand-edited** and are excluded from lint/style.
 

@@ -21,3 +21,5 @@ export * from './constructs/tempo-s3-bucket';
 export * from './constructs/tempo-s3-credentials';
 export * from './constructs/tempo';
 export * from './constructs/alloy-traces';
+export * from './constructs/traefik-monitor';
+export * from './constructs/longhorn-monitor';
