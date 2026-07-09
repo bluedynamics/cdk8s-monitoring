@@ -71,6 +71,23 @@ new MyAppDashboardConstruct(chart, 'my-app-dashboard', { namespace: config.names
 
 A dashboard construct is a `ConfigMap` (use the re-exported `KubeConfigMap`) labeled `grafana_dashboard: "1"` so the Grafana sidecar discovers it. Alert rules are plain `PrometheusRule` resources you manage in your integration repo.
 
+### Generic infrastructure monitors (opt-in)
+
+Monitors for infrastructure components that are generic across clusters running this stack are built in but **disabled by default** — enable them per cluster. They are the exception to the "no dashboards/alerts in the library" rule because they are not app- or cluster-specific.
+
+```typescript
+new MonitoringChart(app, 'monitoring', mergeConfig({
+  // ...required config...
+  traefik: { enabled: true, namespace: 'traefik' }, // PodMonitor + Grafana dashboard
+  longhorn: { enabled: true },                       // ServiceMonitor + volume-health alerts
+}));
+```
+
+- **`traefik`** (`TraefikConfig`): a `PodMonitor` (the k3s-bundled Traefik exposes the metrics port on the Pod, not the Service) plus, unless `dashboard: false`, a Grafana dashboard `ConfigMap`. `namespace` is where Traefik runs (default `traefik`).
+- **`longhorn`** (`LonghornConfig`): a `ServiceMonitor` for `longhorn-manager` (port `manager`) plus, unless `alerts: false`, a `PrometheusRule` with `LonghornVolumeFaulted` (critical) / `LonghornVolumeUnhealthy` (warning). `namespace` defaults to `longhorn-system`.
+
+Both stay inert unless `enabled: true`, so the base stack and existing consumers are unaffected.
+
 ## Prerequisites
 
 The stack expects these to exist in the cluster:
