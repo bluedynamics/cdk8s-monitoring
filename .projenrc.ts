@@ -14,6 +14,15 @@ const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
   projenrcTs: true,
   npmAccess: NpmAccess.PUBLIC,
+  // Publish to npm from CI on every release, tokenless via npm Trusted Publishing
+  // (OIDC). Requires a Trusted Publisher to be configured for this package on
+  // npmjs.com pointing at bluedynamics/cdk8s-monitoring + the release workflow.
+  releaseToNpm: true,
+  npmProvenance: true,
+  npmTrustedPublishing: true,
+  // Feature-complete: release the 1.x line (next release = 1.0.0). Supersedes the
+  // earlier split tracks (GitHub v0.0.x / manual npm 0.3.x).
+  majorVersion: 1,
   deps: ['cdk8s@^2.70.0', constructs, kplus, 'deepmerge-ts@^7.1.5'],
   peerDeps: ['cdk8s@^2.70.0', constructs, kplus],
   devDeps: ['cdk8s-cli', 'yaml@^2.8.1'],
