@@ -49,6 +49,7 @@ These fields belong to `RequiredClusterConfig` and have no default.
 | Field | Type | Description |
 |---|---|---|
 | `domains.grafana` | `string` | Hostname for the Grafana ingress. |
+| `domains.ingressClassName` | `string` (optional) | IngressClass for the Grafana ingress. When omitted, the ingress carries no `ingressClassName` and relies on the cluster's default IngressClass. Set it explicitly on clusters whose ingress controller class is not marked as default. |
 
 ### s3
 

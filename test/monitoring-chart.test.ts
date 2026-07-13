@@ -277,6 +277,41 @@ describe('MonitoringChart Integration Tests', () => {
     expect(container.image).toBe('quay.io/thanos/thanos:v0.38.0');
   });
 
+  it('should set the grafana ingressClassName when configured', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig({
+      domains: {
+        grafana: 'grafana.example.com',
+        ingressClassName: 'traefik',
+      },
+    });
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const prometheusChart = findResource(manifests, 'HelmChart', 'kube-prometheus-stack');
+
+    expect(prometheusChart.spec.valuesContent).toContain('ingressClassName: traefik');
+  });
+
+  it('should omit the grafana ingressClassName by default', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig();
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const prometheusChart = findResource(manifests, 'HelmChart', 'kube-prometheus-stack');
+
+    expect(prometheusChart.spec.valuesContent).not.toContain('ingressClassName');
+  });
+
   it('should respect configuration for S3 buckets', () => {
     // Arrange
     const app = new App();
