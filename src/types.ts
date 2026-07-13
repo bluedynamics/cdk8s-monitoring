@@ -44,6 +44,7 @@ export interface SmtpConfig {
  */
 export interface DomainConfig {
   grafana: string; // Grafana domain (e.g., grafana.ops.kup6s.net)
+  ingressClassName?: string; // IngressClass for the Grafana ingress; omit to rely on the cluster's default IngressClass
 }
 
 /**

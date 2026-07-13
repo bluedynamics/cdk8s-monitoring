@@ -356,7 +356,7 @@ grafana:
       enabled: false  # We manually provision datasources (Prometheus→Thanos, Loki)
 
   ingress:
-    enabled: true
+    enabled: true${config.domains.ingressClassName ? `\n    ingressClassName: ${config.domains.ingressClassName}` : ''}
     hosts:
       - ${config.domains.grafana}
     annotations:
