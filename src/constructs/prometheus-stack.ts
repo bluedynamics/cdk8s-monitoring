@@ -338,6 +338,14 @@ grafana:
     userKey: "admin-user"
     passwordKey: "admin-password"
 
+  # Grafana runs http on :3000 behind the TLS-terminating ingress. Without an
+  # explicit root_url it builds share and public-dashboard links from the internal
+  # address (http://<pod>:3000); derive the external URL from the configured domain.
+  grafana.ini:
+    server:
+      domain: ${config.domains.grafana}
+      root_url: https://${config.domains.grafana}
+
   # Disable default Prometheus datasource (we provide our own pointing to Thanos Query)
   defaultDatasourceEnabled: false
 
