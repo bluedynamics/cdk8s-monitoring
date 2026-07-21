@@ -312,6 +312,46 @@ describe('MonitoringChart Integration Tests', () => {
     expect(prometheusChart.spec.valuesContent).not.toContain('ingressClassName');
   });
 
+  it('should allow embedding from the configured origins when enabled', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig({
+      embedding: {
+        enabled: true,
+        frameAncestors: ['https://console.example.com', 'https://manager.example.com'],
+      },
+    });
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const prometheusChart = findResource(manifests, 'HelmChart', 'kube-prometheus-stack');
+
+    expect(prometheusChart.spec.valuesContent).toContain('allow_embedding: true');
+    expect(prometheusChart.spec.valuesContent).toContain('content_security_policy: true');
+    expect(prometheusChart.spec.valuesContent).toContain(
+      "frame-ancestors 'self' https://console.example.com https://manager.example.com;",
+    );
+  });
+
+  it('should keep grafana unframable by default', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig();
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert
+    const manifests = synthesizeChart(chart);
+    const prometheusChart = findResource(manifests, 'HelmChart', 'kube-prometheus-stack');
+
+    expect(prometheusChart.spec.valuesContent).not.toContain('allow_embedding');
+    expect(prometheusChart.spec.valuesContent).not.toContain('content_security_policy');
+  });
+
   it('should respect configuration for S3 buckets', () => {
     // Arrange
     const app = new App();

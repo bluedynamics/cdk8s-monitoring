@@ -190,7 +190,24 @@ When `tempo.enabled` is false, no tracing resources are created.
 `mergeConfig` throws `tempo.bucket is required when tempo.enabled is true` when you enable tracing without a bucket name.
 The gateway always keeps traces that contain an error span, in addition to the slow and probabilistic policies above.
 
+### embedding
+
+The `embedding` block controls whether browsers may load Grafana inside an `<iframe>`.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `embedding.enabled` is false, `grafana.ini` carries no `[security]` section and Grafana keeps its own default of `X-Frame-Options: deny`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `embedding.enabled` | `boolean` | `false` | Master switch; when true, sets `allow_embedding`, `content_security_policy`, and `content_security_policy_template` in `grafana.ini`. |
+| `embedding.frameAncestors` | `string[]` | `[]` | Origins allowed to frame Grafana, each an absolute origin such as `https://console.example.com`. They are appended to `frame-ancestors 'self'`. |
+
+`mergeConfig` throws `embedding.frameAncestors must name at least one origin when embedding.enabled is true` when you enable embedding without an origin.
+
+The generated policy repeats Grafana's own default directives and adds `frame-ancestors`.
+It omits the `$FORM_ACTION_ADDITIONAL_HOSTS` placeholder from Grafana's stock template, so `form_action_additional_hosts` has no effect while embedding is enabled.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.
+- {doc}`../how-to/embed-grafana` — how to enable and verify embedding.
 - {doc}`sync-waves` — the rollout order of the resources.

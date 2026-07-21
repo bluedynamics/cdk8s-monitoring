@@ -80,6 +80,17 @@ test('throws when tempo is enabled without a bucket', () => {
   expect(() => mergeConfig({ ...cluster, tempo: { enabled: true } as any })).toThrow(/tempo\.bucket/);
 });
 
+test('leaves embedding disabled by default', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.embedding.enabled).toBe(false);
+  expect(cfg.embedding.frameAncestors).toEqual([]);
+});
+
+test('throws when embedding is enabled without frame ancestors', () => {
+  expect(() => mergeConfig({ ...cluster, embedding: { enabled: true } as any }))
+    .toThrow(/embedding\.frameAncestors/);
+});
+
 test('passes clusterName through unchanged', () => {
   const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
   expect(cfg.clusterName).toBe('my-cluster');

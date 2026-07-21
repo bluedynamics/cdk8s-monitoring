@@ -173,6 +173,20 @@ export interface LonghornConfig {
 }
 
 /**
+ * Browser embedding of Grafana in an <iframe> (opt-in).
+ *
+ * Grafana refuses framing by default (`X-Frame-Options: deny`), which also
+ * blocks externally shared ("public") dashboards. Enabling this drops that
+ * header and replaces it with a Content-Security-Policy whose `frame-ancestors`
+ * names exactly the origins allowed to frame Grafana — the whole instance,
+ * including the authenticated UI, so keep the list tight.
+ */
+export interface EmbeddingConfig {
+  enabled: boolean; // default false — when false, Grafana keeps its X-Frame-Options: deny
+  frameAncestors: string[]; // origins allowed to frame Grafana, e.g. 'https://console.example.com'; 'self' is always included
+}
+
+/**
  * Configuration the package ships sensible defaults for.
  * Integration charts may override any of these (deep-merged over DEFAULT_CONFIG).
  */
@@ -185,6 +199,7 @@ export interface DefaultableConfig {
   tempo: TempoConfig; // Grafana Tempo tracing (opt-in)
   traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
+  embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
 }
 
 /**

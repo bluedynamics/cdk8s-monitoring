@@ -164,6 +164,10 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       namespace: 'longhorn-system',
       alerts: true,
     },
+    embedding: {
+      enabled: false,
+      frameAncestors: [],
+    },
   };
 
   return { ...defaultConfig, ...overrides };
