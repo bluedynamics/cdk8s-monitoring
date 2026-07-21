@@ -1,4 +1,5 @@
 import { App } from 'cdk8s';
+import * as yaml from 'yaml';
 import {
   createTestConfig,
   synthesizeChart,
@@ -334,6 +335,29 @@ describe('MonitoringChart Integration Tests', () => {
     expect(prometheusChart.spec.valuesContent).toContain(
       "frame-ancestors 'self' https://console.example.com https://manager.example.com;",
     );
+  });
+
+  it('should triple-quote the CSP template so go-ini keeps it whole', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig({
+      embedding: { enabled: true, frameAncestors: ['https://console.example.com'] },
+    });
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+
+    // Assert: grafana.ini is parsed by go-ini, where `;` starts an inline
+    // comment. Without the `"""` wrapper the policy is cut off at its first
+    // directive separator and frame-ancestors never reaches the browser.
+    const manifests = synthesizeChart(chart);
+    const prometheusChart = findResource(manifests, 'HelmChart', 'kube-prometheus-stack');
+    const values = yaml.parse(prometheusChart.spec.valuesContent);
+    const template = values.grafana['grafana.ini'].security.content_security_policy_template;
+
+    expect(template.startsWith('"""')).toBe(true);
+    expect(template.endsWith('"""')).toBe(true);
+    expect(template.slice(3, -3)).toContain("frame-ancestors 'self' https://console.example.com;");
   });
 
   it('should keep grafana unframable by default', () => {
