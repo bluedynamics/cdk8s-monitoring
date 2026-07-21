@@ -43,6 +43,7 @@ configure-s3-credentials
 configure-smtp-alerting
 enable-tracing
 configure-tail-sampling
+embed-grafana
 ```
 
 ## Extending the stack

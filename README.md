@@ -88,6 +88,24 @@ new MonitoringChart(app, 'monitoring', mergeConfig({
 
 Both stay inert unless `enabled: true`, so the base stack and existing consumers are unaffected.
 
+### Embedding Grafana in an iframe (opt-in)
+
+Grafana sends `X-Frame-Options: deny` by default, which blocks framing of the whole instance — including externally shared ("public") dashboards. `embedding` lifts that header and replaces it with a Content-Security-Policy that names the origins allowed to frame Grafana:
+
+```typescript
+new MonitoringChart(app, 'monitoring', mergeConfig({
+  // ...required config...
+  embedding: {
+    enabled: true,
+    frameAncestors: ['https://console.example.com'],
+  },
+}));
+```
+
+- **`embedding`** (`EmbeddingConfig`): sets `allow_embedding`, `content_security_policy` and a `content_security_policy_template` in `grafana.ini`. `frameAncestors` are added to `frame-ancestors 'self' …`; the remaining directives are Grafana's own default policy. `mergeConfig` throws when `enabled: true` comes with an empty `frameAncestors` — an allow-all embed is never what you want.
+
+Disabled by default. Enabling it turns CSP on for the whole instance, so verify the Grafana UI after rolling it out.
+
 ## Prerequisites
 
 The stack expects these to exist in the cluster:

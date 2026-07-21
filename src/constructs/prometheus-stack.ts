@@ -64,6 +64,43 @@ export class PrometheusStackConstruct extends Construct {
     });
   }
 
+  /**
+   * `[security]` section of grafana.ini, empty unless embedding is enabled.
+   *
+   * Grafana sends `X-Frame-Options: deny` unless `allow_embedding` is set, which
+   * blocks externally shared ("public") dashboards in an iframe just as much as
+   * the authenticated UI. Dropping that header alone would let any site frame
+   * Grafana, so it is paired with a Content-Security-Policy whose
+   * `frame-ancestors` names the allowed origins — browsers honour it in place of
+   * the removed header.
+   *
+   * The other directives are Grafana's own default template verbatim; `$NONCE`
+   * and `$ROOT_PATH` are expanded by Grafana per request. Only
+   * `$FORM_ACTION_ADDITIONAL_HOSTS` is dropped: it exists as a placeholder just
+   * in recent Grafanas, and older ones would emit it literally into the header.
+   */
+  private generateGrafanaSecurity(config: MonitoringConfig): string {
+    if (!config.embedding.enabled) return '';
+    const policy = [
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' $NONCE",
+      "object-src 'none'",
+      "font-src 'self'",
+      "style-src 'self' 'unsafe-inline' blob:",
+      'img-src * data:',
+      "base-uri 'self'",
+      "connect-src 'self' grafana.com ws://$ROOT_PATH wss://$ROOT_PATH",
+      "manifest-src 'self'",
+      "media-src 'none'",
+      "form-action 'self'",
+      `frame-ancestors 'self' ${config.embedding.frameAncestors.join(' ')}`,
+    ].map((directive) => `${directive};`).join('');
+    return `
+    security:
+      allow_embedding: true
+      content_security_policy: true
+      content_security_policy_template: "${policy}"`;
+  }
+
   private generateHelmValues(config: MonitoringConfig): string {
     // Tempo datasource is only provisioned when tracing is enabled. When
     // disabled this is empty, so the Grafana block is byte-identical to before.
@@ -344,7 +381,7 @@ grafana:
   grafana.ini:
     server:
       domain: ${config.domains.grafana}
-      root_url: https://${config.domains.grafana}
+      root_url: https://${config.domains.grafana}${this.generateGrafanaSecurity(config)}
 
   # Disable default Prometheus datasource (we provide our own pointing to Thanos Query)
   defaultDatasourceEnabled: false

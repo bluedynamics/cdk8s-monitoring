@@ -2,7 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   DefaultableConfig, MonitoringConfig, MonitoringConfigInput,
   VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig, TempoConfig,
-  TraefikConfig, LonghornConfig,
+  TraefikConfig, LonghornConfig, EmbeddingConfig,
 } from './types';
 
 /**
@@ -79,6 +79,10 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     namespace: 'longhorn-system',
     alerts: true,
   },
+  embedding: {
+    enabled: false,
+    frameAncestors: [],
+  },
 };
 
 /**
@@ -98,6 +102,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (longhorn.enabled && !longhorn.namespace) {
     throw new Error('longhorn.namespace is required when longhorn.enabled is true');
   }
+  const embedding = deepmerge(DEFAULT_CONFIG.embedding, input.embedding ?? {}) as EmbeddingConfig;
+  if (embedding.enabled && embedding.frameAncestors.length === 0) {
+    throw new Error('embedding.frameAncestors must name at least one origin when embedding.enabled is true');
+  }
   return {
     namespace: input.namespace,
     clusterName: input.clusterName,
@@ -113,5 +121,6 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     tempo,
     traefik,
     longhorn,
+    embedding,
   };
 }
