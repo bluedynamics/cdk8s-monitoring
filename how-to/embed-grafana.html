@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Embed Grafana in another application - cdk8s-monitoring 1.2.1 documentation</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Add application dashboards and alerts" href="add-app-dashboards.html" /><link rel="prev" title="Configure tail sampling" href="configure-tail-sampling.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/how-to/embed-grafana.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/how-to/embed-grafana.html"/>
+  <meta property="og:title" content="Embed Grafana in another application"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Embed Grafana in another application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-app-dashboards.html">Add application dashboards and alerts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/index.html">Explanation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanation/retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#collect-the-embedding-origins">Collect the embedding origins</a></li>
+<li><a class="reference internal" href="#enable-embedding">Enable embedding</a></li>
+<li><a class="reference internal" href="#deploy-and-verify">Deploy and verify</a></li>
+<li><a class="reference internal" href="#keep-the-ingress-out-of-the-way">Keep the ingress out of the way</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">How-to guides</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Embed Grafana in another application</strong>
+        <meta itemprop="position" content="3" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/embed-grafana.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/embed-grafana.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/embed-grafana.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/embed-grafana.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/how-to/embed-grafana.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="embed-grafana-in-another-application">
+<h1>Embed Grafana in another application<a class="headerlink" href="#embed-grafana-in-another-application" title="Link to this heading">#</a></h1>
+<p>This guide shows you how to let another web application load Grafana inside an <code class="docutils literal notranslate"><span class="pre">&lt;iframe&gt;</span></code>.
+Embedding is opt-in; with the default configuration Grafana refuses to be framed at all.</p>
+<p>Use it when a portal or console has to show a Grafana dashboard in place, including an externally shared dashboard, which is served from the same Grafana instance and therefore hits the same restriction.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Embedding is an instance-wide setting.
+It applies to the authenticated Grafana UI as much as to a shared dashboard, so name only origins you control.</p>
+</div>
+<section id="collect-the-embedding-origins">
+<h2>Collect the embedding origins<a class="headerlink" href="#collect-the-embedding-origins" title="Link to this heading">#</a></h2>
+<p>List every origin whose pages will frame Grafana.
+An origin is scheme plus host, without a path, for example <code class="docutils literal notranslate"><span class="pre">https://console.example.com</span></code>.</p>
+<p>Each distinct hostname is its own origin.
+An application served from both <code class="docutils literal notranslate"><span class="pre">console.example.com</span></code> and <code class="docutils literal notranslate"><span class="pre">manager.example.com</span></code> needs both entries, otherwise the second one is blocked.</p>
+</section>
+<section id="enable-embedding">
+<h2>Enable embedding<a class="headerlink" href="#enable-embedding" title="Link to this heading">#</a></h2>
+<p>Set <code class="docutils literal notranslate"><span class="pre">embedding.enabled</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> and list the origins in <code class="docutils literal notranslate"><span class="pre">embedding.frameAncestors</span></code> in the <code class="docutils literal notranslate"><span class="pre">mergeConfig</span></code> input.</p>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">mergeConfig</span><span class="p">({</span>
+</span><span data-line="2"><span class="w">  </span><span class="c1">// other required cluster values ...</span>
+</span><span data-line="3"><span class="w">  </span><span class="nx">embedding</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span data-line="4"><span class="w">    </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+</span><span data-line="5"><span class="w">    </span><span class="nx">frameAncestors</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span data-line="6"><span class="w">      </span><span class="s1">&#39;https://console.example.com&#39;</span><span class="p">,</span>
+</span><span data-line="7"><span class="w">      </span><span class="s1">&#39;https://manager.example.com&#39;</span><span class="p">,</span>
+</span><span data-line="8"><span class="w">    </span><span class="p">],</span>
+</span><span data-line="9"><span class="w">  </span><span class="p">},</span>
+</span><span data-line="10"><span class="p">});</span>
+</span></pre></div>
+</div>
+<p>This adds a <code class="docutils literal notranslate"><span class="pre">[security]</span></code> section to <code class="docutils literal notranslate"><span class="pre">grafana.ini</span></code> that turns off <code class="docutils literal notranslate"><span class="pre">X-Frame-Options</span></code>, turns on the Content-Security-Policy header, and sets a policy whose <code class="docutils literal notranslate"><span class="pre">frame-ancestors</span></code> directive lists <code class="docutils literal notranslate"><span class="pre">'self'</span></code> plus your origins.
+Grafana’s own origin stays allowed, so its internal panel previews keep working.</p>
+<p><code class="docutils literal notranslate"><span class="pre">embedding.frameAncestors</span></code> is required whenever <code class="docutils literal notranslate"><span class="pre">embedding.enabled</span></code> is true.
+If you enable embedding without an origin, <code class="docutils literal notranslate"><span class="pre">mergeConfig</span></code> throws <code class="docutils literal notranslate"><span class="pre">embedding.frameAncestors</span> <span class="pre">must</span> <span class="pre">name</span> <span class="pre">at</span> <span class="pre">least</span> <span class="pre">one</span> <span class="pre">origin</span> <span class="pre">when</span> <span class="pre">embedding.enabled</span> <span class="pre">is</span> <span class="pre">true</span></code>.</p>
+</section>
+<section id="deploy-and-verify">
+<h2>Deploy and verify<a class="headerlink" href="#deploy-and-verify" title="Link to this heading">#</a></h2>
+<p>Roll out the chart, then confirm Grafana picked up the section.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>monitoring<span class="w"> </span>deploy/kube-prometheus-stack-grafana<span class="w"> </span>-c<span class="w"> </span>grafana<span class="w"> </span>--<span class="w"> </span>cat<span class="w"> </span>/etc/grafana/grafana.ini
+</span></pre></div>
+</div>
+<p>Check the response headers of the Grafana host.
+<code class="docutils literal notranslate"><span class="pre">X-Frame-Options</span></code> must be gone and <code class="docutils literal notranslate"><span class="pre">Content-Security-Policy</span></code> must carry your origins.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span data-line="1">curl<span class="w"> </span>-sI<span class="w"> </span>https://grafana.example.com/login<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;x-frame-options|content-security-policy&#39;</span>
+</span></pre></div>
+</div>
+<p>Read the whole policy, not just its first directive.
+A policy that ends after <code class="docutils literal notranslate"><span class="pre">script-src</span></code> means <code class="docutils literal notranslate"><span class="pre">grafana.ini</span></code> lost everything from the first <code class="docutils literal notranslate"><span class="pre">;</span></code> onward, because go-ini reads that character as an inline comment.
+The library wraps the policy in <code class="docutils literal notranslate"><span class="pre">&quot;&quot;&quot;</span></code> to prevent exactly this, so a truncated header points at a hand-edited <code class="docutils literal notranslate"><span class="pre">grafana.ini</span></code> rather than at your configuration.</p>
+<p>Finally, open a page of the embedding application and confirm the iframe renders.
+A browser that blocks the frame reports the offending directive in the developer console.</p>
+</section>
+<section id="keep-the-ingress-out-of-the-way">
+<h2>Keep the ingress out of the way<a class="headerlink" href="#keep-the-ingress-out-of-the-way" title="Link to this heading">#</a></h2>
+<p>The header must survive the path from Grafana to the browser.
+If your ingress controller injects its own <code class="docutils literal notranslate"><span class="pre">X-Frame-Options</span></code> or <code class="docutils literal notranslate"><span class="pre">Content-Security-Policy</span></code>, the browser sees that instead and the frame stays blocked.
+Remove any such security-header middleware from the Grafana ingress, or extend it with the same <code class="docutils literal notranslate"><span class="pre">frame-ancestors</span></code> value.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../reference/configuration-options.html"><span class="doc">Configuration options</span></a> — every <code class="docutils literal notranslate"><span class="pre">embedding</span></code> field and its default.</p></li>
+<li><p><a class="reference internal" href="override-defaults.html"><span class="doc">Override the defaults</span></a> — how the merge of defaults and overrides works.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="configure-tail-sampling.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Configure tail sampling</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="add-app-dashboards.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Add application dashboards and alerts</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=ca842793"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script>
+      <script src="../_static/logo-fix.js?v=75f22b15"></script></body>
+</html>
