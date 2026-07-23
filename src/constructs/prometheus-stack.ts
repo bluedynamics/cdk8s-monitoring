@@ -78,6 +78,14 @@ export class PrometheusStackConstruct extends Construct {
    * and `$ROOT_PATH` are expanded by Grafana per request. Only
    * `$FORM_ACTION_ADDITIONAL_HOSTS` is dropped: it exists as a placeholder just
    * in recent Grafanas, and older ones would emit it literally into the header.
+   *
+   * The policy is wrapped in `"""`, exactly as Grafana's own defaults.ini does.
+   * grafana.ini is parsed by go-ini, which treats `;` as an inline comment — an
+   * unquoted policy is silently truncated at its first directive separator, and
+   * the browser then receives a CSP without `frame-ancestors` while
+   * `X-Frame-Options` is already gone. A YAML block scalar carries the quotes
+   * through untouched; a plain quoted scalar would fight over the same
+   * character.
    */
   private generateGrafanaSecurity(config: MonitoringConfig): string {
     if (!config.embedding.enabled) return '';
@@ -98,7 +106,8 @@ export class PrometheusStackConstruct extends Construct {
     security:
       allow_embedding: true
       content_security_policy: true
-      content_security_policy_template: "${policy}"`;
+      content_security_policy_template: >-
+        """${policy}"""`;
   }
 
   private generateHelmValues(config: MonitoringConfig): string {

@@ -65,6 +65,10 @@ Check the response headers of the Grafana host.
 curl -sI https://grafana.example.com/login | grep -i -E 'x-frame-options|content-security-policy'
 ```
 
+Read the whole policy, not just its first directive.
+A policy that ends after `script-src` means `grafana.ini` lost everything from the first `;` onward, because go-ini reads that character as an inline comment.
+The library wraps the policy in `"""` to prevent exactly this, so a truncated header points at a hand-edited `grafana.ini` rather than at your configuration.
+
 Finally, open a page of the embedding application and confirm the iframe renders.
 A browser that blocks the frame reports the offending directive in the developer console.
 
