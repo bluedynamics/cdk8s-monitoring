@@ -168,6 +168,10 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       enabled: false,
       frameAncestors: [],
     },
+    stagingAlerts: {
+      enabled: false,
+      namespaces: [],
+    },
   };
 
   return { ...defaultConfig, ...overrides };

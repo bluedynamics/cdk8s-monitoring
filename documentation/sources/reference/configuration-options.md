@@ -206,8 +206,25 @@ When `embedding.enabled` is false, `grafana.ini` carries no `[security]` section
 The generated policy repeats Grafana's own default directives and adds `frame-ancestors`.
 It omits the `$FORM_ACTION_ADDITIONAL_HOSTS` placeholder from Grafana's stock template, so `form_action_additional_hosts` has no effect while embedding is enabled.
 
+### stagingAlerts
+
+The `stagingAlerts` block controls demoted alert routing for staging namespaces that share the cluster's monitoring stack.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `stagingAlerts.enabled` is false, the Alertmanager configuration carries no staging route or receiver.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `stagingAlerts.enabled` | `boolean` | `false` | Master switch; when true, adds a `staging` route and receiver to the Alertmanager configuration. |
+| `stagingAlerts.namespaces` | `string[]` | `[]` | Namespaces whose alerts route to the `staging` receiver, matched against the `namespace` label. |
+
+`mergeConfig` throws `stagingAlerts.namespaces must name at least one namespace when stagingAlerts.enabled is true` when you enable the block without a namespace.
+
+The `staging` receiver mails the same address as the production receiver with a `[STAGING]` subject prefix.
+The noise-drop routes for alertnames such as `Watchdog` keep precedence over the staging route.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.
 - {doc}`../how-to/embed-grafana` — how to enable and verify embedding.
+- {doc}`../how-to/route-staging-alerts` — how to enable and verify staging alert routing.
 - {doc}`sync-waves` — the rollout order of the resources.

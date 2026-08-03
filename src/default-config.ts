@@ -2,7 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   DefaultableConfig, MonitoringConfig, MonitoringConfigInput,
   VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig, TempoConfig,
-  TraefikConfig, LonghornConfig, EmbeddingConfig,
+  TraefikConfig, LonghornConfig, EmbeddingConfig, StagingAlertsConfig,
 } from './types';
 
 /**
@@ -83,6 +83,10 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     enabled: false,
     frameAncestors: [],
   },
+  stagingAlerts: {
+    enabled: false,
+    namespaces: [],
+  },
 };
 
 /**
@@ -106,6 +110,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (embedding.enabled && embedding.frameAncestors.length === 0) {
     throw new Error('embedding.frameAncestors must name at least one origin when embedding.enabled is true');
   }
+  const stagingAlerts = deepmerge(DEFAULT_CONFIG.stagingAlerts, input.stagingAlerts ?? {}) as StagingAlertsConfig;
+  if (stagingAlerts.enabled && stagingAlerts.namespaces.length === 0) {
+    throw new Error('stagingAlerts.namespaces must name at least one namespace when stagingAlerts.enabled is true');
+  }
   return {
     namespace: input.namespace,
     clusterName: input.clusterName,
@@ -122,5 +130,6 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     traefik,
     longhorn,
     embedding,
+    stagingAlerts,
   };
 }

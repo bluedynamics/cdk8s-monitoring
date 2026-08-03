@@ -187,6 +187,20 @@ export interface EmbeddingConfig {
 }
 
 /**
+ * Demoted alert routing for staging namespaces sharing this cluster's
+ * monitoring stack (opt-in).
+ *
+ * Alerts whose `namespace` label matches one of the listed namespaces are
+ * routed to a separate `staging` email receiver whose subject carries a
+ * `[STAGING]` prefix, instead of the production receiver — so they stay
+ * visible but never read like a production page.
+ */
+export interface StagingAlertsConfig {
+  enabled: boolean; // default false — when false, all namespaces route to the production receiver
+  namespaces: string[]; // namespaces whose alerts are demoted, e.g. 'myapp-stage'
+}
+
+/**
  * Configuration the package ships sensible defaults for.
  * Integration charts may override any of these (deep-merged over DEFAULT_CONFIG).
  */
@@ -200,6 +214,7 @@ export interface DefaultableConfig {
   traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
+  stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
 }
 
 /**
