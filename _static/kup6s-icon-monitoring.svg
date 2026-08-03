@@ -1,0 +1,79 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(50, 50)">
+    <!-- Scanlines (CRT effect - reduced) -->
+    <line x1="-35" y1="-28" x2="35" y2="-28" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="-20" x2="35" y2="-20" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="-12" x2="35" y2="-12" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="-4" x2="35" y2="-4" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="4" x2="35" y2="4" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="12" x2="35" y2="12" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="20" x2="35" y2="20" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    <line x1="-35" y1="28" x2="35" y2="28" stroke="#00d4ff" stroke-width="0.3" opacity="0.12"/>
+    
+    <!-- Corner brackets -->
+    <path d="M -35,-35 L -30,-35 L -30,-30" stroke="#00d4ff" stroke-width="2.5" fill="none"/>
+    <path d="M -35,35 L -30,35 L -30,30" stroke="#00d4ff" stroke-width="2.5" fill="none"/>
+    <path d="M 35,-35 L 30,-35 L 30,-30" stroke="#ff00ff" stroke-width="2.5" fill="none"/>
+    <path d="M 35,35 L 30,35 L 30,30" stroke="#ff00ff" stroke-width="2.5" fill="none"/>
+    
+    <!-- Glitch lines (digital corruption effect - subtle) -->
+    <!-- Top left glitches -->
+    <line x1="-33" y1="-36" x2="-30" y2="-36" stroke="#ff00ff" stroke-width="1" opacity="0.3"/>
+    <!-- Top right glitches -->
+    <line x1="30" y1="-36" x2="33" y2="-36" stroke="#00d4ff" stroke-width="1" opacity="0.3"/>
+    <!-- Bottom left glitches -->
+    <line x1="-33" y1="36" x2="-30" y2="36" stroke="#00d4ff" stroke-width="1" opacity="0.3"/>
+    <!-- Bottom right glitches -->
+    <line x1="30" y1="36" x2="33" y2="36" stroke="#ff00ff" stroke-width="1" opacity="0.3"/>
+    
+    <line x1="-25" y1="-15" x2="25" y2="-15" stroke="#00d4ff" stroke-width="1" opacity="0.4"/>
+    <line x1="-25" y1="15" x2="25" y2="15" stroke="#ff00ff" stroke-width="1" opacity="0.4"/>
+    
+    <!-- Plone circular device with 4 dots pattern -->
+    <!-- Outer circle (centered) -->
+    <circle cx="0" cy="0" r="10" fill="none" stroke="#00d4ff" stroke-width="2.5"/>
+    
+    <!-- Glitch circles (offset duplicates for digital corruption - subtle) -->
+    <circle cx="0.5" cy="0" r="10" fill="none" stroke="#ff00ff" stroke-width="0.8" opacity="0.15"/>
+    <circle cx="-0.3" cy="0.2" r="10" fill="none" stroke="#00d4ff" stroke-width="0.6" opacity="0.1"/>
+    
+    <!-- Inner circle (subtle, magenta) -->
+    <circle cx="0" cy="0" r="8.5" fill="none" stroke="#ff00ff" stroke-width="1" opacity="0.3"/>
+    
+    <!-- The distinctive Plone dot pattern -->
+    <!-- 2 dots on the left side (cyan, moved more to center) -->
+    <circle cx="-3" cy="-3" r="2" fill="#00d4ff" opacity="0.9"/>
+    <circle cx="-3" cy="3" r="2" fill="#00d4ff" opacity="0.9"/>
+    
+    <!-- 1 dot on the right side (cyan) -->
+    <circle cx="4" cy="0" r="2" fill="#00d4ff" opacity="0.9"/>
+    
+    <!-- CMS content elements positioned away from corner brackets -->
+    <!-- Document icon (top left, moved in from corner) -->
+    <rect x="-26" y="-26" width="12" height="16" fill="none" stroke="#ff00ff" stroke-width="1.5" rx="1"/>
+    <line x1="-24" y1="-22" x2="-16" y2="-22" stroke="#ff00ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="-19" x2="-16" y2="-19" stroke="#ff00ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="-16" x2="-16" y2="-16" stroke="#ff00ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="-13" x2="-18" y2="-13" stroke="#ff00ff" stroke-width="1" opacity="0.7"/>
+    
+    <!-- Image icon (top right, moved in from corner) -->
+    <rect x="14" y="-26" width="12" height="16" fill="none" stroke="#00d4ff" stroke-width="1.5" rx="1"/>
+    <circle cx="18" cy="-21" r="2.5" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.7"/>
+    <path d="M 14,-12 L 18,-18 L 22,-15 L 26,-20" fill="none" stroke="#00d4ff" stroke-width="1.2" opacity="0.7"/>
+    
+    <!-- File/Content icon (bottom left, moved in from corner) -->
+    <rect x="-26" y="10" width="12" height="16" fill="none" stroke="#00d4ff" stroke-width="1.5" rx="1"/>
+    <line x1="-24" y1="14" x2="-16" y2="14" stroke="#00d4ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="17" x2="-16" y2="17" stroke="#00d4ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="20" x2="-16" y2="20" stroke="#00d4ff" stroke-width="1" opacity="0.7"/>
+    <line x1="-24" y1="23" x2="-18" y2="23" stroke="#00d4ff" stroke-width="1" opacity="0.7"/>
+    
+    <!-- Folder icon (bottom right, moved in from corner) -->
+    <path d="M 14,14 L 14,10 L 19,10 L 21,12 L 26,12 L 26,26 L 14,26 Z" fill="none" stroke="#ff00ff" stroke-width="1.5" opacity="0.8"/>
+    <line x1="16" y1="16" x2="24" y2="16" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+    <line x1="16" y1="20" x2="24" y2="20" stroke="#ff00ff" stroke-width="1" opacity="0.5"/>
+    
+    <circle cx="-28" cy="0" r="2" fill="#00d4ff" opacity="0.8"/>
+    <circle cx="28" cy="0" r="2" fill="#ff00ff" opacity="0.8"/>
+  </g>
+</svg>
