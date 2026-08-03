@@ -91,6 +91,17 @@ test('throws when embedding is enabled without frame ancestors', () => {
     .toThrow(/embedding\.frameAncestors/);
 });
 
+test('leaves stagingAlerts disabled by default', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.stagingAlerts.enabled).toBe(false);
+  expect(cfg.stagingAlerts.namespaces).toEqual([]);
+});
+
+test('throws when stagingAlerts is enabled without namespaces', () => {
+  expect(() => mergeConfig({ ...cluster, stagingAlerts: { enabled: true } as any }))
+    .toThrow(/stagingAlerts\.namespaces/);
+});
+
 test('passes clusterName through unchanged', () => {
   const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
   expect(cfg.clusterName).toBe('my-cluster');

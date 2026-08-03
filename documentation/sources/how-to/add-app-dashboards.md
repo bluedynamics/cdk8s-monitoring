@@ -58,6 +58,23 @@ export class AppDashboardConstruct extends Construct {
 The `grafana_dashboard: "1"` label is what the sidecar matches.
 Keep the dashboard JSON in your integration repo and read it in at synth time.
 
+## Put a dashboard in a named folder
+
+By default, discovered dashboards land in Grafana's `General` folder.
+To place a dashboard in its own folder, add a `grafana_folder` annotation with the folder name to the `ConfigMap`.
+
+```typescript
+metadata: {
+  name: 'my-app-dashboard',
+  namespace: props.namespace,
+  labels: { grafana_dashboard: '1' },
+  annotations: { grafana_folder: 'My App Staging' },
+},
+```
+
+The sidecar reads the annotation and files the dashboard under that folder; `ConfigMap`s without the annotation keep landing in `General`.
+Use this to separate staging dashboards from production ones when both share the stack.
+
 ## Add an alert rule
 
 Alert rules are plain `PrometheusRule` resources you manage in your integration repo.

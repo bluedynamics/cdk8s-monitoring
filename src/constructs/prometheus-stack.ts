@@ -87,6 +87,35 @@ export class PrometheusStackConstruct extends Construct {
    * through untouched; a plain quoted scalar would fight over the same
    * character.
    */
+  /**
+   * Extra Alertmanager route demoting staging-namespace alerts, empty unless
+   * stagingAlerts is enabled. Placed after the noise-drop routes (those apply
+   * to staging just as much) and before the default production receiver.
+   */
+  private generateStagingRoute(config: MonitoringConfig): string {
+    if (!config.stagingAlerts.enabled) return '';
+    return `
+      - match_re:
+          namespace: ^(${config.stagingAlerts.namespaces.join('|')})$
+        receiver: staging`;
+  }
+
+  /**
+   * The `staging` email receiver, empty unless stagingAlerts is enabled. Same
+   * mailbox as the production receiver, but the subject prefix marks the mail
+   * as non-production and keeps it filterable.
+   */
+  private generateStagingReceiver(config: MonitoringConfig): string {
+    if (!config.stagingAlerts.enabled) return '';
+    return `
+    - name: staging
+      email_configs:
+      - send_resolved: true
+        to: ${config.smtp.from}
+        headers:
+          subject: '[STAGING] {{ template "email.default.subject" . }}'`;
+  }
+
   private generateGrafanaSecurity(config: MonitoringConfig): string {
     if (!config.embedding.enabled) return '';
     const policy = [
@@ -243,14 +272,14 @@ alertmanager:
         receiver: 'null'
       - match:
           alertname: KubeletTooManyPods
-        receiver: 'null'
+        receiver: 'null'${this.generateStagingRoute(config)}
 
     receivers:
     - name: 'null'
     - name: email
       email_configs:
       - send_resolved: true
-        to: ${config.smtp.from}
+        to: ${config.smtp.from}${this.generateStagingReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.
@@ -406,6 +435,11 @@ grafana:
         memory: 512Mi
     dashboards:
       enabled: true
+      # Dashboard ConfigMaps may opt into a named Grafana folder via this
+      # annotation; ConfigMaps without it keep landing in General.
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
     datasources:
       enabled: false  # We manually provision datasources (Prometheus→Thanos, Loki)
 

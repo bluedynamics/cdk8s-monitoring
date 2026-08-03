@@ -44,6 +44,7 @@ configure-smtp-alerting
 enable-tracing
 configure-tail-sampling
 embed-grafana
+route-staging-alerts
 ```
 
 ## Extending the stack

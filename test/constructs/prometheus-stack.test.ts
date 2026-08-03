@@ -388,6 +388,35 @@ describe('PrometheusStackConstruct', () => {
     expect(values).not.toContain('type: tempo');
   });
 
+  it('routes staging-namespace alerts to the demoted staging receiver when stagingAlerts is enabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({ stagingAlerts: { enabled: true, namespaces: ['myapp-stage', 'other-stage'] } });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('namespace: ^(myapp-stage|other-stage)$');
+    expect(values).toContain('receiver: staging');
+    expect(values).toContain('- name: staging');
+    expect(values).toContain("subject: '[STAGING] {{ template \"email.default.subject\" . }}'");
+  });
+
+  it('omits the staging route and receiver when stagingAlerts is disabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).not.toContain('receiver: staging');
+    expect(values).not.toContain('- name: staging');
+  });
+
+  it('lets dashboard ConfigMaps pick a Grafana folder via the grafana_folder annotation', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('folderAnnotation: grafana_folder');
+    expect(values).toContain('foldersFromFilesStructure: true');
+  });
+
   it('uses config.clusterName for the cluster external label and ships no kup6s-specific alert', () => {
     const chart = Testing.chart();
     const config = createTestConfig();
