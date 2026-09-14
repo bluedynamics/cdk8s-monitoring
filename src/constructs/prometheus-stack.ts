@@ -105,13 +105,41 @@ export class PrometheusStackConstruct extends Construct {
    * mailbox as the production receiver, but the subject prefix marks the mail
    * as non-production and keeps it filterable.
    */
+  /**
+   * Alertmanager reads the password from the file when a secret is configured,
+   * which keeps it out of the synthesized manifests.
+   */
+  private generateSmtpAuthPassword(config: MonitoringConfig): string {
+    const secret = config.smtp.passwordSecret;
+    if (secret) {
+      return `smtp_auth_password_file: /etc/alertmanager/secrets/${secret.name}/${secret.key}`;
+    }
+    return `smtp_auth_password: ${config.smtp.password || ''}`;
+  }
+
+  /** Falls back to the sender address so existing configs keep their recipient. */
+  private generateRecipients(config: MonitoringConfig): string {
+    const recipients = config.smtp.recipients;
+    if (recipients && recipients.length > 0) return recipients.join(', ');
+    return config.smtp.from;
+  }
+
+  /** Mounts the password secret at /etc/alertmanager/secrets/<name>/<key>. */
+  private generateAlertmanagerSecrets(config: MonitoringConfig): string {
+    const secret = config.smtp.passwordSecret;
+    if (!secret) return '';
+    return `
+    secrets:
+    - ${secret.name}`;
+  }
+
   private generateStagingReceiver(config: MonitoringConfig): string {
     if (!config.stagingAlerts.enabled) return '';
     return `
     - name: staging
       email_configs:
       - send_resolved: true
-        to: ${config.smtp.from}
+        to: ${this.generateRecipients(config)}
         headers:
           subject: '[STAGING] {{ template "email.default.subject" . }}'`;
   }
@@ -250,7 +278,7 @@ alertmanager:
       smtp_smarthost: ${config.smtp.host}:${config.smtp.port}
       smtp_require_tls: ${config.smtp.requireTls}
       smtp_auth_username: ${config.smtp.username || config.smtp.from}
-      smtp_auth_password: ${config.smtp.password || ''}
+      ${this.generateSmtpAuthPassword(config)}
     route:
       group_by: ['job']
       group_wait: 30s
@@ -279,7 +307,7 @@ alertmanager:
     - name: email
       email_configs:
       - send_resolved: true
-        to: ${config.smtp.from}${this.generateStagingReceiver(config)}
+        to: ${this.generateRecipients(config)}${this.generateStagingReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.
@@ -293,7 +321,7 @@ alertmanager:
 
   alertmanagerSpec:
     replicas: ${config.replicas.alertmanager}
-    podAntiAffinity: "soft"
+    podAntiAffinity: "soft"${this.generateAlertmanagerSecrets(config)}
     storage:
       volumeClaimTemplate:
         spec:

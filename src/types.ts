@@ -28,6 +28,18 @@ export interface S3Config {
 }
 
 /**
+ * Reference to a Secret holding the SMTP password.
+ *
+ * The secret must live in the monitoring namespace. Prometheus Operator mounts
+ * it into the Alertmanager pod, and Alertmanager reads the password from the
+ * mounted file rather than from its configuration.
+ */
+export interface SmtpPasswordSecret {
+  name: string; // Secret name in the monitoring namespace
+  key: string; // Key within that secret holding the password
+}
+
+/**
  * SMTP configuration for alerting
  */
 export interface SmtpConfig {
@@ -35,8 +47,28 @@ export interface SmtpConfig {
   port: number; // SMTP server port
   from: string; // From email address
   username?: string; // SMTP username (optional)
-  password?: string; // SMTP password (optional)
+  /**
+   * SMTP password as a literal.
+   *
+   * Renders into the generated Alertmanager configuration in clear text, so
+   * anything that commits the synthesized manifests commits the password with
+   * them. Prefer `passwordSecret`; this field remains for compatibility.
+   */
+  password?: string;
+  /**
+   * Read the SMTP password from a mounted secret instead of embedding it.
+   *
+   * Takes precedence over `password`.
+   */
+  passwordSecret?: SmtpPasswordSecret;
   requireTls: boolean; // Require TLS for SMTP
+  /**
+   * Alert recipients. Defaults to `[from]` when unset.
+   *
+   * Alertmanager accepts several addresses per receiver, so a distribution list
+   * is not required to reach more than one person.
+   */
+  recipients?: string[];
 }
 
 /**

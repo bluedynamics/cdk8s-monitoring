@@ -427,4 +427,50 @@ describe('PrometheusStackConstruct', () => {
     expect(values).not.toContain('ExWorkerNotReady');
     expect(values).not.toContain('kup6s-ex-');
   });
+
+  it('embeds the literal SMTP password and mails the sender when nothing else is configured', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('smtp_auth_password: test-pass');
+    expect(values).toContain('to: alerts@example.com');
+    expect(values).not.toContain('smtp_auth_password_file');
+    expect(values).not.toContain('secrets:');
+  });
+
+  it('reads the SMTP password from a mounted secret instead of embedding it', () => {
+    const chart = Testing.chart();
+    const base = createTestConfig();
+    const config = createTestConfig({
+      smtp: {
+        ...base.smtp,
+        password: 'test-pass',
+        passwordSecret: { name: 'alertmanager-smtp', key: 'password' },
+      },
+    });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain(
+      'smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp/password',
+    );
+    // The whole point: the password must not reach the synthesized manifest.
+    expect(values).not.toContain('test-pass');
+    expect(values).not.toContain('smtp_auth_password:');
+    // Prometheus Operator only mounts secrets it is told about.
+    expect(values).toContain('secrets:');
+    expect(values).toContain('- alertmanager-smtp');
+  });
+
+  it('sends to every configured recipient', () => {
+    const chart = Testing.chart();
+    const base = createTestConfig();
+    const config = createTestConfig({
+      smtp: { ...base.smtp, recipients: ['a@example.com', 'b@example.org'] },
+    });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toContain('to: a@example.com, b@example.org');
+    expect(values).not.toContain('to: alerts@example.com');
+  });
 });

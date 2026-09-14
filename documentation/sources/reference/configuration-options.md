@@ -67,9 +67,13 @@ These fields belong to `RequiredClusterConfig` and have no default.
 |---|---|---|
 | `smtp.host` | `string` | SMTP server hostname. |
 | `smtp.port` | `number` | SMTP server port. |
-| `smtp.from` | `string` | From address; also the default alert recipient. |
+| `smtp.from` | `string` | From address; also the alert recipient when `smtp.recipients` is unset. |
 | `smtp.username` | `string` (optional) | SMTP username; falls back to `smtp.from`. |
-| `smtp.password` | `string` (optional) | SMTP password; inject at synth time. |
+| `smtp.password` | `string` (optional) | SMTP password as a literal. Renders into the synthesized manifests in clear text. Prefer `smtp.passwordSecret`. |
+| `smtp.passwordSecret` | `object` (optional) | Read the password from a mounted secret instead. Takes precedence over `smtp.password`. |
+| `smtp.passwordSecret.name` | `string` | Secret name in the monitoring namespace. |
+| `smtp.passwordSecret.key` | `string` | Key within that secret holding the password. |
+| `smtp.recipients` | `string[]` (optional) | Alert recipients. Defaults to `[smtp.from]`. |
 | `smtp.requireTls` | `boolean` | Require TLS for the SMTP connection. |
 
 ### integrations
