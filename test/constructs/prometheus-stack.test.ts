@@ -462,6 +462,18 @@ describe('PrometheusStackConstruct', () => {
     expect(values).toContain('- alertmanager-smtp');
   });
 
+  it('disables the control-plane scrape jobs k3s does not expose', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    // k3s embeds these in the agent or the server process; scraping them yields
+    // permanently firing *Down rules on a healthy cluster.
+    for (const component of ['kubeEtcd', 'kubeControllerManager', 'kubeScheduler', 'kubeProxy']) {
+      expect(values).toContain(`${component}:\n  enabled: false`);
+    }
+  });
+
   it('sends to every configured recipient', () => {
     const chart = Testing.chart();
     const base = createTestConfig();

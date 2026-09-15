@@ -194,6 +194,13 @@ kubeControllerManager:
 kubeScheduler:
   enabled: false
 
+# k3s runs kube-proxy inside the agent rather than as a separate component, so
+# there is no endpoint to scrape. Leaving this enabled makes the stock
+# KubeProxyDown rule -- absent(up{job="kube-proxy"}) -- fire forever on a
+# perfectly healthy cluster.
+kubeProxy:
+  enabled: false
+
 # Detect PodDisruptionBudgets that would block a node drain during k3s upgrades.
 # Operator-managed PDBs sit at disruptionsAllowed=0 by design (Longhorn instance-managers,
 # CNPG *-primary) and are excluded so the alert only fires on anomalous app PDBs.
