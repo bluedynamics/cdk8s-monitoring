@@ -1,6 +1,7 @@
 import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
+import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
 
 export interface TempoProps {
   namespace: string;
@@ -44,6 +45,7 @@ export class TempoConstruct extends Construct {
         chart: 'tempo',
         version: config.versions.tempo === 'latest' ? undefined : config.versions.tempo,
         targetNamespace: namespace,
+        failurePolicy: HELM_CHART_FAILURE_POLICY,
         valuesContent: this.generateHelmValues(config, s3CredentialsSecretName),
       },
     });

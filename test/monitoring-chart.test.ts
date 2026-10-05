@@ -566,4 +566,21 @@ describe('MonitoringChart Integration Tests', () => {
     expect(offManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'tempo')).toHaveLength(0);
     expect(offManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'alloy-traces')).toHaveLength(0);
   });
+
+  it('sets failurePolicy abort on every HelmChart', () => {
+    // The helm-controller default (reinstall) uninstalls a failed release,
+    // which deletes Helm-owned PVCs such as Grafana's database (#23).
+    const config = createTestConfig({ tempo: { ...createTestConfig().tempo, enabled: true, bucket: 'traces-b' } });
+    const helmCharts = findResourcesByKind(synthesizeChart(new MonitoringChart(new App(), 'm', config)), 'HelmChart');
+
+    expect(helmCharts.map((h: any) => h.metadata.name).sort()).toEqual(
+      ['alloy', 'alloy-traces', 'kube-prometheus-stack', 'loki', 'tempo'],
+    );
+    for (const helmChart of helmCharts) {
+      expect({ name: helmChart.metadata.name, failurePolicy: helmChart.spec.failurePolicy }).toEqual({
+        name: helmChart.metadata.name,
+        failurePolicy: 'abort',
+      });
+    }
+  });
 });

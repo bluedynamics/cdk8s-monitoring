@@ -1,6 +1,7 @@
 import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
+import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
 
 export interface AlloyTracesProps {
   namespace: string;
@@ -44,6 +45,7 @@ export class AlloyTracesConstruct extends Construct {
         chart: 'alloy',
         version: config.versions.alloy === 'latest' ? undefined : config.versions.alloy,
         targetNamespace: namespace,
+        failurePolicy: HELM_CHART_FAILURE_POLICY,
         valuesContent: this.generateHelmValues(config),
       },
     });

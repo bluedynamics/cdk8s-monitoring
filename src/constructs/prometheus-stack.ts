@@ -1,6 +1,7 @@
 import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
+import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
 
 export interface PrometheusStackProps {
   namespace: string;
@@ -59,6 +60,7 @@ export class PrometheusStackConstruct extends Construct {
         chart: 'kube-prometheus-stack',
         version: config.versions.prometheusStack === 'latest' ? undefined : config.versions.prometheusStack,
         targetNamespace: namespace,
+        failurePolicy: HELM_CHART_FAILURE_POLICY,
         valuesContent: helmValues,
       },
     });

@@ -1,6 +1,7 @@
 import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
+import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
 
 export interface LokiProps {
   namespace: string;
@@ -59,6 +60,7 @@ export class LokiConstruct extends Construct {
         chart: 'loki',
         version: config.versions.loki === 'latest' ? undefined : config.versions.loki,
         targetNamespace: namespace,
+        failurePolicy: HELM_CHART_FAILURE_POLICY,
         valuesContent: helmValues,
       },
     });
