@@ -57,6 +57,16 @@ titlesonly: true
 add-app-dashboards
 ```
 
+## Operations
+
+```{toctree}
+---
+maxdepth: 1
+titlesonly: true
+---
+recover-failed-helm-release
+```
+
 ---
 
 **New to cdk8s-monitoring?** Start with the {doc}`../tutorials/index`.
