@@ -1,4 +1,5 @@
 import { Testing } from 'cdk8s';
+import { parse } from 'yaml';
 import { PrometheusStackConstruct } from '../../src/constructs/prometheus-stack';
 import {
   createTestConfig,
@@ -484,5 +485,34 @@ describe('PrometheusStackConstruct', () => {
     const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
     expect(values).toContain('to: a@example.com, b@example.org');
     expect(values).not.toContain('to: alerts@example.com');
+  });
+
+  describe('alert noise', () => {
+    const helmValues = (config = createTestConfig()) => {
+      const chart = Testing.chart();
+      new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+      return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+    };
+
+    it('repeats an unresolved alert every 12h by default, not every hour', () => {
+      expect(helmValues().alertmanager.config.route.repeat_interval).toBe('12h');
+    });
+
+    it('takes the repeat interval from config.alertRouting', () => {
+      const config = createTestConfig({ alertRouting: { repeatInterval: '4h' } });
+      expect(helmValues(config).alertmanager.config.route.repeat_interval).toBe('4h');
+    });
+
+    it('routes InfoInhibitor to the null receiver', () => {
+      const routes = helmValues().alertmanager.config.route.routes;
+      expect(routes).toContainEqual({ match: { alertname: 'InfoInhibitor' }, receiver: 'null' });
+    });
+
+    it('drops the replica external label from alerts, so the two Prometheus replicas do not double every alert', () => {
+      const spec = helmValues().prometheus.prometheusSpec;
+      expect(spec.additionalAlertRelabelConfigs).toContainEqual({ action: 'labeldrop', regex: 'replica' });
+      // Thanos deduplicates on the label, so it must stay on the metrics.
+      expect(spec.externalLabels.replica).toBe('$(POD_NAME)');
+    });
   });
 });

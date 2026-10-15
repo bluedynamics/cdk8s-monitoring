@@ -172,6 +172,9 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       enabled: false,
       namespaces: [],
     },
+    alertRouting: {
+      repeatInterval: '12h',
+    },
   };
 
   return { ...defaultConfig, ...overrides };

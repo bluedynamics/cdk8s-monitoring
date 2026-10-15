@@ -97,6 +97,11 @@ test('leaves stagingAlerts disabled by default', () => {
   expect(cfg.stagingAlerts.namespaces).toEqual([]);
 });
 
+test('repeats alerts every 12h unless alertRouting overrides it', () => {
+  expect(mergeConfig(cluster).alertRouting.repeatInterval).toBe('12h');
+  expect(mergeConfig({ ...cluster, alertRouting: { repeatInterval: '2h' } }).alertRouting.repeatInterval).toBe('2h');
+});
+
 test('throws when stagingAlerts is enabled without namespaces', () => {
   expect(() => mergeConfig({ ...cluster, stagingAlerts: { enabled: true } as any }))
     .toThrow(/stagingAlerts\.namespaces/);

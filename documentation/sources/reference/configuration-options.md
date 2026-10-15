@@ -226,6 +226,21 @@ When `stagingAlerts.enabled` is false, the Alertmanager configuration carries no
 The `staging` receiver mails the same address as the production receiver with a `[STAGING]` subject prefix.
 The noise-drop routes for alertnames such as `Watchdog` keep precedence over the staging route.
 
+### alertRouting
+
+The `alertRouting` block paces Alertmanager notifications.
+It belongs to `DefaultableConfig`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `alertRouting.repeatInterval` | `string` | `12h` | Alertmanager `repeat_interval`: how often a still-firing alert group is mailed again. |
+
+An hourly repeat turns every long-standing alert into a stream of mails, which gets the channel muted.
+
+The noise-drop routes send `Watchdog`, `InfoInhibitor`, `CPUThrottlingHigh`, `KubeMemoryOvercommit`, `KubeCPUOvercommit`, and `KubeletTooManyPods` to the `null` receiver.
+The `replica` external label stays on metrics for Thanos deduplication, but Prometheus drops it from alerts.
+Otherwise, every alert arrives twice, once from each Prometheus replica.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.

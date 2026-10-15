@@ -233,6 +233,18 @@ export interface StagingAlertsConfig {
 }
 
 /**
+ * Alertmanager notification pacing.
+ */
+export interface AlertRoutingConfig {
+  /**
+   * How often a still-firing alert group is mailed again (Alertmanager `repeat_interval`).
+   * Default 12h: an hourly repeat turns every long-standing alert into a mail flood
+   * that gets the channel muted.
+   */
+  repeatInterval: string;
+}
+
+/**
  * Configuration the package ships sensible defaults for.
  * Integration charts may override any of these (deep-merged over DEFAULT_CONFIG).
  */
@@ -247,6 +259,7 @@ export interface DefaultableConfig {
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
+  alertRouting: AlertRoutingConfig; // Alertmanager notification pacing
 }
 
 /**

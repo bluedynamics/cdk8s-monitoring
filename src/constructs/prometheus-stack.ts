@@ -292,7 +292,7 @@ alertmanager:
       group_by: ['job']
       group_wait: 30s
       group_interval: 5m
-      repeat_interval: 1h
+      repeat_interval: ${config.alertRouting.repeatInterval}
       receiver: email
       routes:
       - match:
@@ -309,6 +309,10 @@ alertmanager:
         receiver: 'null'
       - match:
           alertname: KubeletTooManyPods
+        receiver: 'null'
+      # Severity "none": exists only to inhibit info alerts, never meant for a human.
+      - match:
+          alertname: InfoInhibitor
         receiver: 'null'${this.generateStagingRoute(config)}
 
     receivers:
@@ -406,6 +410,12 @@ prometheus:
     externalLabels:
       cluster: ${config.clusterName}
       replica: "$(POD_NAME)"
+    # Thanos needs the replica label on metrics, but on alerts it makes the two
+    # Prometheus replicas look like two different alerts, so every mail lists
+    # each one twice. The operator drops its own prometheus_replica the same way.
+    additionalAlertRelabelConfigs:
+      - action: labeldrop
+        regex: replica
 
     # Thanos sidecar for long-term metrics storage in S3
     # NOTE: chart >=85.x requires the existingSecret shape. The legacy flat
