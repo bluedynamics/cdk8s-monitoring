@@ -216,6 +216,6 @@ describe('ThanosS3CredentialsConstruct', () => {
     const manifests = synthesizeChart(chart);
     const externalSecret = findResource(manifests, 'ExternalSecret');
 
-    expect(externalSecret.spec.refreshInterval).toBe('1h');
+    expect(externalSecret.spec.refreshInterval).toBe('1h0m0s');
   });
 });

@@ -84,7 +84,7 @@ export class GrafanaPasswordSecret extends Construct {
       },
       spec: {
         // Sync every hour to detect password rotation
-        refreshInterval: '1h',
+        refreshInterval: '1h0m0s',
 
         // Reference to ClusterSecretStore (application-secrets → monitoring)
         secretStoreRef: {
