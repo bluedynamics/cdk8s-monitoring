@@ -54,7 +54,7 @@ export class ThanosS3CredentialsConstruct extends Construct {
       },
       spec: {
         // Refresh credentials every hour (automatic rotation support)
-        refreshInterval: '1h',
+        refreshInterval: '1h0m0s',
 
         // Use existing ClusterSecretStore for Hetzner S3 (infrastructure-level secrets)
         secretStoreRef: {
