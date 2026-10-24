@@ -241,6 +241,13 @@ additionalPrometheusRulesMap:
 # Drop high-cardinality API server and etcd histogram buckets to reduce memory usage
 # These metrics alone account for ~200k series (47% of total cardinality)
 # We keep _sum and _count suffixes which are sufficient for rate calculations
+#
+# The watch histograms, the workqueue and the scheduler plugin buckets came on
+# top of that: k3s runs apiserver, controller-manager and scheduler in one
+# process with one metrics registry, so the apiserver endpoint also serves
+# scheduler_* and workqueue_* series. Measured on a 6-node k3s cluster
+# (2026-10-24): 56k watch_*, 8k workqueue_*, 3k scheduler_plugin_* of 408k
+# series. Nothing in the shipped alerts or dashboards reads them.
 kubeApiServer:
   serviceMonitor:
     metricRelabelings:
@@ -259,10 +266,23 @@ kubeApiServer:
       - sourceLabels: [__name__]
         regex: 'etcd_request_duration_seconds_bucket'
         action: drop
+      - sourceLabels: [__name__]
+        regex: 'apiserver_watch_(cache_read_wait_seconds|list_duration_seconds|events_sizes)_bucket'
+        action: drop
+      - sourceLabels: [__name__]
+        regex: 'workqueue_(queue|work)_duration_seconds_bucket'
+        action: drop
+      - sourceLabels: [__name__]
+        regex: 'scheduler_plugin_execution_duration_seconds_bucket'
+        action: drop
 
 # Kubelet also exposes apiserver metrics - apply same filters
 kubelet:
   serviceMonitor:
+    # /metrics/probes only holds prober_probe_duration_seconds histograms
+    # (one series per probe, container and bucket, ~5k on a small cluster);
+    # nothing consumes them.
+    probes: false
     metricRelabelings:
       - sourceLabels: [__name__]
         regex: 'apiserver_request_duration_seconds_bucket'
@@ -278,6 +298,15 @@ kubelet:
         action: drop
       - sourceLabels: [__name__]
         regex: 'etcd_request_duration_seconds_bucket'
+        action: drop
+      - sourceLabels: [__name__]
+        regex: 'apiserver_watch_(cache_read_wait_seconds|list_duration_seconds|events_sizes)_bucket'
+        action: drop
+      - sourceLabels: [__name__]
+        regex: 'workqueue_(queue|work)_duration_seconds_bucket'
+        action: drop
+      - sourceLabels: [__name__]
+        regex: 'scheduler_plugin_execution_duration_seconds_bucket'
         action: drop
 
 alertmanager:

@@ -515,4 +515,31 @@ describe('PrometheusStackConstruct', () => {
       expect(spec.externalLabels.replica).toBe('$(POD_NAME)');
     });
   });
+
+  describe('k3s metric filtering', () => {
+    const relabelings = (section: string) => {
+      const chart = Testing.chart();
+      new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config: createTestConfig() });
+      const values = parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+      return { values, rules: values[section].serviceMonitor.metricRelabelings as { regex: string; action: string }[] };
+    };
+
+    it('drops the watch, workqueue and scheduler histogram buckets the k3s apiserver endpoint serves', () => {
+      // k3s runs apiserver, controller-manager and scheduler in one process, so
+      // the apiserver target also exposes scheduler_* and workqueue_* series.
+      const { rules } = relabelings('kubeApiServer');
+      const dropped = rules.filter((r) => r.action === 'drop').map((r) => r.regex);
+      expect(dropped).toContain('apiserver_watch_(cache_read_wait_seconds|list_duration_seconds|events_sizes)_bucket');
+      expect(dropped).toContain('workqueue_(queue|work)_duration_seconds_bucket');
+      expect(dropped).toContain('scheduler_plugin_execution_duration_seconds_bucket');
+    });
+
+    it('applies the same drops to the kubelet target and stops scraping probe histograms', () => {
+      const { values, rules } = relabelings('kubelet');
+      const dropped = rules.filter((r) => r.action === 'drop').map((r) => r.regex);
+      expect(dropped).toContain('apiserver_watch_(cache_read_wait_seconds|list_duration_seconds|events_sizes)_bucket');
+      expect(dropped).toContain('workqueue_(queue|work)_duration_seconds_bucket');
+      expect(values.kubelet.serviceMonitor.probes).toBe(false);
+    });
+  });
 });
