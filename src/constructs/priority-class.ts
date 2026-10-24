@@ -2,10 +2,10 @@ import { Construct } from 'constructs';
 import { KubePriorityClass } from '../imports/k8s';
 
 /**
- * Creates a high-priority PriorityClass for monitoring components.
+ * Creates the library's default `high-priority` PriorityClass (value 10000).
  *
- * PriorityClass ensures monitoring pods are scheduled with higher priority
- * than regular workloads, preventing eviction during resource pressure.
+ * It is the fallback for clusters without their own tiering; clusters that
+ * bring their own classes disable it via config.priorityClasses.create.
  *
  * Sync Wave: 0 (foundation - must exist before pods reference it)
  */

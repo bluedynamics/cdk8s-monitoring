@@ -22,7 +22,7 @@ export interface ThanosQueryProps {
  *
  * Prerequisites:
  * - Namespace exists
- * - PriorityClass 'high-priority' exists
+ * - The PriorityClasses named in config.priorityClasses exist
  * - Prometheus with Thanos sidecar running
  * - Thanos Store Gateway running
  *
@@ -143,7 +143,7 @@ export class ThanosQueryConstruct extends Construct {
               },
             ],
 
-            priorityClassName: 'high-priority',
+            priorityClassName: config.priorityClasses.query,
           },
         },
       },

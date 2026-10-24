@@ -175,6 +175,11 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
     alertRouting: {
       repeatInterval: '12h',
     },
+    priorityClasses: {
+      create: true,
+      capture: 'high-priority',
+      query: 'high-priority',
+    },
   };
 
   return { ...defaultConfig, ...overrides };

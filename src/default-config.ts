@@ -1,8 +1,20 @@
 import { deepmerge } from 'deepmerge-ts';
 import {
-  DefaultableConfig, MonitoringConfig, MonitoringConfigInput,
-  VersionConfig, RetentionConfig, StorageConfig, ReplicaConfig, ResourceConfig, TempoConfig,
-  TraefikConfig, LonghornConfig, EmbeddingConfig, StagingAlertsConfig, AlertRoutingConfig,
+  AlertRoutingConfig,
+  DefaultableConfig,
+  EmbeddingConfig,
+  LonghornConfig,
+  MonitoringConfig,
+  MonitoringConfigInput,
+  PriorityClassesConfig,
+  ReplicaConfig,
+  ResourceConfig,
+  RetentionConfig,
+  StagingAlertsConfig,
+  StorageConfig,
+  TempoConfig,
+  TraefikConfig,
+  VersionConfig,
 } from './types';
 
 /**
@@ -90,6 +102,11 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
   alertRouting: {
     repeatInterval: '12h',
   },
+  priorityClasses: {
+    create: true,
+    capture: 'high-priority',
+    query: 'high-priority',
+  },
 };
 
 /**
@@ -135,5 +152,6 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     embedding,
     stagingAlerts,
     alertRouting: deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig,
+    priorityClasses: deepmerge(DEFAULT_CONFIG.priorityClasses, input.priorityClasses ?? {}) as PriorityClassesConfig,
   };
 }

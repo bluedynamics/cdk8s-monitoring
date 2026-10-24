@@ -195,6 +195,22 @@ export interface TraefikConfig {
 }
 
 /**
+ * Scheduling priority of the stack's pods, split by role.
+ *
+ * The capture path (Prometheus, Alertmanager, the operator, node-exporter,
+ * kube-state-metrics, Loki write/backend/gateway, Alloy, Tempo) loses data or
+ * alerts when it is evicted, so it outranks the query path (Grafana, Thanos
+ * Query/Store/Compactor, Loki read), which may wait while a node is short of
+ * memory. Both default to the library's own `high-priority` class (value 10000).
+ * Clusters with their own tiering set `create: false` and name their classes.
+ */
+export interface PriorityClassesConfig {
+  create: boolean; // create the `high-priority` PriorityClass in wave 0; default true
+  capture: string; // class for pods that ingest data or route alerts; default 'high-priority'
+  query: string; // class for pods that only serve queries; default 'high-priority'
+}
+
+/**
  * Longhorn storage monitoring (generic infra, opt-in).
  * ServiceMonitor for longhorn-manager metrics plus optional volume-health alerts.
  */
@@ -260,6 +276,7 @@ export interface DefaultableConfig {
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
   alertRouting: AlertRoutingConfig; // Alertmanager notification pacing
+  priorityClasses: PriorityClassesConfig; // scheduling priority by pod role
 }
 
 /**

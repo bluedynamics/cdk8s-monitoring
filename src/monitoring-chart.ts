@@ -30,7 +30,7 @@ import { MonitoringConfig } from './types';
  *
  * Wave 0: Foundation
  * - Namespace
- * - PriorityClass
+ * - PriorityClass (unless config.priorityClasses.create is false)
  *
  * Wave 1: External Dependencies
  * - S3 Buckets (Crossplane)
@@ -75,7 +75,9 @@ export class MonitoringChart extends Chart {
       name: namespace,
     });
 
-    new PriorityClassConstruct(this, 'priority-class');
+    if (config.priorityClasses.create) {
+      new PriorityClassConstruct(this, 'priority-class');
+    }
 
     // =========================================================================
     // Wave 1: External Dependencies
