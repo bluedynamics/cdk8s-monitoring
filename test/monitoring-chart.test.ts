@@ -570,7 +570,8 @@ describe('MonitoringChart Integration Tests', () => {
     expect(lokiValues.backend.priorityClassName).toBe('kup6s-high');
     expect(lokiValues.gateway.priorityClassName).toBe('kup6s-high');
     const alloyValues = yaml.parse(findResource(manifests, 'HelmChart', 'alloy').spec.valuesContent);
-    expect(alloyValues.priorityClassName).toBe('kup6s-high');
+    expect(alloyValues.controller.priorityClassName).toBe('kup6s-high');
+    expect(alloyValues.priorityClassName).toBeUndefined();
   });
 
   it('should not pin Thanos components to a specific arch (multi-arch)', () => {
