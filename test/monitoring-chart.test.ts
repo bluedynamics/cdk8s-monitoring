@@ -533,6 +533,46 @@ describe('MonitoringChart Integration Tests', () => {
     expect(compactorStatefulSet.spec.template.spec.priorityClassName).toBe('high-priority');
   });
 
+  it('puts the capture path and the query path into the configured classes and skips the own class', () => {
+    // Arrange
+    const app = new App();
+    const config = createTestConfig({
+      priorityClasses: { create: false, capture: 'kup6s-high', query: 'kup6s-standard' },
+    });
+
+    // Act
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+    const manifests = synthesizeChart(chart);
+
+    // Assert: no PriorityClass of our own
+    expect(findResourcesByKind(manifests, 'PriorityClass')).toHaveLength(0);
+
+    // Query path: Thanos, Grafana, Loki read
+    const queryDeployment = findResource(manifests, 'Deployment', 'thanos-query');
+    const storeStatefulSet = findResource(manifests, 'StatefulSet', 'thanos-store');
+    const compactorStatefulSet = findResource(manifests, 'StatefulSet', 'thanos-compactor');
+    expect(queryDeployment.spec.template.spec.priorityClassName).toBe('kup6s-standard');
+    expect(storeStatefulSet.spec.template.spec.priorityClassName).toBe('kup6s-standard');
+    expect(compactorStatefulSet.spec.template.spec.priorityClassName).toBe('kup6s-standard');
+
+    const prometheusValues = yaml.parse(findResource(manifests, 'HelmChart', 'kube-prometheus-stack').spec.valuesContent);
+    expect(prometheusValues.grafana.priorityClassName).toBe('kup6s-standard');
+    const lokiValues = yaml.parse(findResource(manifests, 'HelmChart', 'loki').spec.valuesContent);
+    expect(lokiValues.read.priorityClassName).toBe('kup6s-standard');
+
+    // Capture path: everything that ingests data or routes alerts
+    expect(prometheusValues.prometheus.prometheusSpec.priorityClassName).toBe('kup6s-high');
+    expect(prometheusValues.alertmanager.alertmanagerSpec.priorityClassName).toBe('kup6s-high');
+    expect(prometheusValues.prometheusOperator.priorityClassName).toBe('kup6s-high');
+    expect(prometheusValues['prometheus-node-exporter'].priorityClassName).toBe('kup6s-high');
+    expect(prometheusValues['kube-state-metrics'].priorityClassName).toBe('kup6s-high');
+    expect(lokiValues.write.priorityClassName).toBe('kup6s-high');
+    expect(lokiValues.backend.priorityClassName).toBe('kup6s-high');
+    expect(lokiValues.gateway.priorityClassName).toBe('kup6s-high');
+    const alloyValues = yaml.parse(findResource(manifests, 'HelmChart', 'alloy').spec.valuesContent);
+    expect(alloyValues.priorityClassName).toBe('kup6s-high');
+  });
+
   it('should not pin Thanos components to a specific arch (multi-arch)', () => {
     // Arrange
     const app = new App();

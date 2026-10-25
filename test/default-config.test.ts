@@ -111,3 +111,12 @@ test('passes clusterName through unchanged', () => {
   const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
   expect(cfg.clusterName).toBe('my-cluster');
 });
+
+test('uses the library high-priority class for both pod roles unless priorityClasses overrides it', () => {
+  expect(mergeConfig(cluster).priorityClasses).toEqual({ create: true, capture: 'high-priority', query: 'high-priority' });
+  const own = mergeConfig({
+    ...cluster,
+    priorityClasses: { create: false, capture: 'kup6s-high', query: 'kup6s-standard' },
+  }).priorityClasses;
+  expect(own).toEqual({ create: false, capture: 'kup6s-high', query: 'kup6s-standard' });
+});

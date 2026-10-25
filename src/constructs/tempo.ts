@@ -110,6 +110,7 @@ tempo:
         secretKeyRef:
           name: ${s3CredentialsSecretName}
           key: AWS_SECRET_ACCESS_KEY
+priorityClassName: ${config.priorityClasses.capture}
 persistence:
   enabled: true
   storageClassName: longhorn

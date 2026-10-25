@@ -21,7 +21,7 @@ export interface LokiProps {
  *
  * Prerequisites:
  * - Namespace exists
- * - PriorityClass 'high-priority' exists
+ * - The PriorityClasses named in config.priorityClasses exist
  * - Longhorn storage class available
  * - S3 bucket exists (via Crossplane)
  * - S3 credentials secret exists (via LokiS3CredentialsConstruct)
@@ -134,7 +134,7 @@ backend:
     enabled: true
     storageClass: longhorn
     size: ${config.storage.lokiBackend}
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 
 read:
   replicas: ${config.replicas.lokiRead}
@@ -150,7 +150,7 @@ read:
     requests:
       cpu: ${config.resources.lokiRead.requests.cpu}
       memory: ${config.resources.lokiRead.requests.memory}
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.query}
 
 write:
   replicas: ${config.replicas.lokiWrite}
@@ -170,7 +170,7 @@ write:
     enabled: true
     storageClass: longhorn
     size: ${config.storage.lokiWrite}
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 
 gateway:
   enabled: true
@@ -182,7 +182,7 @@ gateway:
     requests:
       cpu: ${config.resources.lokiGateway.requests.cpu}
       memory: ${config.resources.lokiGateway.requests.memory}
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 
 minio:
   enabled: false

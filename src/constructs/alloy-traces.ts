@@ -108,6 +108,7 @@ alloy:
           tls { insecure = true }
         }
       }
+priorityClassName: ${config.priorityClasses.capture}
 resources:
   requests:
     cpu: ${config.resources.alloyTraces.requests.cpu}

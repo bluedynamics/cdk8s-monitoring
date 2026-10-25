@@ -26,7 +26,7 @@ export interface ThanosCompactorProps {
  *
  * Prerequisites:
  * - Namespace exists
- * - PriorityClass 'high-priority' exists
+ * - The PriorityClasses named in config.priorityClasses exist
  * - Longhorn storage class available
  * - Thanos S3 secret exists (thanos-objstore-config)
  * - S3 bucket contains Prometheus data blocks
@@ -154,7 +154,7 @@ export class ThanosCompactorConstruct extends Construct {
               },
             ],
 
-            priorityClassName: 'high-priority',
+            priorityClassName: config.priorityClasses.query,
           },
         },
         volumeClaimTemplates: [

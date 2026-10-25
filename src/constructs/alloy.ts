@@ -21,7 +21,7 @@ export interface AlloyProps {
  *
  * Prerequisites:
  * - Namespace exists
- * - PriorityClass 'high-priority' exists
+ * - The PriorityClasses named in config.priorityClasses exist
  * - Loki gateway service exists
  * - RBAC permissions for pod log access
  *
@@ -210,7 +210,7 @@ rbac:
 serviceAccount:
   create: true
 
-priorityClassName: high-priority
+priorityClassName: ${config.priorityClasses.capture}
 `;
   }
 }

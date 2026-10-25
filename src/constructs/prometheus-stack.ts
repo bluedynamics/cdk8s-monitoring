@@ -21,7 +21,7 @@ export interface PrometheusStackProps {
  *
  * Prerequisites:
  * - Namespace exists
- * - PriorityClass 'high-priority' exists
+ * - The PriorityClasses named in config.priorityClasses exist
  * - Longhorn storage class available
  * - cert-manager ClusterIssuer configured
  * - Thanos S3 secret exists (thanos-objstore-config)
@@ -378,7 +378,7 @@ alertmanager:
       requests:
         cpu: ${config.resources.alertmanager.requests.cpu}
         memory: ${config.resources.alertmanager.requests.memory}
-    priorityClassName: high-priority
+    priorityClassName: ${config.priorityClasses.capture}
 
     # Sidecar containers resource requests (added 2025-11-18)
     containers:
@@ -433,7 +433,7 @@ prometheus:
       requests:
         cpu: ${config.resources.prometheus.requests.cpu}
         memory: ${config.resources.prometheus.requests.memory}
-    priorityClassName: high-priority
+    priorityClassName: ${config.priorityClasses.capture}
 
     # External labels for multi-cluster identification and Thanos
     externalLabels:
@@ -476,6 +476,8 @@ prometheus:
 
 
 grafana:
+  priorityClassName: ${config.priorityClasses.query}
+
   # Recreate strategy is required because the storage PVC is RWO:
   # a RollingUpdate would surge a second pod that cannot mount the
   # volume (FailedAttachVolume), blocking the rollout indefinitely.
@@ -612,7 +614,7 @@ prometheusOperator:
     requests:
       cpu: 50m
       memory: 128Mi
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 
 prometheus-node-exporter:
   # Bind :9100 to the node InternalIP only, not 0.0.0.0. With kubeRBACProxy
@@ -630,7 +632,7 @@ prometheus-node-exporter:
     requests:
       cpu: 5m
       memory: 16Mi
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 
 kube-state-metrics:
   resources:
@@ -640,7 +642,7 @@ kube-state-metrics:
     requests:
       cpu: 5m
       memory: 128Mi
-  priorityClassName: high-priority
+  priorityClassName: ${config.priorityClasses.capture}
 `;
   }
 }
