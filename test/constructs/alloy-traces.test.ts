@@ -1,8 +1,19 @@
 import { Testing } from 'cdk8s';
+import * as yaml from 'yaml';
 import { AlloyTracesConstruct } from '../../src/constructs/alloy-traces';
 import { createTestConfig, synthesizeChart, findResource, expectSyncWave } from '../helpers';
 
 describe('AlloyTracesConstruct', () => {
+  it('puts the capture priority class where the alloy chart reads it (controller.priorityClassName)', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({ priorityClasses: { create: true, capture: 'cap', query: 'qry' } });
+    new AlloyTracesConstruct(chart, 'test-alloy-traces', { namespace: 'monitoring', config });
+    const helm = findResource(synthesizeChart(chart), 'HelmChart');
+    const values = yaml.parse(helm.spec.valuesContent);
+    expect(values.controller.priorityClassName).toBe('cap');
+    expect(values.priorityClassName).toBeUndefined();
+  });
+
   it('creates a deployment-mode Alloy with OTLP receiver, tail sampling, and Tempo export', () => {
     const chart = Testing.chart();
     const config = createTestConfig();

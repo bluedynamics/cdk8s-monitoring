@@ -70,6 +70,8 @@ export class AlloyConstruct extends Construct {
     // This is embedded in the Helm values as a multi-line string
     return `controller:
   type: daemonset
+  # The alloy chart reads the class here; a top-level key is ignored.
+  priorityClassName: ${config.priorityClasses.capture}
 
 alloy:
   configMap:
@@ -210,7 +212,6 @@ rbac:
 serviceAccount:
   create: true
 
-priorityClassName: ${config.priorityClasses.capture}
 `;
   }
 }
