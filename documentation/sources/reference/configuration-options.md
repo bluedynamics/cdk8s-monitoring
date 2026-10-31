@@ -253,6 +253,21 @@ Two rules in the `job-health` group replace it:
 The `pdb-drain-safety` rules `PodDisruptionBudgetUndrainable` and `PodDisruptionBudgetUndrainableCritical` skip PodDisruptionBudgets that select no pods, because those block no drain.
 While the critical variant fires, it inhibits the warning variant for the same PodDisruptionBudget.
 
+### externalUrls
+
+The `externalUrls` block sets the browser-facing addresses that notifications link to.
+It belongs to `DefaultableConfig`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `externalUrls.alertmanager` | `string` | `''` | Alertmanager `externalUrl`, used for the link to Alertmanager in every notification. |
+| `externalUrls.prometheus` | `string` | `''` | Prometheus `externalUrl`, used for each alert's source link (`/graph?g0.expr=…`). A Thanos Query in front of Prometheus understands the same links. |
+
+An empty string keeps the operator default, which is the in-cluster Service address and does not open from a browser.
+The setting changes only the links; the pods keep serving under the route prefix `/`.
+
+Grafana carries an `Alertmanager` datasource, so the active alerts and silences are visible in Grafana as well.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.

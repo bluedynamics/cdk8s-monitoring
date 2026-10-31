@@ -541,6 +541,30 @@ describe('PrometheusStackConstruct', () => {
       });
     });
 
+    it('keeps the operator default external URLs unless configured', () => {
+      const values = helmValues();
+      expect(values.alertmanager.alertmanagerSpec.externalUrl).toBeUndefined();
+      expect(values.prometheus.prometheusSpec.externalUrl).toBeUndefined();
+    });
+
+    it('sets the external URLs that notification links point to', () => {
+      const config = createTestConfig({
+        externalUrls: { alertmanager: 'https://am.example.com', prometheus: 'https://metrics.example.com' },
+      });
+      const values = helmValues(config);
+      expect(values.alertmanager.alertmanagerSpec.externalUrl).toBe('https://am.example.com');
+      expect(values.prometheus.prometheusSpec.externalUrl).toBe('https://metrics.example.com');
+    });
+
+    it('provisions Alertmanager as a Grafana datasource', () => {
+      const datasources = helmValues().grafana.datasources['datasources.yaml'].datasources;
+      expect(datasources).toContainEqual(expect.objectContaining({
+        name: 'Alertmanager',
+        type: 'alertmanager',
+        url: 'http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093',
+      }));
+    });
+
     it('drops the replica external label from alerts, so the two Prometheus replicas do not double every alert', () => {
       const spec = helmValues().prometheus.prometheusSpec;
       expect(spec.additionalAlertRelabelConfigs).toContainEqual({ action: 'labeldrop', regex: 'replica' });

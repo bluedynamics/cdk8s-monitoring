@@ -175,6 +175,10 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
     alertRouting: {
       repeatInterval: '12h',
     },
+    externalUrls: {
+      alertmanager: '',
+      prometheus: '',
+    },
     priorityClasses: {
       create: true,
       capture: 'high-priority',
