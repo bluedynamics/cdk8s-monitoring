@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="cyan" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Alerting defaults - cdk8s-monitoring 1.11.1 documentation</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Pod priority" href="pod-priority.html" /><link rel="prev" title="Platform assumptions" href="platform-assumptions.html" />
+      <link rel="canonical" href="https://bluedynamics.github.io/cdk8s-monitoring/explanation/alerting-defaults.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"dark");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/brand-theme.css?v=a3a78658" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom-icons.css?v=77ce15dc" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://bluedynamics.github.io/cdk8s-monitoring/explanation/alerting-defaults.html"/>
+  <meta property="og:title" content="Alerting defaults"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="/">
+      <img class="light-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <img class="dark-logo" src="../_static/kup6s-icon-monitoring.svg" alt="cdk8s-monitoring" height="28" loading="lazy" />
+      <strong>cdk8s-monitoring</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-quick-start.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/setup-prerequisites.html">Set up prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/provide-config.html">Provide cluster configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/override-defaults.html">Override the defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-s3-credentials.html">Configure S3 credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-smtp-alerting.html">Configure SMTP alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/tune-alert-notifications.html">Tune alert notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/set-priority-classes.html">Use your own priority classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/enable-tracing.html">Enable tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/configure-tail-sampling.html">Configure tail sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/embed-grafana.html">Embed Grafana in another application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/route-staging-alerts.html">Route staging alerts away from production</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/add-app-dashboards.html">Add application dashboards and alerts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/enable-infrastructure-monitors.html">Enable the infrastructure monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how-to/recover-failed-helm-release.html">Recover a failed Helm release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/configuration-options.html">Configuration options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/sync-waves.html">Sync waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/alerts-and-routing.html">Alerts and routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/grafana-datasources.html">Grafana datasources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/dropped-metrics.html">Dropped metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index.html">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Explanation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing-architecture.html">Tracing architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design-philosophy.html">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-assumptions.html">Platform assumptions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Alerting defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pod-priority.html">Pod priority</a></li>
+<li class="toctree-l2"><a class="reference internal" href="retention-and-downsampling.html">Retention and downsampling</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#an-alert-channel-lives-on-trust">An alert channel lives on trust</a></li>
+<li><a class="reference internal" href="#alerts-that-nobody-can-act-on">Alerts that nobody can act on</a></li>
+<li><a class="reference internal" href="#one-alert-one-mail">One alert, one mail</a></li>
+<li><a class="reference internal" href="#failed-jobs-that-are-no-longer-failing">Failed jobs that are no longer failing</a></li>
+<li><a class="reference internal" href="#drains-that-will-not-finish">Drains that will not finish</a></li>
+<li><a class="reference internal" href="#why-twelve-hours-between-repeats">Why twelve hours between repeats</a></li>
+<li><a class="reference internal" href="#links-that-open">Links that open</a></li>
+<li><a class="reference internal" href="#where-your-own-alerts-fit">Where your own alerts fit</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">cdk8s-monitoring</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">Explanation</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Alerting defaults</strong>
+        <meta itemprop="position" content="3" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <div class="copy-page-wrapper relative pb-4 lg:absolute lg:top-8 lg:right-6 xl:right-12">
+  <div id="copy-page-trigger">
+    <button
+      type="button"
+      class="js-copy px-3 py-1 inline-flex items-center gap-1"
+      data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/alerting-defaults.md.txt"
+    >
+      <i class="i-lucide" data-icon="copy"></i>
+      <span>Copy page</span>
+    </button>
+    <button class="js-menu px-2 py-1" type="button" aria-label="More actions"
+      aria-haspopup="menu" aria-expanded="false" aria-controls="copy-page-content">
+      <i class="i-lucide chevron-down"></i>
+    </button>
+  </div>
+  <div id="copy-page-content" role="menu" aria-orientation="vertical" aria-hidden="true">
+    <div role="presentation">
+      <div class="flex flex-col" role="group">
+        <button class="js-copy" type="button" role="menuitem"
+          data-url="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/alerting-defaults.md.txt">
+          <span class="iconify-icon">
+            <i class="i-lucide" data-icon="copy"></i>
+          </span>
+          <span>Copy page</span>
+        </button>
+        <a role="menuitem" href="https://bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/alerting-defaults.md.txt" target="_blank" rel="nofollow"><iconify-icon icon="bi:markdown"></iconify-icon>
+            <span>View as Markdown</span></a><a role="menuitem" href="https://chatgpt.com/?hints=search&q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/alerting-defaults.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:openai"></iconify-icon>
+          <span>Open in ChatGPT</span>
+        </a><a role="menuitem" href="https://claude.ai/new?q=Read%20https%3A//bluedynamics.github.io/cdk8s-monitoring/_sources/explanation/alerting-defaults.md.txt%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="nofollow">
+          <iconify-icon icon="bi:claude"></iconify-icon>
+          <span>Open in Claude</span>
+        </a></div>
+    </div>
+  </div>
+</div><article class="yue dark-code" role="main">
+          <section id="alerting-defaults">
+<h1>Alerting defaults<a class="headerlink" href="#alerting-defaults" title="Link to this heading">#</a></h1>
+<p>This page explains why the stack’s alerting looks the way it does out of the box.
+The exact rules and routes are listed in <a class="reference internal" href="../reference/alerts-and-routing.html"><span class="doc">Alerts and routing</span></a>.</p>
+<section id="an-alert-channel-lives-on-trust">
+<h2>An alert channel lives on trust<a class="headerlink" href="#an-alert-channel-lives-on-trust" title="Link to this heading">#</a></h2>
+<p>An alert mail is only useful as long as somebody reads it.
+Every alert that fires without a reason, repeats without news, or arrives twice teaches the reader to skim.
+After a few weeks of that, the channel gets a mail filter, and the one alert that matters lands in the same folder as the noise.</p>
+<p>The kube-prometheus-stack chart ships a broad rule set that is a good starting point but was written for many kinds of cluster.
+Left as is, a small cluster mails a steady stream of alerts that nobody can act on.
+The library therefore shapes the defaults before the first mail goes out, rather than leaving every consumer to discover the same noise.</p>
+</section>
+<section id="alerts-that-nobody-can-act-on">
+<h2>Alerts that nobody can act on<a class="headerlink" href="#alerts-that-nobody-can-act-on" title="Link to this heading">#</a></h2>
+<p>Some stock alerts go to the <code class="docutils literal notranslate"><span class="pre">null</span></code> receiver.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Watchdog</span></code> fires all the time by design.
+It exists to prove that the alerting pipeline works, which only an external dead man’s switch can use.
+<code class="docutils literal notranslate"><span class="pre">InfoInhibitor</span></code> exists only to suppress <code class="docutils literal notranslate"><span class="pre">info</span></code> alerts and was never meant for a human.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CPUThrottlingHigh</span></code>, <code class="docutils literal notranslate"><span class="pre">KubeMemoryOvercommit</span></code>, <code class="docutils literal notranslate"><span class="pre">KubeCPUOvercommit</span></code>, and <code class="docutils literal notranslate"><span class="pre">KubeletTooManyPods</span></code> describe capacity planning, not incidents.
+They fire for weeks on a cluster that runs fine and stay in Grafana for anyone who looks.</p>
+</section>
+<section id="one-alert-one-mail">
+<h2>One alert, one mail<a class="headerlink" href="#one-alert-one-mail" title="Link to this heading">#</a></h2>
+<p>Prometheus runs as two replicas, and both evaluate every rule.
+Each replica carries its own <code class="docutils literal notranslate"><span class="pre">replica</span></code> external label so that Thanos can deduplicate their metrics.
+On alerts, that label made the two copies of the same alert look different, and Alertmanager sent both.
+The stack drops <code class="docutils literal notranslate"><span class="pre">replica</span></code> from alerts but keeps it on metrics, so deduplication in Thanos still works.</p>
+<p>For the same reason, a <code class="docutils literal notranslate"><span class="pre">critical</span></code> alert suppresses the <code class="docutils literal notranslate"><span class="pre">warning</span></code> alert of the same name in the same namespace.
+The reader gets the more severe signal, not both.</p>
+</section>
+<section id="failed-jobs-that-are-no-longer-failing">
+<h2>Failed jobs that are no longer failing<a class="headerlink" href="#failed-jobs-that-are-no-longer-failing" title="Link to this heading">#</a></h2>
+<p>The stock <code class="docutils literal notranslate"><span class="pre">KubeJobFailed</span></code> rule fires for as long as a failed <code class="docutils literal notranslate"><span class="pre">Job</span></code> object exists.
+A <code class="docutils literal notranslate"><span class="pre">CronJob</span></code> keeps its failed jobs as history until newer failures replace them.
+One bad night therefore keeps the alert firing for weeks after the next run succeeded.</p>
+<p>The replacement asks the question an operator actually cares about: did the last run of this <code class="docutils literal notranslate"><span class="pre">CronJob</span></code> succeed?
+<code class="docutils literal notranslate"><span class="pre">KubeCronJobLastRunFailed</span></code> compares the last schedule time with the last successful time and waits until no run is active, so a job waiting out its retry backoff does not fire early.
+It resolves with the next good run.
+Jobs without a <code class="docutils literal notranslate"><span class="pre">CronJob</span></code> keep the old semantics under the old name, because nothing replaces a failed one-off job except a human.</p>
+</section>
+<section id="drains-that-will-not-finish">
+<h2>Drains that will not finish<a class="headerlink" href="#drains-that-will-not-finish" title="Link to this heading">#</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">PodDisruptionBudget</span></code> that allows zero disruptions blocks every node drain that touches its pods.
+On a cluster with automatic node upgrades, that turns into an upgrade that hangs for hours without a visible error.
+The <code class="docutils literal notranslate"><span class="pre">pdb-drain-safety</span></code> rules make this visible before the next maintenance window instead of during it.</p>
+<p>They skip budgets that are zero by design.
+Longhorn’s instance managers and the primaries of database operators hold their budget at zero on purpose and handle drains themselves.
+A budget that selects no pods also reports zero, but it blocks nothing, so it does not fire either.
+The warning comes after 15 minutes, the critical variant after one hour, and the critical one suppresses the warning for the same budget.</p>
+</section>
+<section id="why-twelve-hours-between-repeats">
+<h2>Why twelve hours between repeats<a class="headerlink" href="#why-twelve-hours-between-repeats" title="Link to this heading">#</a></h2>
+<p>Alertmanager repeats a still-firing alert group after its repeat interval.
+An interval of one hour, which earlier versions of the library used, turns every long-standing alert into 24 mails a day.
+Twelve hours keeps a reminder in the morning and the evening without training anyone to ignore the sender.
+New alerts and resolved alerts still go out within minutes, because they do not wait for the repeat interval.</p>
+</section>
+<section id="links-that-open">
+<h2>Links that open<a class="headerlink" href="#links-that-open" title="Link to this heading">#</a></h2>
+<p>Alert mails carry two links: one to Alertmanager and one to the expression that fired.
+By default, both point at in-cluster Service addresses, which is correct from inside the cluster and useless in a mail client.
+<code class="docutils literal notranslate"><span class="pre">externalUrls</span></code> exists so that the link in the mail is the first step of the investigation and not a dead end.
+For the same reason, Grafana carries an <code class="docutils literal notranslate"><span class="pre">Alertmanager</span></code> datasource, so the active alerts and silences are visible next to the dashboards.</p>
+</section>
+<section id="where-your-own-alerts-fit">
+<h2>Where your own alerts fit<a class="headerlink" href="#where-your-own-alerts-fit" title="Link to this heading">#</a></h2>
+<p>The shipped rules cover the cluster itself, which every consumer runs.
+Application alerts stay in your integration chart, as described in <a class="reference internal" href="design-philosophy.html"><span class="doc">Design philosophy</span></a>.
+The routing applies to them as well: they reach the same receivers, follow the same repeat interval, and can be demoted per namespace with <code class="docutils literal notranslate"><span class="pre">stagingAlerts</span></code>.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../reference/alerts-and-routing.html"><span class="doc">Alerts and routing</span></a> — the exact rules, routes, and receivers.</p></li>
+<li><p><a class="reference internal" href="../how-to/tune-alert-notifications.html"><span class="doc">Tune alert notifications</span></a> — change links, pacing, and mail headers.</p></li>
+<li><p><a class="reference internal" href="../how-to/route-staging-alerts.html"><span class="doc">Route staging alerts away from production</span></a> — demote alerts from staging namespaces.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="platform-assumptions.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Platform assumptions</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="pod-priority.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Pod priority</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2026, Blue Dynamics Alliance</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=c8897f99"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script>
+      <script src="../_static/logo-fix.js?v=75f22b15"></script></body>
+</html>
