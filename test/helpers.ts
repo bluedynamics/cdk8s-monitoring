@@ -66,6 +66,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       thanosStore: '10Gi',
       thanosCompactor: '20Gi',
       tempo: '5Gi',
+      className: 'longhorn',
     },
 
     replicas: {

@@ -2,6 +2,7 @@ import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
 import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
+import { storageClassLine } from './storage-class';
 
 export interface LokiProps {
   namespace: string;
@@ -131,8 +132,7 @@ backend:
       cpu: ${config.resources.lokiBackend.requests.cpu}
       memory: ${config.resources.lokiBackend.requests.memory}
   persistence:
-    enabled: true
-    storageClass: longhorn
+    enabled: true${storageClassLine('storageClass', config.storage.className, '    ')}
     size: ${config.storage.lokiBackend}
   priorityClassName: ${config.priorityClasses.capture}
 
@@ -167,8 +167,7 @@ write:
       cpu: ${config.resources.lokiWrite.requests.cpu}
       memory: ${config.resources.lokiWrite.requests.memory}
   persistence:
-    enabled: true
-    storageClass: longhorn
+    enabled: true${storageClassLine('storageClass', config.storage.className, '    ')}
     size: ${config.storage.lokiWrite}
   priorityClassName: ${config.priorityClasses.capture}
 

@@ -46,9 +46,8 @@ The list is in {doc}`../reference/dropped-metrics`.
 
 ## Longhorn as the storage class
 
-Every persistent volume except Alertmanager's asks for the `StorageClass` named `longhorn`.
-That reflects where the library comes from rather than a requirement of the components; Prometheus, Loki, and Thanos run on any block storage.
-Until the class becomes configurable, a cluster without Longhorn needs a `StorageClass` of that name.
+Every persistent volume asks for the `StorageClass` named `longhorn` unless `storage.className` says otherwise.
+That default reflects where the library comes from rather than a requirement of the components; Prometheus, Loki, and Thanos run on any block storage.
 
 ## ArgoCD sync waves
 
@@ -67,7 +66,7 @@ Both keep secrets and cloud resources declarative, which fits the GitOps model a
 
 None of these assumptions is a design goal in itself.
 They are the defaults of the clusters the library was built for.
-Where a cluster differs, the library has started to turn assumptions into configuration: the cluster name, the priority classes, and the names of the Crossplane and External Secrets resources were all hardcoded once.
+Where a cluster differs, the library has started to turn assumptions into configuration: the cluster name, the priority classes, the storage class, and the names of the Crossplane and External Secrets resources were all hardcoded once.
 If an assumption blocks you, open an issue in the [project tracker](https://github.com/bluedynamics/cdk8s-monitoring/issues).
 
 ## See also

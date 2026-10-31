@@ -41,11 +41,11 @@ kubectl get crd helmcharts.helm.cattle.io
 
 ## Provide the storage classes
 
-Every persistent volume of the stack, except the one for Alertmanager, requests the `StorageClass` named `longhorn`.
-The Alertmanager volume uses the cluster's default `StorageClass`.
+Every persistent volume of the stack requests the `StorageClass` named in `storage.className`, which defaults to `longhorn`.
 
-Install [Longhorn](https://longhorn.io/docs/latest/deploy/install/), or create a `StorageClass` named `longhorn` that points at the provisioner you use.
-The class name is not configurable yet; see [issue #35](https://github.com/bluedynamics/cdk8s-monitoring/issues/35).
+Install [Longhorn](https://longhorn.io/docs/latest/deploy/install/), or set `storage.className` to a class your cluster provides.
+An empty `storage.className` uses the cluster's default `StorageClass`.
+See {doc}`override-defaults`.
 
 ## Install External Secrets Operator
 
@@ -110,18 +110,17 @@ See {doc}`set-priority-classes`.
 
 ## Verify the cluster
 
-Confirm the operators, the CRDs, and the storage classes are present.
+Confirm the operators, the CRDs, and the storage class are present.
 
 ```shell
 kubectl get crd helmcharts.helm.cattle.io
 kubectl get pods -n external-secrets
 kubectl get pods -n crossplane-system
 kubectl get crds | grep monitoring.coreos.com
-kubectl get storageclass longhorn
 kubectl get storageclasses
 ```
 
-The last command must show one class marked `(default)` for the Alertmanager volume.
+The last command must list the class you set in `storage.className`, or mark one class `(default)` if you left `storage.className` empty.
 
 ## Next steps
 

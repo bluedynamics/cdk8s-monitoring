@@ -1,4 +1,5 @@
 import { Testing } from 'cdk8s';
+import { parse } from 'yaml';
 import { TempoConstruct } from '../../src/constructs/tempo';
 import { createTestConfig, synthesizeChart, findResource, expectSyncWave } from '../helpers';
 
@@ -49,5 +50,25 @@ describe('TempoConstruct', () => {
     expect(values).toContain('AWS_ACCESS_KEY_ID');
     expect(values).not.toContain('access_key:');
     expect(values).not.toContain('secret_key:');
+  });
+});
+
+describe('TempoConstruct storage class', () => {
+  const synthValues = (className: string) => {
+    const chart = Testing.chart();
+    new TempoConstruct(chart, 'test-tempo', {
+      namespace: 'monitoring',
+      config: createTestConfig({ storage: { ...createTestConfig().storage, className } }),
+      s3CredentialsSecretName: 'tempo-s3-credentials',
+    });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+  };
+
+  it('puts storage.className on the Tempo volume', () => {
+    expect(synthValues('fast-ssd').persistence.storageClassName).toBe('fast-ssd');
+  });
+
+  it('leaves the class to the cluster default when storage.className is empty', () => {
+    expect(synthValues('').persistence).not.toHaveProperty('storageClassName');
   });
 });

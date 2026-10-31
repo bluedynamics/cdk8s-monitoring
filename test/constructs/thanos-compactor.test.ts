@@ -409,3 +409,22 @@ describe('ThanosCompactorConstruct', () => {
     expect(manifests).toHaveLength(2); // StatefulSet + HTTP Service
   });
 });
+
+describe('ThanosCompactorConstruct storage class', () => {
+  const synthClaimSpec = (className: string) => {
+    const chart = Testing.chart();
+    new ThanosCompactorConstruct(chart, 'test', {
+      namespace: 'monitoring',
+      config: createTestConfig({ storage: { ...createTestConfig().storage, className } }),
+    });
+    return findResource(synthesizeChart(chart), 'StatefulSet', 'thanos-compactor').spec.volumeClaimTemplates[0].spec;
+  };
+
+  it('puts storage.className on the data volume', () => {
+    expect(synthClaimSpec('fast-ssd').storageClassName).toBe('fast-ssd');
+  });
+
+  it('leaves the class to the cluster default when storage.className is empty', () => {
+    expect(synthClaimSpec('')).not.toHaveProperty('storageClassName');
+  });
+});

@@ -120,3 +120,8 @@ test('uses the library high-priority class for both pod roles unless priorityCla
   }).priorityClasses;
   expect(own).toEqual({ create: false, capture: 'kup6s-high', query: 'kup6s-standard' });
 });
+
+test('defaults storage.className to longhorn and accepts an empty override', () => {
+  expect(mergeConfig(cluster).storage.className).toBe('longhorn');
+  expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');
+});

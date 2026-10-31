@@ -127,6 +127,11 @@ export interface StorageConfig {
   thanosStore: string; // Thanos store PVC size (per replica)
   thanosCompactor: string; // Thanos compactor PVC size
   tempo: string; // Tempo WAL/local-blocks PVC size
+  /**
+   * StorageClass of every PVC in the stack; default 'longhorn'.
+   * An empty string omits the field, so the cluster's default StorageClass applies.
+   */
+  className: string;
 }
 
 /**

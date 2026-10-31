@@ -177,7 +177,7 @@ export class ThanosStoreConstruct extends Construct {
             },
             spec: {
               accessModes: ['ReadWriteOnce'],
-              storageClassName: 'longhorn',
+              ...(config.storage.className ? { storageClassName: config.storage.className } : {}),
               resources: {
                 requests: {
                   storage: Quantity.fromString(config.storage.thanosStore), // Cache for S3 index data
