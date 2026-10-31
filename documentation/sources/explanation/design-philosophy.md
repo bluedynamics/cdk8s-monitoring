@@ -19,7 +19,7 @@ What differs between deployments is which applications they watch, and therefore
 If the library bundled application dashboards, every consumer would inherit dashboards for applications it does not run, and adding a new application would mean changing the shared library.
 
 So the library ships only the stack.
-It enables the Grafana sidecar that discovers dashboards and lets the prometheus-operator select alert rules, but it provides none of its own.
+It enables the Grafana sidecar that discovers dashboards and lets the prometheus-operator select alert rules, but it provides no application dashboards or alerts of its own.
 An integration chart attaches its dashboards and alerts beside the `MonitoringChart`, in the same namespace, and the running stack finds them.
 The plug-in mechanism is just two conventions: a `ConfigMap` labeled `grafana_dashboard: "1"` and a `PrometheusRule` in the namespace.
 
@@ -27,6 +27,10 @@ The benefit is decoupling.
 The stack code lives in one place and is identical across clusters.
 Each cluster owns only what is unique to it.
 The {doc}`../how-to/add-app-dashboards` guide is the litmus test that this decoupling is genuinely usable.
+
+Two kinds of content are the exception, because they concern every cluster rather than any application.
+The library ships a small set of rules about the cluster itself, such as failed CronJobs and undrainable PodDisruptionBudgets; see {doc}`alerting-defaults`.
+It also ships monitors for Traefik and Longhorn, the infrastructure components its clusters share, but keeps them off until a consumer enables them.
 
 An alternative would have been a callback or registration API in the library through which consumers inject dashboards.
 That would add surface area and coupling for no gain, since the integration chart can simply instantiate its own constructs.

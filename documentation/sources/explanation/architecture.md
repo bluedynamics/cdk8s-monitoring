@@ -11,7 +11,8 @@ myst:
 
 This page explains how the parts of the stack relate to one another.
 The stack covers two pillars of observability: metrics and logs.
-Grafana sits on top of both as the single window into the data.
+Traces are an opt-in third pillar, described in {doc}`tracing-architecture`.
+Grafana sits on top of all of them as the single window into the data.
 
 ## The metrics pillar
 
@@ -72,5 +73,6 @@ This separation is the subject of {doc}`design-philosophy`.
 
 ## See also
 
+- {doc}`platform-assumptions` — what the stack expects from the cluster underneath.
 - {doc}`retention-and-downsampling` — how long data lives at each resolution.
 - {doc}`../reference/sync-waves` — the precise rollout order.

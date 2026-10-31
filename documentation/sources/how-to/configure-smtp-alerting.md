@@ -115,7 +115,12 @@ notify retry canceled after 16 attempts: establish connection to server:
 Trigger a test alert from Prometheus and confirm the message arrives at every configured recipient.
 Check the spam folder on the first run, especially for recipients at large mail providers.
 
+## Next steps
+
+- {doc}`tune-alert-notifications` — fix the links in the mails, change the repeat interval, and add mail headers.
+
 ## See also
 
+- {doc}`../reference/alerts-and-routing` — the routes, receivers, and shipped alert rules.
 - {doc}`provide-config` — the integration chart that holds the SMTP block.
 - {doc}`add-app-dashboards` — add `PrometheusRule` resources that fire these alerts.

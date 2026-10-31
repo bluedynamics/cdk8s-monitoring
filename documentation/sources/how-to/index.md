@@ -41,6 +41,8 @@ provide-config
 override-defaults
 configure-s3-credentials
 configure-smtp-alerting
+tune-alert-notifications
+set-priority-classes
 enable-tracing
 configure-tail-sampling
 embed-grafana
@@ -55,6 +57,7 @@ maxdepth: 1
 titlesonly: true
 ---
 add-app-dashboards
+enable-infrastructure-monitors
 ```
 
 ## Operations

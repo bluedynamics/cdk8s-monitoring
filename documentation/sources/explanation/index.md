@@ -1,8 +1,8 @@
 ---
 myst:
   html_meta:
-    "description": "Understanding-oriented background on cdk8s-monitoring: its architecture, its design philosophy, and how retention and downsampling work."
-    "property=og:description": "Understanding-oriented background on cdk8s-monitoring: its architecture, its design philosophy, and how retention and downsampling work."
+    "description": "Understanding-oriented background on cdk8s-monitoring: its architecture, its design philosophy, its platform assumptions, its alerting defaults, pod priority, and how retention and downsampling work."
+    "property=og:description": "Understanding-oriented background on cdk8s-monitoring: its architecture, its design philosophy, its platform assumptions, its alerting defaults, pod priority, and how retention and downsampling work."
     "property=og:title": "Explanation"
     "keywords": "cdk8s, Kubernetes, monitoring, architecture, design, retention, downsampling"
 ---
@@ -30,6 +30,9 @@ titlesonly: true
 architecture
 tracing-architecture
 design-philosophy
+platform-assumptions
+alerting-defaults
+pod-priority
 retention-and-downsampling
 ```
 

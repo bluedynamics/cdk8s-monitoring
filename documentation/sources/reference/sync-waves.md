@@ -22,6 +22,8 @@ These resources must exist before anything references them.
 | `Namespace` | `NamespaceConstruct` |
 | `PriorityClass` `high-priority` | `PriorityClassConstruct` |
 
+The `PriorityClass` exists only when `priorityClasses.create` is true.
+
 ## Wave 1: external dependencies
 
 Buckets and credentials must exist before pods try to read storage or mount secrets.
@@ -65,6 +67,21 @@ They occupy the same waves as their non-tracing counterparts: storage and creden
 | Tempo S3 `ExternalSecret` | `TempoS3CredentialsConstruct` | 1 |
 | Tempo `HelmChart` | `TempoConstruct` | 3 |
 | Alloy traces `HelmChart` | `AlloyTracesConstruct` | 3 |
+
+## Infrastructure monitor resources
+
+These resources exist only when their block is enabled.
+They carry no sync-wave annotation, so ArgoCD applies them in wave `0`.
+
+| Resource | Construct | Condition |
+|---|---|---|
+| `PodMonitor` `traefik-metrics` | `TraefikMonitorConstruct` | `traefik.enabled` |
+| `ConfigMap` `traefik-dashboard` | `TraefikMonitorConstruct` | `traefik.enabled` and `traefik.dashboard` |
+| `ServiceMonitor` `longhorn-metrics` | `LonghornMonitorConstruct` | `longhorn.enabled` |
+| `PrometheusRule` `longhorn-volume-health` | `LonghornMonitorConstruct` | `longhorn.enabled` and `longhorn.alerts` |
+
+The `PodMonitor`, `ServiceMonitor`, and `PrometheusRule` kinds come from the prometheus-operator CRDs, which must exist before the first sync.
+See {doc}`../how-to/setup-prerequisites`.
 
 ## Application dashboards and alerts
 

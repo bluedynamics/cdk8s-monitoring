@@ -1,8 +1,8 @@
 ---
 myst:
   html_meta:
-    "description": "Reference overview of the public API of cdk8s-monitoring: the MonitoringChart orchestrator, the configuration helpers, and the twelve stack constructs."
-    "property=og:description": "Reference overview of the public API of cdk8s-monitoring: the MonitoringChart orchestrator, the configuration helpers, and the twelve stack constructs."
+    "description": "Reference overview of the public API of cdk8s-monitoring: the MonitoringChart orchestrator, the configuration helpers, the configuration interfaces, and the stack constructs."
+    "property=og:description": "Reference overview of the public API of cdk8s-monitoring: the MonitoringChart orchestrator, the configuration helpers, the configuration interfaces, and the stack constructs."
     "property=og:title": "API reference"
     "keywords": "cdk8s, Kubernetes, monitoring, API, constructs, MonitoringChart"
 ---
@@ -25,9 +25,10 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `embedding.frameAncestors`, or `stagingAlerts.namespaces`.
 
 `DEFAULT_CONFIG`
-:   The package-shipped `DefaultableConfig` for versions, retention, storage, replicas, resources, and the opt-in `tempo` tracing block.
+:   The package-shipped `DefaultableConfig`.
     See {doc}`../configuration-options` for every value.
 
 ## Configuration interfaces
@@ -47,7 +48,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `embedding`, `stagingAlerts`, `alertRouting`, `externalUrls`, and `priorityClasses`.
 
 `TempoConfig`
 :   The opt-in distributed tracing block.
@@ -59,69 +60,131 @@ The package is TypeScript-only and ships no generated API document; this curated
     Fields: `latencyThresholdMs` and `probabilisticPercent`.
     Error traces are always kept in addition to these.
 
+`TraefikConfig`
+:   The opt-in Traefik monitor.
+    Fields: `enabled`, `namespace`, and `dashboard`.
+
+`LonghornConfig`
+:   The opt-in Longhorn monitor.
+    Fields: `enabled`, `namespace`, and `alerts`.
+
+`EmbeddingConfig`
+:   The opt-in Grafana iframe embedding.
+    Fields: `enabled` and `frameAncestors`.
+
+`StagingAlertsConfig`
+:   The opt-in demoted routing for staging namespaces.
+    Fields: `enabled` and `namespaces`.
+
+`AlertRoutingConfig`
+:   The Alertmanager notification pacing.
+    Field: `repeatInterval`.
+
+`ExternalUrlsConfig`
+:   The browser-facing URLs used in notification links.
+    Fields: `alertmanager` and `prometheus`.
+
+`PriorityClassesConfig`
+:   The scheduling priority of the stack's pods by role.
+    Fields: `create`, `capture`, and `query`.
+
+`SmtpPasswordSecret`
+:   The reference to the Secret that holds the SMTP password.
+    Fields: `name` and `key`.
+
 `DeepPartial<T>`
 :   A recursive partial type used to type selective overrides.
 
-The sub-interfaces `VersionConfig`, `RetentionConfig`, `StorageConfig`, `ReplicaConfig`, `ResourceConfig`, `S3Config`, `SmtpConfig`, `DomainConfig`, `ResourceRequirements`, and `ResourceAllocation` are documented field by field in {doc}`../configuration-options`.
+The sub-interfaces `VersionConfig`, `RetentionConfig`, `StorageConfig`, `ReplicaConfig`, `ResourceConfig`, `S3Config`, `SmtpConfig`, `DomainConfig`, `ResourceRequirements`, and `ResourceAllocation` are documented field by field in {doc}`../configuration-options`, as are the fields of every interface above.
 
 ## Stack constructs
 
 `MonitoringChart` creates each of these, and the package exports them individually so an integration chart can compose them directly when needed.
 
 `NamespaceConstruct`
-:   Creates the monitoring namespace. Wave 0.
+:   Creates the monitoring namespace.
+    Wave 0.
 
 `PriorityClassConstruct`
-:   Creates the `high-priority` `PriorityClass`. Wave 0.
+:   Creates the `high-priority` `PriorityClass` with value `10000`.
+    Wave 0.
+    `MonitoringChart` creates it only when `priorityClasses.create` is true.
 
 `ThanosS3BucketConstruct`
-:   Creates the Crossplane `Bucket` for Thanos metrics. Wave 1.
+:   Creates the Crossplane `Bucket` for Thanos metrics.
+    Wave 1.
 
 `LokiS3BucketConstruct`
-:   Creates the Crossplane `Bucket` for Loki logs. Wave 1.
+:   Creates the Crossplane `Bucket` for Loki logs.
+    Wave 1.
 
 `ThanosS3CredentialsConstruct`
-:   Creates the `ExternalSecret` that renders the Thanos `objstore.yml`. Wave 1.
+:   Creates the `ExternalSecret` that renders the Thanos `objstore.yml`.
+    Wave 1.
 
 `LokiS3CredentialsConstruct`
-:   Creates the `ExternalSecret` that renders the Loki S3 credentials. Wave 1.
+:   Creates the `ExternalSecret` that renders the Loki S3 credentials.
+    Wave 1.
 
 `GrafanaPasswordSecret`
-:   Creates the `ExternalSecret` for the stable Grafana admin password. Wave 1.
+:   Creates the `ExternalSecret` for the stable Grafana admin password.
+    Wave 1.
 
 `PrometheusStackConstruct`
-:   Creates the kube-prometheus-stack `HelmChart` (Prometheus, Grafana, Alertmanager). Wave 2.
+:   Creates the kube-prometheus-stack `HelmChart` (Prometheus, Grafana, Alertmanager).
+    Wave 2.
 
 `LokiConstruct`
-:   Creates the Loki `HelmChart` in SimpleScalable mode. Wave 2.
+:   Creates the Loki `HelmChart` in SimpleScalable mode.
+    Wave 2.
 
 `AlloyConstruct`
-:   Creates the Alloy `HelmChart` DaemonSet for log collection. Wave 3.
+:   Creates the Alloy `HelmChart` DaemonSet for log collection.
+    Wave 3.
 
 `ThanosQueryConstruct`
-:   Creates the Thanos Query `Deployment` and `Service`s. Wave 3.
+:   Creates the Thanos Query `Deployment` and `Service`s.
+    Wave 3.
 
 `ThanosStoreConstruct`
-:   Creates the Thanos Store Gateway `StatefulSet` and `Service`s. Wave 3.
+:   Creates the Thanos Store Gateway `StatefulSet` and `Service`s.
+    Wave 3.
 
 `ThanosCompactorConstruct`
-:   Creates the Thanos Compactor `StatefulSet` and `Service`. Wave 3.
+:   Creates the Thanos Compactor `StatefulSet` and `Service`.
+    Wave 3.
 
 The following four constructs are created only when `config.tempo.enabled` is true.
 
 `TempoS3BucketConstruct`
-:   Creates the Crossplane `Bucket` for trace storage. Wave 1.
+:   Creates the Crossplane `Bucket` for trace storage.
+    Wave 1.
 
 `TempoS3CredentialsConstruct`
-:   Creates the `ExternalSecret` that renders the Tempo S3 credentials as `tempo-s3-credentials`. Wave 1.
+:   Creates the `ExternalSecret` that renders the Tempo S3 credentials as `tempo-s3-credentials`.
+    Wave 1.
 
 `TempoConstruct`
-:   Creates the monolithic Grafana Tempo `HelmChart` backed by S3. Wave 3.
+:   Creates the monolithic Grafana Tempo `HelmChart` backed by S3.
+    Wave 3.
 
 `AlloyTracesConstruct`
-:   Creates the single-replica Alloy `HelmChart` deployment that acts as the OTLP tail-sampling gateway. Wave 3.
+:   Creates the single-replica Alloy `HelmChart` deployment that acts as the OTLP tail-sampling gateway.
+    Wave 3.
 
 When tracing is enabled, `PrometheusStackConstruct` also adds a Tempo datasource to Grafana, wired for traces-to-logs and traces-to-metrics correlation.
+
+The following two constructs are created only when their configuration block is enabled.
+
+`TraefikMonitorConstruct`
+:   Creates the `traefik-metrics` `PodMonitor` and, unless `traefik.dashboard` is false, the `traefik-dashboard` `ConfigMap`.
+    Props: `monitoringNamespace` and `traefik`.
+    `MonitoringChart` creates it when `traefik.enabled` is true.
+
+`LonghornMonitorConstruct`
+:   Creates the `longhorn-metrics` `ServiceMonitor` and, unless `longhorn.alerts` is false, the `longhorn-volume-health` `PrometheusRule`.
+    Props: `monitoringNamespace` and `longhorn`.
+    `MonitoringChart` creates it when `longhorn.enabled` is true.
 
 ## Re-exported helper
 

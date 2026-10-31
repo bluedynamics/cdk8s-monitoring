@@ -136,6 +136,10 @@ The `prometheusS3Raw`, `prometheusS35m`, and `prometheusS31h` values are Thanos 
 
 The `tempo` value sizes the Tempo write-ahead-log and local-blocks PVC; persisted trace blocks live in S3.
 
+Every PVC except the Alertmanager PVC requests the `StorageClass` named `longhorn`.
+The Alertmanager PVC names no class and gets the cluster's default `StorageClass`.
+No configuration field changes the class.
+
 ### replicas
 
 | Field | Type | Default |
@@ -236,23 +240,7 @@ It belongs to `DefaultableConfig`.
 |---|---|---|---|
 | `alertRouting.repeatInterval` | `string` | `12h` | Alertmanager `repeat_interval`: how often a still-firing alert group is mailed again. |
 
-An hourly repeat turns every long-standing alert into a stream of mails, which gets the channel muted.
-
-The noise-drop routes send `Watchdog`, `InfoInhibitor`, `CPUThrottlingHigh`, `KubeMemoryOvercommit`, `KubeCPUOvercommit`, and `KubeletTooManyPods` to the `null` receiver.
-The `replica` external label stays on metrics for Thanos deduplication, but Prometheus drops it from alerts.
-Otherwise, every alert arrives twice, once from each Prometheus replica.
-
-The stock `KubeJobFailed` rule is disabled, because it fires for as long as a failed Job object exists.
-A CronJob keeps its failed Jobs until newer failures replace them, so a single bad night would keep the alert firing for weeks.
-Two rules in the `job-health` group replace it:
-
-| Alert | Fires when |
-|---|---|
-| `KubeCronJobLastRunFailed` | The most recent run of a CronJob did not succeed and no run is active, for 15 minutes. It resolves with the next successful run. |
-| `KubeJobFailed` | A Job that no CronJob owns has failed, for 15 minutes. It resolves when the Job is deleted or re-run successfully. |
-
-The `pdb-drain-safety` rules `PodDisruptionBudgetUndrainable` and `PodDisruptionBudgetUndrainableCritical` skip PodDisruptionBudgets that select no pods, because those block no drain.
-While the critical variant fires, it inhibits the warning variant for the same PodDisruptionBudget.
+The routes, receivers, and inhibition rules around this interval are listed in {doc}`alerts-and-routing`.
 
 ### externalUrls
 
@@ -269,9 +257,64 @@ The setting changes only the links; the pods keep serving under the route prefix
 
 Grafana carries an `Alertmanager` datasource, so the active alerts and silences are visible in Grafana as well.
 
+### traefik
+
+The `traefik` block adds opt-in monitoring for a Traefik ingress controller.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `traefik.enabled` is false, no Traefik resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `traefik.enabled` | `boolean` | `false` | Master switch; when true, creates the `traefik-metrics` `PodMonitor`. |
+| `traefik.namespace` | `string` | `traefik` | Namespace Traefik runs in, used as the `PodMonitor` namespace selector. |
+| `traefik.dashboard` | `boolean` | `true` | Ship the Traefik Grafana dashboard as the `traefik-dashboard` `ConfigMap`. |
+
+The `PodMonitor` selects pods labeled `app.kubernetes.io/name: traefik` and scrapes their `metrics` port at `/metrics` every 30 seconds.
+`mergeConfig` throws `traefik.namespace is required when traefik.enabled is true` when you enable the block with an empty namespace.
+
+### longhorn
+
+The `longhorn` block adds opt-in monitoring for Longhorn storage.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `longhorn.enabled` is false, no Longhorn resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `longhorn.enabled` | `boolean` | `false` | Master switch; when true, creates the `longhorn-metrics` `ServiceMonitor`. |
+| `longhorn.namespace` | `string` | `longhorn-system` | Namespace Longhorn runs in, used as the `ServiceMonitor` namespace selector. |
+| `longhorn.alerts` | `boolean` | `true` | Ship the `longhorn-volume-health` `PrometheusRule`. |
+
+The `ServiceMonitor` selects services labeled `app: longhorn-manager` and scrapes their `manager` port.
+The alert rules are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `longhorn.namespace is required when longhorn.enabled is true` when you enable the block with an empty namespace.
+
+### priorityClasses
+
+The `priorityClasses` block sets the `priorityClassName` of every pod in the stack.
+It belongs to `DefaultableConfig`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `priorityClasses.create` | `boolean` | `true` | Create the `high-priority` `PriorityClass` (value `10000`) in wave `0`. |
+| `priorityClasses.capture` | `string` | `high-priority` | Class for pods that ingest data or route alerts. |
+| `priorityClasses.query` | `string` | `high-priority` | Class for pods that only serve queries. |
+
+The two roles cover these workloads:
+
+| Role | Workloads |
+|---|---|
+| `capture` | Prometheus, Alertmanager, Prometheus Operator, node-exporter, kube-state-metrics, Loki write, Loki backend, Loki gateway, Alloy, Tempo, Alloy traces gateway |
+| `query` | Grafana, Thanos Query, Thanos Store, Thanos Compactor, Loki read |
+
+When you set `priorityClasses.create` to `false`, the classes named in `capture` and `query` must already exist in the cluster.
+Kubernetes rejects pods that name a missing `PriorityClass`.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.
 - {doc}`../how-to/embed-grafana` — how to enable and verify embedding.
 - {doc}`../how-to/route-staging-alerts` — how to enable and verify staging alert routing.
+- {doc}`../how-to/enable-infrastructure-monitors` — how to turn on the Traefik and Longhorn monitors.
+- {doc}`../how-to/set-priority-classes` — how to use your cluster's own priority classes.
+- {doc}`alerts-and-routing` — the shipped alert rules and the Alertmanager routing tree.
 - {doc}`sync-waves` — the rollout order of the resources.
