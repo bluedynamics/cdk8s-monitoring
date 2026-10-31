@@ -574,7 +574,7 @@ grafana:
   grafana.ini:
     server:
       domain: ${config.domains.grafana}
-      root_url: https://${config.domains.grafana}${this.generateGrafanaSecurity(config)}
+      root_url: ${config.domains.grafanaRootUrl ?? `https://${config.domains.grafana}`}${this.generateGrafanaSecurity(config)}
 
   # Disable default Prometheus datasource (we provide our own pointing to Thanos Query)
   defaultDatasourceEnabled: false
@@ -599,7 +599,7 @@ grafana:
       enabled: false  # We manually provision datasources (Prometheus→Thanos, Loki)
 
   ingress:
-    enabled: true${config.domains.ingressClassName ? `\n    ingressClassName: ${config.domains.ingressClassName}` : ''}
+    enabled: ${config.domains.grafanaIngress ?? true}${config.domains.ingressClassName ? `\n    ingressClassName: ${config.domains.ingressClassName}` : ''}
     hosts:
       - ${config.domains.grafana}
     annotations:

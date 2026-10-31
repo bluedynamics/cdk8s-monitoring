@@ -82,6 +82,13 @@ export interface SmtpConfig {
 export interface DomainConfig {
   grafana: string; // Grafana domain (e.g., grafana.ops.kup6s.net)
   ingressClassName?: string; // IngressClass for the Grafana ingress; omit to rely on the cluster's default IngressClass
+  /**
+   * Create the Grafana Ingress (default true). Set false when Grafana is reached
+   * some other way, e.g. through a VPN proxy in front of its Service.
+   */
+  grafanaIngress?: boolean;
+  /** Grafana root_url; defaults to https://<grafana>. Links and redirects are built from it. */
+  grafanaRootUrl?: string;
 }
 
 /**

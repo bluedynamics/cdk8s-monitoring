@@ -48,8 +48,10 @@ These fields belong to `RequiredClusterConfig` and have no default.
 
 | Field | Type | Description |
 |---|---|---|
-| `domains.grafana` | `string` | Hostname for the Grafana ingress. |
+| `domains.grafana` | `string` | Grafana hostname, used for the ingress and the default `root_url`. |
 | `domains.ingressClassName` | `string` (optional) | IngressClass for the Grafana ingress. When omitted, the ingress carries no `ingressClassName` and relies on the cluster's default IngressClass. Set it explicitly on clusters whose ingress controller class is not marked as default. |
+| `domains.grafanaIngress` | `boolean` (optional) | Create the Grafana ingress. Default `true`. Set `false` when Grafana is reached another way, for example through a VPN proxy in front of its Service. |
+| `domains.grafanaRootUrl` | `string` (optional) | Grafana `root_url`, from which it builds links and redirects. Default `https://<domains.grafana>`. |
 
 ### s3
 
