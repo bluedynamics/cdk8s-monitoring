@@ -21,10 +21,10 @@ The host, port, from address, and TLS flag are required.
 const config = mergeConfig({
   // other required cluster values ...
   smtp: {
-    host: 'in-v3.mailjet.com',
+    host: 'smtp.example.net',
     port: 587,
     from: 'monitoring@example.net',
-    username: 'monitoring@example.net',
+    username: 'relay-account-id',
     passwordSecret: { name: 'alertmanager-smtp', key: 'password' },
     recipients: ['ops@example.net', 'oncall@example.org'],
     requireTls: true,
@@ -33,6 +33,14 @@ const config = mergeConfig({
 ```
 
 When you omit the username, the stack falls back to the from address for SMTP authentication.
+Set `username` explicitly whenever your relay expects something else.
+Many relays, Mailjet among them, authenticate with an API key, not with an email address.
+
+```{warning}
+Repeated failed logins make some relays block the sending IP address.
+That block hits every application that sends mail from the same node, not only Alertmanager.
+Confirm the relay's login name before you deploy.
+```
 
 ```{important}
 Write the host as a literal, or fail the build when it is missing.

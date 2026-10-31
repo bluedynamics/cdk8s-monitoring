@@ -33,6 +33,7 @@ const app = new App();
 
 const config = mergeConfig({
   namespace: 'monitoring',
+  clusterName: 'example',
   domains: { grafana: 'grafana.example.com' },
   s3: {
     endpoint: 'https://s3.example.com',
@@ -57,7 +58,7 @@ app.synth();
 
 ### Required vs. defaulted configuration
 
-- **Required (`RequiredClusterConfig`)**: `namespace`, `domains`, `s3`, `smtp`, `integrations`. No universal default exists, so you must provide them. `integrations` names the external Crossplane ProviderConfig and ESO ClusterSecretStores/keys this stack references (nothing is hardcoded — wire your own).
+- **Required (`RequiredClusterConfig`)**: `namespace`, `clusterName`, `domains`, `s3`, `smtp`, `integrations`. No universal default exists, so you must provide them. `integrations` names the external Crossplane ProviderConfig and ESO ClusterSecretStores/keys this stack references (nothing is hardcoded — wire your own).
 - **Defaulted (`DefaultableConfig`)**: `versions`, `retention`, `storage`, `replicas`, `resources`. Shipped in `DEFAULT_CONFIG`; override any subset via `mergeConfig` (deep-merged).
 
 ### Adding application dashboards and alerts
