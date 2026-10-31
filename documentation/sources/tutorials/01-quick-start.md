@@ -57,6 +57,7 @@ const app = new App();
 
 const config = mergeConfig({
   namespace: 'monitoring',
+  clusterName: 'example',
   domains: { grafana: 'grafana.example.com' },
   s3: {
     endpoint: 'https://s3.example.com',
@@ -85,7 +86,7 @@ app.synth();
 
 Replace the `integrations` names with the Crossplane provider config and External Secrets stores your cluster actually has; see {doc}`../how-to/configure-s3-credentials`.
 
-Notice that you provide only the five cluster-specific blocks: `namespace`, `domains`, `s3`, `smtp`, and `integrations`.
+Notice that you provide only the six cluster-specific fields: `namespace`, `clusterName`, `domains`, `s3`, `smtp`, and `integrations`.
 You do not set any versions, retention, storage, replicas, or resources.
 `mergeConfig` fills those in from the package defaults, so this short input is a complete configuration.
 

@@ -29,6 +29,24 @@ node --version
 cdk8s --version
 ```
 
+## Check the Helm controller
+
+The stack installs kube-prometheus-stack, Loki, Alloy, and Tempo as `HelmChart` resources of the API group `helm.cattle.io`.
+The helm-controller that k3s and RKE2 ship reconciles them.
+On another distribution, install the [helm-controller](https://github.com/k3s-io/helm-controller) yourself.
+
+```shell
+kubectl get crd helmcharts.helm.cattle.io
+```
+
+## Provide the storage classes
+
+Every persistent volume of the stack, except the one for Alertmanager, requests the `StorageClass` named `longhorn`.
+The Alertmanager volume uses the cluster's default `StorageClass`.
+
+Install [Longhorn](https://longhorn.io/docs/latest/deploy/install/), or create a `StorageClass` named `longhorn` that points at the provisioner you use.
+The class name is not configurable yet; see [issue #35](https://github.com/bluedynamics/cdk8s-monitoring/issues/35).
+
 ## Install External Secrets Operator
 
 The stack reads S3 credentials and the Grafana admin password through External Secrets Operator.
@@ -84,16 +102,26 @@ Skipping the server-side CRD apply leaves Prometheus, Alertmanager, and the oper
 Apply the CRDs before you deploy the stack, and re-apply them whenever you bump the chart to a new major operator version.
 ```
 
+## Provide the priority classes
+
+By default, the stack creates its own `PriorityClass` named `high-priority` and needs nothing from you.
+If your cluster defines its own classes and you set `priorityClasses.create` to `false`, create those classes before the first sync.
+See {doc}`set-priority-classes`.
+
 ## Verify the cluster
 
-Confirm the operators and a default storage class are present.
+Confirm the operators, the CRDs, and the storage classes are present.
 
 ```shell
+kubectl get crd helmcharts.helm.cattle.io
 kubectl get pods -n external-secrets
 kubectl get pods -n crossplane-system
 kubectl get crds | grep monitoring.coreos.com
+kubectl get storageclass longhorn
 kubectl get storageclasses
 ```
+
+The last command must show one class marked `(default)` for the Alertmanager volume.
 
 ## Next steps
 

@@ -15,10 +15,14 @@ You provide the first set and call `mergeConfig` to obtain a complete configurat
 
 ## Required cluster values
 
-Five blocks have no sensible universal default, so the type `RequiredClusterConfig` makes them mandatory.
+Six fields have no sensible universal default, so the type `RequiredClusterConfig` makes them mandatory.
 
 `namespace`
 :   The Kubernetes namespace the stack runs in.
+
+`clusterName`
+:   The value of the `cluster` external label on every metric and log line.
+    It tells clusters apart when several of them feed one Grafana or one Thanos.
 
 `domains.grafana`
 :   The hostname for the Grafana ingress.
@@ -48,6 +52,7 @@ const app = new App();
 
 const config = mergeConfig({
   namespace: 'monitoring',
+  clusterName: 'prod',
   domains: { grafana: 'grafana.ops.example.net' },
   s3: {
     endpoint: 'https://fsn1.your-objectstorage.com',
@@ -56,11 +61,10 @@ const config = mergeConfig({
     buckets: { thanos: 'metrics-thanos-prod', loki: 'logs-loki-prod' },
   },
   smtp: {
-    host: process.env.SMTP_HOST!,
+    host: 'smtp.example.net',
     port: 587,
     from: 'monitoring@example.net',
-    username: 'monitoring@example.net',
-    password: process.env.SMTP_PASSWORD,
+    passwordSecret: { name: 'alertmanager-smtp', key: 'password' },
     requireTls: true,
   },
   integrations: {
@@ -76,20 +80,17 @@ new MonitoringChart(app, 'monitoring', config);
 app.synth();
 ```
 
-Pass secrets such as the SMTP password through the environment at synth time rather than committing them.
+Keep the SMTP password in a Secret and reference it through `smtp.passwordSecret`, so it never reaches the synthesized manifests.
 See {doc}`configure-smtp-alerting` for the alerting details.
 
 ## Override a default while you are at it
 
 `mergeConfig` deep-merges your input over the package defaults, so you can override any subset in the same call.
+Here `requiredClusterValues` stands for the required fields from the previous example.
 
 ```typescript
 const config = mergeConfig({
-  namespace: 'monitoring',
-  domains: { grafana: 'grafana.ops.example.net' },
-  s3: { /* ... */ },
-  smtp: { /* ... */ },
-  integrations: { /* ... */ },
+  ...requiredClusterValues,
   storage: { prometheus: '30Gi' },
 });
 ```

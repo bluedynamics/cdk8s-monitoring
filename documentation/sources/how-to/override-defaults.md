@@ -28,11 +28,7 @@ Raise the Prometheus memory limit and leave every other resource at its default.
 
 ```typescript
 const config = mergeConfig({
-  namespace: 'monitoring',
-  domains: { grafana: 'grafana.ops.example.net' },
-  s3: { /* ... */ },
-  smtp: { /* ... */ },
-  integrations: { /* ... */ },
+  // required cluster values ...
   resources: {
     prometheus: {
       limits: { memory: '6000Mi' },

@@ -1,8 +1,8 @@
 ---
 myst:
   html_meta:
-    "description": "Information-oriented technical reference for cdk8s-monitoring: configuration options, sync-wave order, and the construct API."
-    "property=og:description": "Information-oriented technical reference for cdk8s-monitoring: configuration options, sync-wave order, and the construct API."
+    "description": "Information-oriented technical reference for cdk8s-monitoring: configuration options, sync-wave order, alerts and routing, Grafana datasources, dropped metrics, and the construct API."
+    "property=og:description": "Information-oriented technical reference for cdk8s-monitoring: configuration options, sync-wave order, alerts and routing, Grafana datasources, dropped metrics, and the construct API."
     "property=og:title": "Reference"
     "keywords": "cdk8s, Kubernetes, monitoring, reference, configuration, API, sync waves"
 ---
@@ -17,7 +17,7 @@ myst:
 **Information-oriented technical specifications for cdk8s-monitoring.**
 
 Reference pages describe the machinery exactly.
-They state facts: configuration fields, their defaults, the rollout order, and the public API.
+They state facts: configuration fields, their defaults, the rollout order, the generated alerting and Grafana configuration, and the public API.
 For task-driven instructions, see the {doc}`../how-to/index`.
 
 ## Configuration
@@ -29,6 +29,18 @@ titlesonly: true
 ---
 configuration-options
 sync-waves
+```
+
+## Generated resources
+
+```{toctree}
+---
+maxdepth: 1
+titlesonly: true
+---
+alerts-and-routing
+grafana-datasources
+dropped-metrics
 ```
 
 ## API
