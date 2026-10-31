@@ -541,6 +541,24 @@ describe('PrometheusStackConstruct', () => {
       });
     });
 
+    it('adds configured mail headers to the production and the staging receiver', () => {
+      const base = createTestConfig();
+      const config = createTestConfig({
+        smtp: { ...base.smtp, headers: { 'X-Mailjet-TrackClick': '0' } },
+        stagingAlerts: { enabled: true, namespaces: ['app-stage'] },
+      });
+      const receivers = helmValues(config).alertmanager.config.receivers;
+      const headers = (name: string) => receivers.find((r: any) => r.name === name).email_configs[0].headers;
+      expect(headers('email')).toEqual({ 'X-Mailjet-TrackClick': '0' });
+      expect(headers('staging')['X-Mailjet-TrackClick']).toBe('0');
+      expect(headers('staging').subject).toContain('[STAGING]');
+    });
+
+    it('renders no headers map without configured headers', () => {
+      const receivers = helmValues().alertmanager.config.receivers;
+      expect(receivers.find((r: any) => r.name === 'email').email_configs[0].headers).toBeUndefined();
+    });
+
     it('keeps the operator default external URLs unless configured', () => {
       const values = helmValues();
       expect(values.alertmanager.alertmanagerSpec.externalUrl).toBeUndefined();

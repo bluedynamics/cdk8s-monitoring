@@ -74,6 +74,7 @@ These fields belong to `RequiredClusterConfig` and have no default.
 | `smtp.passwordSecret.name` | `string` | Secret name in the monitoring namespace. |
 | `smtp.passwordSecret.key` | `string` | Key within that secret holding the password. |
 | `smtp.recipients` | `string[]` (optional) | Alert recipients. Defaults to `[smtp.from]`. |
+| `smtp.headers` | `Record<string, string>` (optional) | Extra mail headers on every notification, for example `{"X-Mailjet-TrackClick": "0"}` to keep a relay from rewriting links. |
 | `smtp.requireTls` | `boolean` | Require TLS for the SMTP connection. |
 
 ### integrations

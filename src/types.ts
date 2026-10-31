@@ -69,6 +69,11 @@ export interface SmtpConfig {
    * is not required to reach more than one person.
    */
   recipients?: string[];
+  /**
+   * Extra mail headers on every notification, e.g. a relay's switches for click
+   * and open tracking. Header names are passed through as given.
+   */
+  headers?: Record<string, string>;
 }
 
 /**

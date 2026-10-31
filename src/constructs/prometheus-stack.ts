@@ -151,7 +151,19 @@ export class PrometheusStackConstruct extends Construct {
       - send_resolved: true
         to: ${this.generateRecipients(config)}
         headers:
-          subject: '[STAGING] {{ template "email.default.subject" . }}'`;
+          subject: '[STAGING] {{ template "email.default.subject" . }}'${this.generateHeaderLines(config)}`;
+  }
+
+  /** The configured extra headers, one YAML line each, at the indentation of an email_configs `headers` map. */
+  private generateHeaderLines(config: MonitoringConfig): string {
+    return Object.entries(config.smtp.headers ?? {})
+      .map(([name, value]) => `\n          ${name}: ${JSON.stringify(value)}`)
+      .join('');
+  }
+
+  private generateEmailHeaders(config: MonitoringConfig): string {
+    const lines = this.generateHeaderLines(config);
+    return lines ? `\n        headers:${lines}` : '';
   }
 
   private generateGrafanaSecurity(config: MonitoringConfig): string {
@@ -408,7 +420,7 @@ alertmanager:
     - name: email
       email_configs:
       - send_resolved: true
-        to: ${this.generateRecipients(config)}${this.generateStagingReceiver(config)}
+        to: ${this.generateRecipients(config)}${this.generateEmailHeaders(config)}${this.generateStagingReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.
