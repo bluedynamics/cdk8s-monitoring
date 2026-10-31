@@ -63,6 +63,7 @@
   },
   "main": "lib/index.js",
   "license": "Apache-2.0",
+  "homepage": "https://bluedynamics.github.io/cdk8s-monitoring/",
   "publishConfig": {
     "access": "public"
   },

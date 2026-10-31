@@ -11,6 +11,7 @@ const project = new typescript.TypeScriptProject({
   authorEmail: 'jk@kleinundpartner.at',
   license: 'Apache-2.0',
   repository: 'https://github.com/bluedynamics/cdk8s-monitoring.git',
+  homepage: 'https://bluedynamics.github.io/cdk8s-monitoring/',
   defaultReleaseBranch: 'main',
   projenrcTs: true,
   npmAccess: NpmAccess.PUBLIC,
