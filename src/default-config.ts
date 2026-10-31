@@ -3,6 +3,7 @@ import {
   AlertRoutingConfig,
   DefaultableConfig,
   EmbeddingConfig,
+  ExternalUrlsConfig,
   LonghornConfig,
   MonitoringConfig,
   MonitoringConfigInput,
@@ -102,6 +103,10 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
   alertRouting: {
     repeatInterval: '12h',
   },
+  externalUrls: {
+    alertmanager: '',
+    prometheus: '',
+  },
   priorityClasses: {
     create: true,
     capture: 'high-priority',
@@ -152,6 +157,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     embedding,
     stagingAlerts,
     alertRouting: deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig,
+    externalUrls: deepmerge(DEFAULT_CONFIG.externalUrls, input.externalUrls ?? {}) as ExternalUrlsConfig,
     priorityClasses: deepmerge(DEFAULT_CONFIG.priorityClasses, input.priorityClasses ?? {}) as PriorityClassesConfig,
   };
 }

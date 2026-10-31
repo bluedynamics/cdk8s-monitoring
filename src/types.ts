@@ -249,6 +249,17 @@ export interface StagingAlertsConfig {
 }
 
 /**
+ * Browser-facing URLs of Alertmanager and Prometheus (or a Thanos Query in
+ * front of it). Notifications link to them: Alertmanager's own link, and each
+ * alert's source link, which Prometheus builds from its external URL.
+ * An empty string keeps the operator default, the in-cluster Service address.
+ */
+export interface ExternalUrlsConfig {
+  alertmanager: string; // e.g. 'https://alertmanager.example.com'
+  prometheus: string; // e.g. 'https://metrics.example.com'; a Thanos Query understands the same /graph links
+}
+
+/**
  * Alertmanager notification pacing.
  */
 export interface AlertRoutingConfig {
@@ -276,6 +287,7 @@ export interface DefaultableConfig {
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
   alertRouting: AlertRoutingConfig; // Alertmanager notification pacing
+  externalUrls: ExternalUrlsConfig; // browser-facing URLs used in notification links
   priorityClasses: PriorityClassesConfig; // scheduling priority by pod role
 }
 

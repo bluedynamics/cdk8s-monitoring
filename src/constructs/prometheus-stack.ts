@@ -119,6 +119,14 @@ export class PrometheusStackConstruct extends Construct {
     return `smtp_auth_password: ${config.smtp.password || ''}`;
   }
 
+  /**
+   * The operator only sets the routing prefix from routePrefix (default "/"), so an
+   * external URL changes the links in notifications, not the paths the pods serve.
+   */
+  private generateExternalUrl(url: string): string {
+    return url ? `\n    externalUrl: ${url}` : '';
+  }
+
   /** Falls back to the sender address so existing configs keep their recipient. */
   private generateRecipients(config: MonitoringConfig): string {
     const recipients = config.smtp.recipients;
@@ -435,7 +443,7 @@ alertmanager:
       requests:
         cpu: ${config.resources.alertmanager.requests.cpu}
         memory: ${config.resources.alertmanager.requests.memory}
-    priorityClassName: ${config.priorityClasses.capture}
+    priorityClassName: ${config.priorityClasses.capture}${this.generateExternalUrl(config.externalUrls.alertmanager)}
 
     # Sidecar containers resource requests (added 2025-11-18)
     containers:
@@ -456,7 +464,7 @@ prometheus:
     enabled: true
 
   prometheusSpec:
-    retention: ${config.retention.prometheus}  # Reduced from 7d - Thanos provides long-term storage in S3
+    retention: ${config.retention.prometheus}  # Reduced from 7d - Thanos provides long-term storage in S3${this.generateExternalUrl(config.externalUrls.prometheus)}
 
     # Discover ALL ServiceMonitors, PodMonitors and PrometheusRules in ALL namespaces
     # Setting NilUsesHelmValues: false means nil selectors = "select all"
@@ -655,6 +663,15 @@ grafana:
         isDefault: false
         jsonData:
           timeInterval: 30s
+      # Shows the alerts that Alertmanager holds, including silences, inside Grafana.
+      - name: Alertmanager
+        type: alertmanager
+        uid: alertmanager
+        access: proxy
+        url: http://kube-prometheus-stack-alertmanager.${config.namespace}.svc.cluster.local:9093
+        jsonData:
+          implementation: prometheus
+          handleGrafanaManagedAlerts: false
       - name: Loki
         type: loki
         uid: loki
