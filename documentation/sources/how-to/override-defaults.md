@@ -66,6 +66,21 @@ const config = mergeConfig({
 });
 ```
 
+## Use another storage class
+
+Every PVC of the stack requests the `StorageClass` named `longhorn` by default.
+Set `storage.className` to the class your cluster provides, or to an empty string to use the cluster's default class.
+
+```typescript
+const config = mergeConfig({
+  // required cluster values ...
+  storage: { className: 'fast-ssd' },
+});
+```
+
+Set the class before the first deployment.
+On a running stack, the existing PVCs keep their class; only PVCs created afterward use the new one.
+
 ## Pin a chart version
 
 The `versions` group accepts either a pinned version or the string `latest`.

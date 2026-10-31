@@ -65,7 +65,7 @@ A dashboard `ConfigMap` without the annotation lands in the folder `General`.
 | `server.domain` | `domains.grafana` |
 | `server.root_url` | `domains.grafanaRootUrl`, or `https://` followed by `domains.grafana` when unset |
 | Ingress | Created unless `domains.grafanaIngress` is `false`; class from `domains.ingressClassName` |
-| Persistence | `storage.grafana` on the `StorageClass` `longhorn`, access mode `ReadWriteOnce` |
+| Persistence | `storage.grafana` on the `StorageClass` from `storage.className`, access mode `ReadWriteOnce` |
 
 ## See also
 

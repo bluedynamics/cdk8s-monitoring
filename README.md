@@ -86,7 +86,7 @@ The stack targets k3s or RKE2 clusters with ArgoCD and expects:
 - External Secrets Operator (S3 credentials, Grafana admin secret),
 - Crossplane with an S3 provider config (bucket provisioning),
 - the prometheus-operator CRDs, applied server-side,
-- a `StorageClass` named `longhorn` ([#35](https://github.com/bluedynamics/cdk8s-monitoring/issues/35)).
+- a `StorageClass` named `longhorn`, or another class set in `storage.className`.
 
 See [Set up prerequisites](https://bluedynamics.github.io/cdk8s-monitoring/how-to/setup-prerequisites.html) for the details.
 

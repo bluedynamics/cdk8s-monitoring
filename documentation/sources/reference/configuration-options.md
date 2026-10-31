@@ -135,12 +135,17 @@ The `prometheusS3Raw`, `prometheusS35m`, and `prometheusS31h` values are Thanos 
 | `storage.thanosStore` | `string` | `10Gi` |
 | `storage.thanosCompactor` | `string` | `20Gi` |
 | `storage.tempo` | `string` | `5Gi` |
+| `storage.className` | `string` | `longhorn` |
 
 The `tempo` value sizes the Tempo write-ahead-log and local-blocks PVC; persisted trace blocks live in S3.
 
-Every PVC except the Alertmanager PVC requests the `StorageClass` named `longhorn`.
-The Alertmanager PVC names no class and gets the cluster's default `StorageClass`.
-No configuration field changes the class.
+The `className` value is the `StorageClass` of every PVC in the stack: Prometheus, Alertmanager, Grafana, Loki backend, Loki write, Thanos Store, Thanos Compactor, and Tempo.
+An empty string omits `storageClassName`, so the cluster's default `StorageClass` applies.
+
+```{warning}
+Kubernetes does not move an existing PVC to another class.
+A changed `className` applies only to PVCs created afterward; existing PVCs keep their class and their data.
+```
 
 ### replicas
 
