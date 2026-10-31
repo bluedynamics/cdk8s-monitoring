@@ -559,6 +559,22 @@ describe('PrometheusStackConstruct', () => {
       expect(receivers.find((r: any) => r.name === 'email').email_configs[0].headers).toBeUndefined();
     });
 
+    it('creates the Grafana ingress with an https root_url by default', () => {
+      const grafana = helmValues().grafana;
+      expect(grafana.ingress.enabled).toBe(true);
+      expect(grafana['grafana.ini'].server.root_url).toBe(`https://${grafana['grafana.ini'].server.domain}`);
+    });
+
+    it('can drop the Grafana ingress and take an explicit root_url', () => {
+      const base = createTestConfig();
+      const config = createTestConfig({
+        domains: { ...base.domains, grafana: 'grafana.vpn.example', grafanaIngress: false, grafanaRootUrl: 'http://grafana.vpn.example' },
+      });
+      const grafana = helmValues(config).grafana;
+      expect(grafana.ingress.enabled).toBe(false);
+      expect(grafana['grafana.ini'].server.root_url).toBe('http://grafana.vpn.example');
+    });
+
     it('keeps the operator default external URLs unless configured', () => {
       const values = helmValues();
       expect(values.alertmanager.alertmanagerSpec.externalUrl).toBeUndefined();
