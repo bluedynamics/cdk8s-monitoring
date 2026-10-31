@@ -1,6 +1,11 @@
 # @bluedynamics/cdk8s-monitoring
 
-A generic [cdk8s](https://cdk8s.io/) construct library for a complete Kubernetes monitoring stack: Prometheus, Thanos, Loki, Grafana, and Alloy, with Thanos long-term storage on S3-compatible object storage.
+[![npm](https://img.shields.io/npm/v/@bluedynamics/cdk8s-monitoring)](https://www.npmjs.com/package/@bluedynamics/cdk8s-monitoring)
+[![Documentation](https://img.shields.io/badge/docs-bluedynamics.github.io-blue)](https://bluedynamics.github.io/cdk8s-monitoring/)
+
+A generic [cdk8s](https://cdk8s.io/) construct library for a complete Kubernetes monitoring stack: Prometheus, Thanos, Loki, Grafana, Alloy, and optionally Tempo, with long-term storage on S3-compatible object storage.
+
+**Full documentation: https://bluedynamics.github.io/cdk8s-monitoring/**
 
 The library is **application-agnostic**. It synthesizes the stack itself; your own dashboards and alert rules live in your integration chart and attach beside the stack (the Grafana sidecar discovers `ConfigMap`s labeled `grafana_dashboard: "1"`).
 
@@ -9,6 +14,9 @@ The library is **application-agnostic**. It synthesizes the stack itself; your o
 - Prometheus + Alertmanager + Grafana via the kube-prometheus-stack Helm chart.
 - Thanos Query, Store, and Compactor for long-term metrics with downsampling.
 - Loki + Alloy for log aggregation and collection.
+- Optional Tempo tracing behind a tail-sampling Alloy gateway.
+- Email alerting with curated defaults: noise-free routing, CronJob and PodDisruptionBudget health rules, optional staging demotion.
+- Optional Traefik and Longhorn monitors, optional Grafana iframe embedding.
 - S3 buckets and credentials wired through Crossplane and External Secrets Operator.
 - ArgoCD sync-wave ordering baked in.
 - Sensible production defaults you override only where needed (deep-merge).
@@ -56,64 +64,31 @@ new MonitoringChart(app, 'monitoring', config);
 app.synth();
 ```
 
-### Required vs. defaulted configuration
+`mergeConfig` requires `namespace`, `clusterName`, `domains`, `s3`, `smtp`, and `integrations`, and deep-merges everything else over `DEFAULT_CONFIG`.
+Attach your own dashboards (`ConfigMap`s labeled `grafana_dashboard: "1"`) and `PrometheusRule`s beside the chart; the library ships no application-specific content.
 
-- **Required (`RequiredClusterConfig`)**: `namespace`, `clusterName`, `domains`, `s3`, `smtp`, `integrations`. No universal default exists, so you must provide them. `integrations` names the external Crossplane ProviderConfig and ESO ClusterSecretStores/keys this stack references (nothing is hardcoded — wire your own).
-- **Defaulted (`DefaultableConfig`)**: `versions`, `retention`, `storage`, `replicas`, `resources`. Shipped in `DEFAULT_CONFIG`; override any subset via `mergeConfig` (deep-merged).
+## Documentation
 
-### Adding application dashboards and alerts
+The full documentation lives at **https://bluedynamics.github.io/cdk8s-monitoring/**.
 
-The library does not ship app-specific dashboards. Attach your own construct beside the chart:
-
-```typescript
-const chart = new MonitoringChart(app, 'monitoring', config);
-new MyAppDashboardConstruct(chart, 'my-app-dashboard', { namespace: config.namespace });
-```
-
-A dashboard construct is a `ConfigMap` (use the re-exported `KubeConfigMap`) labeled `grafana_dashboard: "1"` so the Grafana sidecar discovers it. Alert rules are plain `PrometheusRule` resources you manage in your integration repo.
-
-### Generic infrastructure monitors (opt-in)
-
-Monitors for infrastructure components that are generic across clusters running this stack are built in but **disabled by default** — enable them per cluster. They are the exception to the "no dashboards/alerts in the library" rule because they are not app- or cluster-specific.
-
-```typescript
-new MonitoringChart(app, 'monitoring', mergeConfig({
-  // ...required config...
-  traefik: { enabled: true, namespace: 'traefik' }, // PodMonitor + Grafana dashboard
-  longhorn: { enabled: true },                       // ServiceMonitor + volume-health alerts
-}));
-```
-
-- **`traefik`** (`TraefikConfig`): a `PodMonitor` (the k3s-bundled Traefik exposes the metrics port on the Pod, not the Service) plus, unless `dashboard: false`, a Grafana dashboard `ConfigMap`. `namespace` is where Traefik runs (default `traefik`).
-- **`longhorn`** (`LonghornConfig`): a `ServiceMonitor` for `longhorn-manager` (port `manager`) plus, unless `alerts: false`, a `PrometheusRule` with `LonghornVolumeFaulted` (critical) / `LonghornVolumeUnhealthy` (warning). `namespace` defaults to `longhorn-system`.
-
-Both stay inert unless `enabled: true`, so the base stack and existing consumers are unaffected.
-
-### Embedding Grafana in an iframe (opt-in)
-
-Grafana sends `X-Frame-Options: deny` by default, which blocks framing of the whole instance — including externally shared ("public") dashboards. `embedding` lifts that header and replaces it with a Content-Security-Policy that names the origins allowed to frame Grafana:
-
-```typescript
-new MonitoringChart(app, 'monitoring', mergeConfig({
-  // ...required config...
-  embedding: {
-    enabled: true,
-    frameAncestors: ['https://console.example.com'],
-  },
-}));
-```
-
-- **`embedding`** (`EmbeddingConfig`): sets `allow_embedding`, `content_security_policy` and a `content_security_policy_template` in `grafana.ini`. `frameAncestors` are added to `frame-ancestors 'self' …`; the remaining directives are Grafana's own default policy. `mergeConfig` throws when `enabled: true` comes with an empty `frameAncestors` — an allow-all embed is never what you want.
-
-Disabled by default. Enabling it turns CSP on for the whole instance, so verify the Grafana UI after rolling it out.
+- [Quick start tutorial](https://bluedynamics.github.io/cdk8s-monitoring/tutorials/01-quick-start.html)
+- [Set up prerequisites](https://bluedynamics.github.io/cdk8s-monitoring/how-to/setup-prerequisites.html) — helm-controller, External Secrets Operator, Crossplane, CRDs, storage
+- [How-to guides](https://bluedynamics.github.io/cdk8s-monitoring/how-to/index.html) — SMTP alerting, tracing, Grafana embedding, infrastructure monitors, priority classes, app dashboards
+- [Configuration reference](https://bluedynamics.github.io/cdk8s-monitoring/reference/configuration-options.html)
+- [Alerts and routing](https://bluedynamics.github.io/cdk8s-monitoring/reference/alerts-and-routing.html)
+- [Architecture](https://bluedynamics.github.io/cdk8s-monitoring/explanation/architecture.html) and [platform assumptions](https://bluedynamics.github.io/cdk8s-monitoring/explanation/platform-assumptions.html)
 
 ## Prerequisites
 
-The stack expects these to exist in the cluster:
+The stack targets k3s or RKE2 clusters with ArgoCD and expects:
 
-- External Secrets Operator (for S3 credentials and the Grafana admin secret).
-- Crossplane with an S3 provider config (for bucket provisioning).
-- The prometheus-operator CRDs, applied server-side (they are not Helm-managed).
+- the k3s/RKE2 helm-controller (`HelmChart` resources of `helm.cattle.io`),
+- External Secrets Operator (S3 credentials, Grafana admin secret),
+- Crossplane with an S3 provider config (bucket provisioning),
+- the prometheus-operator CRDs, applied server-side,
+- a `StorageClass` named `longhorn` ([#35](https://github.com/bluedynamics/cdk8s-monitoring/issues/35)).
+
+See [Set up prerequisites](https://bluedynamics.github.io/cdk8s-monitoring/how-to/setup-prerequisites.html) for the details.
 
 ## Development
 

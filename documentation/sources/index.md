@@ -17,7 +17,7 @@ myst:
 
 **A generic cdk8s construct library for a Kubernetes monitoring stack.**
 
-`@bluedynamics/cdk8s-monitoring` synthesizes a complete observability stack with [cdk8s](https://cdk8s.io/): Prometheus, Thanos, Loki, Grafana, and Alloy, with Thanos long-term storage on S3-compatible object storage.
+`@bluedynamics/cdk8s-monitoring` synthesizes a complete observability stack with [cdk8s](https://cdk8s.io/): Prometheus, Thanos, Loki, Grafana, Alloy, and optionally Tempo, with long-term storage on S3-compatible object storage.
 
 ## About cdk8s-monitoring
 
@@ -30,6 +30,9 @@ Your own dashboards and alert rules live in your integration chart and attach be
 - Prometheus, Alertmanager, and Grafana through the kube-prometheus-stack Helm chart.
 - Thanos Query, Store, and Compactor for long-term metrics with downsampling.
 - Loki and Alloy for log aggregation and collection.
+- Optional Tempo tracing behind a tail-sampling Alloy gateway.
+- Email alerting with curated defaults that keep the alert channel readable.
+- Optional monitors for Traefik and Longhorn.
 - S3 buckets and credentials wired through Crossplane and External Secrets Operator.
 - ArgoCD sync-wave ordering baked into the orchestrator.
 - A typed configuration split into required cluster values and overridable package defaults.
@@ -90,6 +93,7 @@ This documentation follows the [Diátaxis framework](https://diataxis.fr/), orga
 - {doc}`tutorials/01-quick-start` — synthesize and deploy a minimal stack.
 - {doc}`how-to/setup-prerequisites` — prepare cluster infrastructure.
 - {doc}`explanation/architecture` — see how the components fit together.
+- {doc}`explanation/platform-assumptions` — check what the stack expects from your cluster.
 
 ### Configuration
 
@@ -100,6 +104,8 @@ This documentation follows the [Diátaxis framework](https://diataxis.fr/), orga
 
 - {doc}`how-to/add-app-dashboards` — attach your own dashboards and alerts.
 - {doc}`how-to/override-defaults` — change resources, retention, and replicas.
+- {doc}`how-to/configure-smtp-alerting` — deliver alerts by email.
+- {doc}`reference/alerts-and-routing` — see which alerts the stack ships and where they go.
 
 ## Table of contents
 
