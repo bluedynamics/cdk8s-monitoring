@@ -47,6 +47,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     thanosStore: '10Gi',
     thanosCompactor: '20Gi',
     tempo: '5Gi',
+    className: 'longhorn',
   },
   replicas: {
     prometheus: 2,

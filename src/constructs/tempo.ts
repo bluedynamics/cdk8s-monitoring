@@ -2,6 +2,7 @@ import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
 import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
+import { storageClassLine } from './storage-class';
 
 export interface TempoProps {
   namespace: string;
@@ -112,8 +113,7 @@ tempo:
           key: AWS_SECRET_ACCESS_KEY
 priorityClassName: ${config.priorityClasses.capture}
 persistence:
-  enabled: true
-  storageClassName: longhorn
+  enabled: true${storageClassLine('storageClassName', config.storage.className, '  ')}
   size: ${config.storage.tempo}
 tempoQuery:
   enabled: false

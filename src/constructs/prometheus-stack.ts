@@ -2,6 +2,7 @@ import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
 import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
+import { storageClassLine } from './storage-class';
 
 export interface PrometheusStackProps {
   namespace: string;
@@ -443,7 +444,7 @@ alertmanager:
     podAntiAffinity: "soft"${this.generateAlertmanagerSecrets(config)}
     storage:
       volumeClaimTemplate:
-        spec:
+        spec:${storageClassLine('storageClassName', config.storage.className, '          ')}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -496,8 +497,7 @@ prometheus:
     podAntiAffinity: "hard"
     storageSpec:
       volumeClaimTemplate:
-        spec:
-          storageClassName: longhorn
+        spec:${storageClassLine('storageClassName', config.storage.className, '          ')}
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -637,8 +637,7 @@ grafana:
     failureThreshold: 10
 
   persistence:
-    enabled: true
-    storageClassName: longhorn
+    enabled: true${storageClassLine('storageClassName', config.storage.className, '    ')}
     accessModes:
       - ReadWriteOnce
     size: ${config.storage.grafana}

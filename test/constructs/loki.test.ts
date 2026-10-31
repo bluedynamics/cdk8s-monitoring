@@ -1,4 +1,5 @@
 import { Testing } from 'cdk8s';
+import { parse } from 'yaml';
 import { LokiConstruct } from '../../src/constructs/loki';
 import {
   createTestConfig,
@@ -374,5 +375,29 @@ describe('LokiConstruct', () => {
     expect(values).toContain('-config.expand-env=true');
     // Check that secret is referenced via extraEnvFrom
     expect(values).toContain('name: loki-s3-credentials');
+  });
+});
+
+describe('LokiConstruct storage class', () => {
+  const synthValues = (className: string) => {
+    const chart = Testing.chart();
+    new LokiConstruct(chart, 'test-loki', {
+      namespace: 'monitoring',
+      config: createTestConfig({ storage: { ...createTestConfig().storage, className } }),
+      s3CredentialsSecretName: 'loki-s3-credentials',
+    });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+  };
+
+  it('puts storage.className on the backend and write volumes', () => {
+    const values = synthValues('fast-ssd');
+    expect(values.backend.persistence.storageClass).toBe('fast-ssd');
+    expect(values.write.persistence.storageClass).toBe('fast-ssd');
+  });
+
+  it('leaves the class to the cluster default when storage.className is empty', () => {
+    const values = synthValues('');
+    expect(values.backend.persistence).not.toHaveProperty('storageClass');
+    expect(values.write.persistence).not.toHaveProperty('storageClass');
   });
 });

@@ -164,7 +164,7 @@ export class ThanosCompactorConstruct extends Construct {
             },
             spec: {
               accessModes: ['ReadWriteOnce'],
-              storageClassName: 'longhorn',
+              ...(config.storage.className ? { storageClassName: config.storage.className } : {}),
               resources: {
                 requests: {
                   storage: Quantity.fromString(config.storage.thanosCompactor), // Working directory for compaction operations

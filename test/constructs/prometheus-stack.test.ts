@@ -634,3 +634,28 @@ describe('PrometheusStackConstruct', () => {
     });
   });
 });
+
+describe('PrometheusStackConstruct storage class', () => {
+  const synthValues = (className: string) => {
+    const chart = Testing.chart();
+    new PrometheusStackConstruct(chart, 'test-helm', {
+      namespace: 'monitoring',
+      config: createTestConfig({ storage: { ...createTestConfig().storage, className } }),
+    });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+  };
+
+  it('puts storage.className on the Prometheus, Alertmanager and Grafana volumes', () => {
+    const values = synthValues('fast-ssd');
+    expect(values.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName).toBe('fast-ssd');
+    expect(values.alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.storageClassName).toBe('fast-ssd');
+    expect(values.grafana.persistence.storageClassName).toBe('fast-ssd');
+  });
+
+  it('leaves the class to the cluster default when storage.className is empty', () => {
+    const values = synthValues('');
+    expect(values.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec).not.toHaveProperty('storageClassName');
+    expect(values.alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec).not.toHaveProperty('storageClassName');
+    expect(values.grafana.persistence).not.toHaveProperty('storageClassName');
+  });
+});
