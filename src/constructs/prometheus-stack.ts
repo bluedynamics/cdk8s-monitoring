@@ -203,17 +203,66 @@ kubeScheduler:
 kubeProxy:
   enabled: false
 
+# The stock KubeJobFailed fires for as long as a failed Job object exists. CronJobs
+# keep their failed Jobs (failedJobsHistoryLimit) until newer failures replace them,
+# so one bad night keeps the alert firing for weeks after the CronJob has recovered.
+# The job-health group below replaces it.
+defaultRules:
+  disabled:
+    KubeJobFailed: true
+
 # Detect PodDisruptionBudgets that would block a node drain during k3s upgrades.
 # Operator-managed PDBs sit at disruptionsAllowed=0 by design (Longhorn instance-managers,
 # CNPG *-primary) and are excluded so the alert only fires on anomalous app PDBs.
+# A PDB that selects no pods also reports disruptionsAllowed=0, but blocks nothing.
 additionalPrometheusRulesMap:
+  job-health:
+    groups:
+      - name: job.rules
+        rules:
+          # status.active of a CronJob lists its unfinished Jobs, including one
+          # waiting out its retry backoff, so active == 0 means the last run is over.
+          - alert: KubeCronJobLastRunFailed
+            expr: |
+              (
+                kube_cronjob_status_last_schedule_time{job="kube-state-metrics"}
+                  > on(namespace, cronjob) kube_cronjob_status_last_successful_time{job="kube-state-metrics"}
+                or
+                kube_cronjob_status_last_schedule_time{job="kube-state-metrics"}
+                  unless on(namespace, cronjob) kube_cronjob_status_last_successful_time{job="kube-state-metrics"}
+              )
+              and on(namespace, cronjob) kube_cronjob_status_active{job="kube-state-metrics"} == 0
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "CronJob {{ $labels.namespace }}/{{ $labels.cronjob }}: last run failed"
+              description: |
+                The most recent run of CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} did not
+                succeed. The alert resolves with the next successful run.
+                Check: kubectl get jobs -n {{ $labels.namespace }} --sort-by=.metadata.creationTimestamp
+          - alert: KubeJobFailed
+            expr: |
+              kube_job_failed{job="kube-state-metrics", condition="true"} > 0
+              unless on(namespace, job_name) kube_job_owner{job="kube-state-metrics", owner_kind="CronJob"}
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Job {{ $labels.namespace }}/{{ $labels.job_name }} failed"
+              description: |
+                Job {{ $labels.namespace }}/{{ $labels.job_name }} failed. It is not owned by a
+                CronJob (those are covered by KubeCronJobLastRunFailed), so it stays failed until
+                someone fixes and re-runs or deletes it.
   pdb-drain-safety:
     groups:
       - name: pdb.rules
         interval: 1m
         rules:
           - alert: PodDisruptionBudgetUndrainable
-            expr: kube_poddisruptionbudget_status_pod_disruptions_allowed{namespace!="longhorn-system", poddisruptionbudget!~".*-primary"} == 0
+            expr: |
+              kube_poddisruptionbudget_status_pod_disruptions_allowed{namespace!="longhorn-system", poddisruptionbudget!~".*-primary"} == 0
+              and on(namespace, poddisruptionbudget) kube_poddisruptionbudget_status_expected_pods > 0
             for: 15m
             labels:
               severity: warning
@@ -228,7 +277,9 @@ additionalPrometheusRulesMap:
                 single-replica deployment with minAvailable=1.
                 Check: kubectl get pdb -n {{ $labels.namespace }} {{ $labels.poddisruptionbudget }}
           - alert: PodDisruptionBudgetUndrainableCritical
-            expr: kube_poddisruptionbudget_status_pod_disruptions_allowed{namespace!="longhorn-system", poddisruptionbudget!~".*-primary"} == 0
+            expr: |
+              kube_poddisruptionbudget_status_pod_disruptions_allowed{namespace!="longhorn-system", poddisruptionbudget!~".*-primary"} == 0
+              and on(namespace, poddisruptionbudget) kube_poddisruptionbudget_status_expected_pods > 0
             for: 1h
             labels:
               severity: critical
@@ -360,6 +411,12 @@ alertmanager:
         severity: 'warning'
       # Apply inhibition if the alertname is the same.
       equal: ['alertname', 'namespace']
+    # Same PDB, same condition; the critical variant only adds the longer duration.
+    - source_match:
+        alertname: PodDisruptionBudgetUndrainableCritical
+      target_match:
+        alertname: PodDisruptionBudgetUndrainable
+      equal: ['namespace', 'poddisruptionbudget']
 
   alertmanagerSpec:
     replicas: ${config.replicas.alertmanager}
