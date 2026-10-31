@@ -508,6 +508,39 @@ describe('PrometheusStackConstruct', () => {
       expect(routes).toContainEqual({ match: { alertname: 'InfoInhibitor' }, receiver: 'null' });
     });
 
+    const rule = (values: any, group: string, alert: string) =>
+      values.additionalPrometheusRulesMap[group].groups[0].rules.find((r: any) => r.alert === alert);
+
+    it('replaces the stock KubeJobFailed, which fires for as long as a failed Job object exists', () => {
+      const values = helmValues();
+      expect(values.defaultRules.disabled.KubeJobFailed).toBe(true);
+      // CronJob-owned Jobs are judged by their CronJob's last run instead.
+      expect(rule(values, 'job-health', 'KubeJobFailed').expr).toContain('unless on(namespace, job_name) kube_job_owner{job="kube-state-metrics", owner_kind="CronJob"}');
+    });
+
+    it('alerts when the last run of a CronJob failed and none is running', () => {
+      const expr = rule(helmValues(), 'job-health', 'KubeCronJobLastRunFailed').expr;
+      expect(expr).toContain('> on(namespace, cronjob) kube_cronjob_status_last_successful_time');
+      // A CronJob that never succeeded has no last_successful_time series at all.
+      expect(expr).toContain('unless on(namespace, cronjob) kube_cronjob_status_last_successful_time');
+      expect(expr).toContain('kube_cronjob_status_active{job="kube-state-metrics"} == 0');
+    });
+
+    it('ignores PDBs that select no pods, since they block no drain', () => {
+      const values = helmValues();
+      for (const alert of ['PodDisruptionBudgetUndrainable', 'PodDisruptionBudgetUndrainableCritical']) {
+        expect(rule(values, 'pdb-drain-safety', alert).expr).toContain('kube_poddisruptionbudget_status_expected_pods > 0');
+      }
+    });
+
+    it('mails an undrainable PDB once, not as warning and critical', () => {
+      expect(helmValues().alertmanager.config.inhibit_rules).toContainEqual({
+        source_match: { alertname: 'PodDisruptionBudgetUndrainableCritical' },
+        target_match: { alertname: 'PodDisruptionBudgetUndrainable' },
+        equal: ['namespace', 'poddisruptionbudget'],
+      });
+    });
+
     it('drops the replica external label from alerts, so the two Prometheus replicas do not double every alert', () => {
       const spec = helmValues().prometheus.prometheusSpec;
       expect(spec.additionalAlertRelabelConfigs).toContainEqual({ action: 'labeldrop', regex: 'replica' });

@@ -241,6 +241,18 @@ The noise-drop routes send `Watchdog`, `InfoInhibitor`, `CPUThrottlingHigh`, `Ku
 The `replica` external label stays on metrics for Thanos deduplication, but Prometheus drops it from alerts.
 Otherwise, every alert arrives twice, once from each Prometheus replica.
 
+The stock `KubeJobFailed` rule is disabled, because it fires for as long as a failed Job object exists.
+A CronJob keeps its failed Jobs until newer failures replace them, so a single bad night would keep the alert firing for weeks.
+Two rules in the `job-health` group replace it:
+
+| Alert | Fires when |
+|---|---|
+| `KubeCronJobLastRunFailed` | The most recent run of a CronJob did not succeed and no run is active, for 15 minutes. It resolves with the next successful run. |
+| `KubeJobFailed` | A Job that no CronJob owns has failed, for 15 minutes. It resolves when the Job is deleted or re-run successfully. |
+
+The `pdb-drain-safety` rules `PodDisruptionBudgetUndrainable` and `PodDisruptionBudgetUndrainableCritical` skip PodDisruptionBudgets that select no pods, because those block no drain.
+While the critical variant fires, it inhibits the warning variant for the same PodDisruptionBudget.
+
 ## See also
 
 - {doc}`../how-to/override-defaults` — how to change these values.
