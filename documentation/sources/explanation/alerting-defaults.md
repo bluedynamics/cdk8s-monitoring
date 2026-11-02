@@ -54,6 +54,16 @@ The replacement asks the question an operator actually cares about: did the last
 It resolves with the next good run.
 Jobs without a `CronJob` keep the old semantics under the old name, because nothing replaces a failed one-off job except a human.
 
+## Page faults without a memory shortage
+
+The stock `NodeMemoryMajorPagesFaults` rule counts major page faults on the node and fires above 500 per second.
+A major fault means the kernel read a page from disk, which is also what happens when a workload maps a file larger than the memory limit of its container.
+A cache server with file storage or a database reading its data files then keeps the alert firing on a node with plenty of free memory.
+
+The replacement keeps the threshold and adds the question that matters: are tasks waiting for memory?
+Reclaim and refaults of evicted pages count as memory pressure in the kernel's pressure stall information, first reads of a mapped file do not.
+On a node that runs out of memory, tasks wait for memory well over 1 % of the time, while on a busy but healthy node the value stays below a tenth of that.
+
 ## Drains that will not finish
 
 A `PodDisruptionBudget` that allows zero disruptions blocks every node drain that touches its pods.

@@ -518,6 +518,14 @@ describe('PrometheusStackConstruct', () => {
       expect(rule(values, 'job-health', 'KubeJobFailed').expr).toContain('unless on(namespace, job_name) kube_job_owner{job="kube-state-metrics", owner_kind="CronJob"}');
     });
 
+    it('replaces the stock NodeMemoryMajorPagesFaults, which fires on file-backed workloads without memory shortage', () => {
+      const values = helmValues();
+      expect(values.defaultRules.disabled.NodeMemoryMajorPagesFaults).toBe(true);
+      const expr = rule(values, 'node-memory', 'NodeMemoryMajorPagesFaults').expr;
+      expect(expr).toContain('rate(node_vmstat_pgmajfault{job="node-exporter"}[5m]) > 500');
+      expect(expr).toContain('and on(instance) rate(node_pressure_memory_waiting_seconds_total{job="node-exporter"}[15m]) > 0.01');
+    });
+
     it('alerts when the last run of a CronJob failed and none is running', () => {
       const expr = rule(helmValues(), 'job-health', 'KubeCronJobLastRunFailed').expr;
       expect(expr).toContain('> on(namespace, cronjob) kube_cronjob_status_last_successful_time');

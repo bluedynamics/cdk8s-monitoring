@@ -228,9 +228,16 @@ kubeProxy:
 # keep their failed Jobs (failedJobsHistoryLimit) until newer failures replace them,
 # so one bad night keeps the alert firing for weeks after the CronJob has recovered.
 # The job-health group below replaces it.
+#
+# The stock NodeMemoryMajorPagesFaults fires on any node with a busy file-backed
+# workload (mmap'd cache files, TSDB blocks) whose cgroup limit is smaller than the
+# file: every read of a page outside the cgroup's page cache counts as a major fault,
+# while the node itself has plenty of free memory. The node-memory group below
+# replaces it.
 defaultRules:
   disabled:
     KubeJobFailed: true
+    NodeMemoryMajorPagesFaults: true
 
 # Detect PodDisruptionBudgets that would block a node drain during k3s upgrades.
 # Operator-managed PDBs sit at disruptionsAllowed=0 by design (Longhorn instance-managers,
@@ -275,6 +282,27 @@ additionalPrometheusRulesMap:
                 Job {{ $labels.namespace }}/{{ $labels.job_name }} failed. It is not owned by a
                 CronJob (those are covered by KubeCronJobLastRunFailed), so it stays failed until
                 someone fixes and re-runs or deletes it.
+  node-memory:
+    groups:
+      - name: node-memory.rules
+        rules:
+          # Real memory shortage makes tasks wait for memory: reclaim and refaults
+          # of evicted working-set pages count as memory pressure (PSI), first reads
+          # of a mapped file do not. 1 % over 15 minutes separates the two clearly.
+          - alert: NodeMemoryMajorPagesFaults
+            expr: |
+              rate(node_vmstat_pgmajfault{job="node-exporter"}[5m]) > 500
+              and on(instance) rate(node_pressure_memory_waiting_seconds_total{job="node-exporter"}[15m]) > 0.01
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Memory major page faults are occurring at very high rate under memory pressure."
+              description: |
+                {{ $labels.instance }} has more than 500 major page faults per second (currently
+                {{ printf "%.2f" $value }}) while tasks spend more than 1 % of the time waiting
+                for memory. Check that there is enough memory available at this instance.
+              runbook_url: https://runbooks.prometheus-operator.dev/runbooks/node/nodememorymajorpagesfaults
   pdb-drain-safety:
     groups:
       - name: pdb.rules

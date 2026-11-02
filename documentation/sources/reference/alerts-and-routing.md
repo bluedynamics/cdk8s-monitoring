@@ -19,6 +19,7 @@ The stack keeps the default rule set of the kube-prometheus-stack chart, with th
 | Change | Effect |
 |---|---|
 | `defaultRules.disabled.KubeJobFailed: true` | The stock `KubeJobFailed` rule is off. The `job-health` group below replaces it. |
+| `defaultRules.disabled.NodeMemoryMajorPagesFaults: true` | The stock `NodeMemoryMajorPagesFaults` rule is off. The `node-memory` group below replaces it. |
 | `kubeProxy.enabled: false` | No kube-proxy scrape target and no stock `KubeProxyDown` alert. |
 | `kubeEtcd.enabled: false` | No etcd scrape target and no stock etcd alerts. |
 | `kubeControllerManager.enabled: false` | No kube-controller-manager scrape target and no stock `KubeControllerManagerDown` alert. |
@@ -26,7 +27,7 @@ The stack keeps the default rule set of the kube-prometheus-stack chart, with th
 
 ## Shipped rule groups
 
-The kube-prometheus-stack `HelmChart` carries two additional rule groups through `additionalPrometheusRulesMap`.
+The kube-prometheus-stack `HelmChart` carries three additional rule groups through `additionalPrometheusRulesMap`.
 They are always present.
 
 ### job-health
@@ -38,6 +39,14 @@ They are always present.
 
 `KubeCronJobLastRunFailed` resolves with the next successful run.
 `KubeJobFailed` resolves when the Job is deleted or re-run successfully.
+
+### node-memory
+
+| Alert | Severity | For | Fires when |
+|---|---|---|---|
+| `NodeMemoryMajorPagesFaults` | `warning` | 15m | A node has more than 500 major page faults per second over 5 minutes, and its tasks spent more than 1 % of the last 15 minutes waiting for memory (`node_pressure_memory_waiting_seconds_total`). |
+
+The memory pressure condition needs the `pressure` collector of the node exporter, which is on by default on Linux 4.20 and later.
 
 ### pdb-drain-safety
 
