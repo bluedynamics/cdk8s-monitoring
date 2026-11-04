@@ -229,6 +229,12 @@ kubeProxy:
 # so one bad night keeps the alert firing for weeks after the CronJob has recovered.
 # The job-health group below replaces it.
 #
+# The stock KubeContainerWaiting also fires for pods that are already over. When an
+# init container of a Job pod fails, the pod ends in phase Failed while its main
+# container stays "waiting" for good, so the alert fires until the Job is deleted.
+# The failed run is already covered by KubeCronJobLastRunFailed or KubeJobFailed.
+# The job-health group below replaces it.
+#
 # The stock NodeMemoryMajorPagesFaults fires on any node with a busy file-backed
 # workload (mmap'd cache files, TSDB blocks) whose cgroup limit is smaller than the
 # file: every read of a page outside the cgroup's page cache counts as a major fault,
@@ -237,6 +243,7 @@ kubeProxy:
 defaultRules:
   disabled:
     KubeJobFailed: true
+    KubeContainerWaiting: true
     NodeMemoryMajorPagesFaults: true
 
 # Detect PodDisruptionBudgets that would block a node drain during k3s upgrades.
@@ -282,6 +289,19 @@ additionalPrometheusRulesMap:
                 Job {{ $labels.namespace }}/{{ $labels.job_name }} failed. It is not owned by a
                 CronJob (those are covered by KubeCronJobLastRunFailed), so it stays failed until
                 someone fixes and re-runs or deletes it.
+          - alert: KubeContainerWaiting
+            expr: |
+              kube_pod_container_status_waiting_reason{reason!="CrashLoopBackOff", job="kube-state-metrics"} > 0
+              and on(namespace, pod) kube_pod_status_phase{job="kube-state-metrics", phase=~"Pending|Running"} == 1
+            for: 1h
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod container waiting longer than 1 hour"
+              description: |
+                pod/{{ $labels.pod }} in namespace {{ $labels.namespace }} on container {{ $labels.container }}
+                has been in waiting state for longer than 1 hour (reason: "{{ $labels.reason }}").
+              runbook_url: "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubecontainerwaiting"
   node-memory:
     groups:
       - name: node-memory.rules

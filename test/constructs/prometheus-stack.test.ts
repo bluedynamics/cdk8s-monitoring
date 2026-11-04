@@ -518,6 +518,15 @@ describe('PrometheusStackConstruct', () => {
       expect(rule(values, 'job-health', 'KubeJobFailed').expr).toContain('unless on(namespace, job_name) kube_job_owner{job="kube-state-metrics", owner_kind="CronJob"}');
     });
 
+    it('replaces the stock KubeContainerWaiting, which fires for the containers of a pod that has already failed', () => {
+      const values = helmValues();
+      expect(values.defaultRules.disabled.KubeContainerWaiting).toBe(true);
+      const expr = rule(values, 'job-health', 'KubeContainerWaiting').expr;
+      expect(expr).toContain('kube_pod_container_status_waiting_reason{reason!="CrashLoopBackOff", job="kube-state-metrics"} > 0');
+      // A Job pod whose init container failed is phase Failed; its main container waits forever.
+      expect(expr).toContain('and on(namespace, pod) kube_pod_status_phase{job="kube-state-metrics", phase=~"Pending|Running"} == 1');
+    });
+
     it('replaces the stock NodeMemoryMajorPagesFaults, which fires on file-backed workloads without memory shortage', () => {
       const values = helmValues();
       expect(values.defaultRules.disabled.NodeMemoryMajorPagesFaults).toBe(true);

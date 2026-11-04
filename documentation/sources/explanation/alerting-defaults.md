@@ -54,6 +54,12 @@ The replacement asks the question an operator actually cares about: did the last
 It resolves with the next good run.
 Jobs without a `CronJob` keep the old semantics under the old name, because nothing replaces a failed one-off job except a human.
 
+A failed job also leaves a second trace.
+When an init container of a job pod fails, the pod ends in phase `Failed`, but its main container is still reported as waiting in `PodInitializing`.
+The stock `KubeContainerWaiting` rule takes that at face value and fires until someone deletes the job.
+The container will never start, so there is nothing to wait for; the failed run is already the subject of `KubeCronJobLastRunFailed` or `KubeJobFailed`.
+The replacement therefore only looks at pods that can still make progress, in phase `Pending` or `Running`.
+
 ## Page faults without a memory shortage
 
 The stock `NodeMemoryMajorPagesFaults` rule counts major page faults on the node and fires above 500 per second.
