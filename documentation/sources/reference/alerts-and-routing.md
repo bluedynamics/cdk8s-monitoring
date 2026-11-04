@@ -19,6 +19,7 @@ The stack keeps the default rule set of the kube-prometheus-stack chart, with th
 | Change | Effect |
 |---|---|
 | `defaultRules.disabled.KubeJobFailed: true` | The stock `KubeJobFailed` rule is off. The `job-health` group below replaces it. |
+| `defaultRules.disabled.KubeContainerWaiting: true` | The stock `KubeContainerWaiting` rule is off. The `job-health` group below replaces it. |
 | `defaultRules.disabled.NodeMemoryMajorPagesFaults: true` | The stock `NodeMemoryMajorPagesFaults` rule is off. The `node-memory` group below replaces it. |
 | `kubeProxy.enabled: false` | No kube-proxy scrape target and no stock `KubeProxyDown` alert. |
 | `kubeEtcd.enabled: false` | No etcd scrape target and no stock etcd alerts. |
@@ -36,9 +37,11 @@ They are always present.
 |---|---|---|---|
 | `KubeCronJobLastRunFailed` | `warning` | 15m | The last scheduled run of a CronJob is newer than its last successful run, and the CronJob has no active Job. |
 | `KubeJobFailed` | `warning` | 15m | A Job that no CronJob owns has the condition `Failed`. |
+| `KubeContainerWaiting` | `warning` | 1h | A container waits for a reason other than `CrashLoopBackOff`, and its pod is in phase `Pending` or `Running`. |
 
 `KubeCronJobLastRunFailed` resolves with the next successful run.
 `KubeJobFailed` resolves when the Job is deleted or re-run successfully.
+`KubeContainerWaiting` ignores pods in phase `Failed` or `Succeeded`.
 
 ### node-memory
 
