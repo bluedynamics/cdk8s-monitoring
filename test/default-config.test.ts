@@ -107,6 +107,19 @@ test('throws when stagingAlerts is enabled without namespaces', () => {
     .toThrow(/stagingAlerts\.namespaces/);
 });
 
+test('leaves deadMansSwitch disabled by default with a 5m repeat interval', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.deadMansSwitch.enabled).toBe(false);
+  expect(cfg.deadMansSwitch.repeatInterval).toBe('5m');
+});
+
+test('throws when deadMansSwitch is enabled without a URL secret', () => {
+  expect(() => mergeConfig({ ...cluster, deadMansSwitch: { enabled: true } as any }))
+    .toThrow(/deadMansSwitch\.urlSecret/);
+  expect(() => mergeConfig({ ...cluster, deadMansSwitch: { enabled: true, urlSecret: { name: 'dms' } } as any }))
+    .toThrow(/deadMansSwitch\.urlSecret/);
+});
+
 test('passes clusterName through unchanged', () => {
   const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
   expect(cfg.clusterName).toBe('my-cluster');

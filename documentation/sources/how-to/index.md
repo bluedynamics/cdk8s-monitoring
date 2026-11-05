@@ -47,6 +47,7 @@ enable-tracing
 configure-tail-sampling
 embed-grafana
 route-staging-alerts
+forward-watchdog-to-dead-mans-switch
 ```
 
 ## Extending the stack

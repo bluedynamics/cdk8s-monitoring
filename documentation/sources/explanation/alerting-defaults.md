@@ -28,6 +28,7 @@ Some stock alerts go to the `null` receiver.
 
 `Watchdog` fires all the time by design.
 It exists to prove that the alerting pipeline works, which only an external dead man's switch can use.
+With `deadMansSwitch` enabled, Alertmanager posts it to such a service instead of discarding it.
 `InfoInhibitor` exists only to suppress `info` alerts and was never meant for a human.
 
 `CPUThrottlingHigh`, `KubeMemoryOvercommit`, `KubeCPUOvercommit`, and `KubeletTooManyPods` describe capacity planning, not incidents.
