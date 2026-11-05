@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `embedding.frameAncestors`, or `stagingAlerts.namespaces`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -48,7 +48,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `embedding`, `stagingAlerts`, `alertRouting`, `externalUrls`, and `priorityClasses`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `alertRouting`, `externalUrls`, and `priorityClasses`.
 
 `TempoConfig`
 :   The opt-in distributed tracing block.
@@ -75,6 +75,14 @@ The package is TypeScript-only and ships no generated API document; this curated
 `StagingAlertsConfig`
 :   The opt-in demoted routing for staging namespaces.
     Fields: `enabled` and `namespaces`.
+
+`DeadMansSwitchConfig`
+:   The opt-in forwarding of the `Watchdog` alert to an external heartbeat service.
+    Fields: `enabled`, `urlSecret`, and `repeatInterval`.
+
+`SecretKeyRef`
+:   A key in a Secret in the monitoring namespace.
+    Fields: `name` and `key`.
 
 `AlertRoutingConfig`
 :   The Alertmanager notification pacing.
