@@ -173,6 +173,11 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       enabled: false,
       namespaces: [],
     },
+    deadMansSwitch: {
+      enabled: false,
+      urlSecret: { name: '', key: '' },
+      repeatInterval: '5m',
+    },
     alertRouting: {
       repeatInterval: '12h',
     },

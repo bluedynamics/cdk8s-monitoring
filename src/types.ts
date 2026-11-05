@@ -266,6 +266,30 @@ export interface StagingAlertsConfig {
 }
 
 /**
+ * A key in a Secret of the monitoring namespace that Alertmanager reads from a
+ * mounted file, so the value never reaches the synthesized manifests.
+ */
+export interface SecretKeyRef {
+  name: string;
+  key: string;
+}
+
+/**
+ * Forwarding of the always-firing `Watchdog` alert to an external dead man's
+ * switch such as a Healthchecks check (opt-in).
+ *
+ * Alertmanager posts the alert to the webhook every `repeatInterval`. The
+ * external service raises the alarm when the posts stop, which is exactly when
+ * this stack can no longer notify anyone itself: Prometheus, Alertmanager, the
+ * mail relay, or the whole cluster is down.
+ */
+export interface DeadMansSwitchConfig {
+  enabled: boolean; // default false — when false, Watchdog goes to the null receiver
+  urlSecret: SecretKeyRef; // Secret key holding the webhook URL; the URL is a credential (anyone who knows it can report "alive")
+  repeatInterval: string; // default '5m' — keep it well below the grace period of the external check
+}
+
+/**
  * Browser-facing URLs of Alertmanager and Prometheus (or a Thanos Query in
  * front of it). Notifications link to them: Alertmanager's own link, and each
  * alert's source link, which Prometheus builds from its external URL.
@@ -303,6 +327,7 @@ export interface DefaultableConfig {
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
+  deadMansSwitch: DeadMansSwitchConfig; // Watchdog forwarding to an external heartbeat (opt-in)
   alertRouting: AlertRoutingConfig; // Alertmanager notification pacing
   externalUrls: ExternalUrlsConfig; // browser-facing URLs used in notification links
   priorityClasses: PriorityClassesConfig; // scheduling priority by pod role

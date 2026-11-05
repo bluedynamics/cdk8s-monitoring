@@ -137,11 +137,47 @@ export class PrometheusStackConstruct extends Construct {
 
   /** Mounts the password secret at /etc/alertmanager/secrets/<name>/<key>. */
   private generateAlertmanagerSecrets(config: MonitoringConfig): string {
-    const secret = config.smtp.passwordSecret;
-    if (!secret) return '';
+    const names = [config.smtp.passwordSecret?.name];
+    if (config.deadMansSwitch.enabled) names.push(config.deadMansSwitch.urlSecret.name);
+    const unique = [...new Set(names.filter((name): name is string => !!name))];
+    if (unique.length === 0) return '';
     return `
-    secrets:
-    - ${secret.name}`;
+    secrets:${unique.map((name) => `
+    - ${name}`).join('')}`;
+  }
+
+  /**
+   * Watchdog always fires. Without a dead man's switch it is silenced; with one it
+   * is posted to the external heartbeat on a short, fixed cadence.
+   */
+  private generateWatchdogRoute(config: MonitoringConfig): string {
+    if (!config.deadMansSwitch.enabled) {
+      return `
+      - match:
+          alertname: Watchdog
+        receiver: 'null'`;
+    }
+    return `
+      - match:
+          alertname: Watchdog
+        receiver: deadmansswitch
+        group_wait: 0s
+        group_interval: 1m
+        repeat_interval: ${config.deadMansSwitch.repeatInterval}`;
+  }
+
+  /**
+   * url_file keeps the webhook URL, a credential, out of the manifests. Resolved
+   * notifications would only arrive when Watchdog stops, which never happens on purpose.
+   */
+  private generateDeadMansSwitchReceiver(config: MonitoringConfig): string {
+    if (!config.deadMansSwitch.enabled) return '';
+    const { name, key } = config.deadMansSwitch.urlSecret;
+    return `
+    - name: deadmansswitch
+      webhook_configs:
+      - url_file: /etc/alertmanager/secrets/${name}/${key}
+        send_resolved: false`;
   }
 
   private generateStagingReceiver(config: MonitoringConfig): string {
@@ -443,10 +479,7 @@ alertmanager:
       group_interval: 5m
       repeat_interval: ${config.alertRouting.repeatInterval}
       receiver: email
-      routes:
-      - match:
-          alertname: Watchdog
-        receiver: 'null'
+      routes:${this.generateWatchdogRoute(config)}
       - match:
           alertname: CPUThrottlingHigh
         receiver: 'null'
@@ -469,7 +502,7 @@ alertmanager:
     - name: email
       email_configs:
       - send_resolved: true
-        to: ${this.generateRecipients(config)}${this.generateEmailHeaders(config)}${this.generateStagingReceiver(config)}
+        to: ${this.generateRecipients(config)}${this.generateEmailHeaders(config)}${this.generateStagingReceiver(config)}${this.generateDeadMansSwitchReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.

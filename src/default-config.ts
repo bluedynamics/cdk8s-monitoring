@@ -11,6 +11,7 @@ import {
   ReplicaConfig,
   ResourceConfig,
   RetentionConfig,
+  DeadMansSwitchConfig,
   StagingAlertsConfig,
   StorageConfig,
   TempoConfig,
@@ -101,6 +102,11 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     enabled: false,
     namespaces: [],
   },
+  deadMansSwitch: {
+    enabled: false,
+    urlSecret: { name: '', key: '' },
+    repeatInterval: '5m',
+  },
   alertRouting: {
     repeatInterval: '12h',
   },
@@ -140,6 +146,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (stagingAlerts.enabled && stagingAlerts.namespaces.length === 0) {
     throw new Error('stagingAlerts.namespaces must name at least one namespace when stagingAlerts.enabled is true');
   }
+  const deadMansSwitch = deepmerge(DEFAULT_CONFIG.deadMansSwitch, input.deadMansSwitch ?? {}) as DeadMansSwitchConfig;
+  if (deadMansSwitch.enabled && (!deadMansSwitch.urlSecret.name || !deadMansSwitch.urlSecret.key)) {
+    throw new Error('deadMansSwitch.urlSecret needs a name and a key when deadMansSwitch.enabled is true');
+  }
   return {
     namespace: input.namespace,
     clusterName: input.clusterName,
@@ -157,6 +167,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     longhorn,
     embedding,
     stagingAlerts,
+    deadMansSwitch,
     alertRouting: deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig,
     externalUrls: deepmerge(DEFAULT_CONFIG.externalUrls, input.externalUrls ?? {}) as ExternalUrlsConfig,
     priorityClasses: deepmerge(DEFAULT_CONFIG.priorityClasses, input.priorityClasses ?? {}) as PriorityClassesConfig,

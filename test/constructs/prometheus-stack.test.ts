@@ -400,6 +400,52 @@ describe('PrometheusStackConstruct', () => {
     expect(values).toContain("subject: '[STAGING] {{ template \"email.default.subject\" . }}'");
   });
 
+  it('forwards the Watchdog alert to the dead man\'s switch webhook when deadMansSwitch is enabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({
+      deadMansSwitch: { enabled: true, urlSecret: { name: 'alertmanager-deadmansswitch', key: 'url' }, repeatInterval: '5m' },
+    });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toMatch(/alertname: Watchdog\n\s+receiver: deadmansswitch\n\s+group_wait: 0s\n\s+group_interval: 1m\n\s+repeat_interval: 5m/);
+    expect(values).toContain('- name: deadmansswitch');
+    expect(values).toContain('url_file: /etc/alertmanager/secrets/alertmanager-deadmansswitch/url');
+    expect(values).toContain('send_resolved: false');
+    expect(values).toContain('secrets:');
+    expect(values).toContain('- alertmanager-deadmansswitch');
+  });
+
+  it('uses the configured dead man\'s switch repeat interval', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig({
+      deadMansSwitch: { enabled: true, urlSecret: { name: 'dms', key: 'url' }, repeatInterval: '2m' },
+    });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toMatch(/receiver: deadmansswitch\n(\s+\S.*\n){2}\s+repeat_interval: 2m/);
+  });
+
+  it('mounts both the SMTP and the dead man\'s switch secret', () => {
+    const chart = Testing.chart();
+    const base = createTestConfig();
+    const config = createTestConfig({
+      smtp: { ...base.smtp, passwordSecret: { name: 'alertmanager-smtp', key: 'password' } },
+      deadMansSwitch: { enabled: true, urlSecret: { name: 'alertmanager-deadmansswitch', key: 'url' }, repeatInterval: '5m' },
+    });
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toMatch(/secrets:\n\s+- alertmanager-smtp\n\s+- alertmanager-deadmansswitch/);
+  });
+
+  it('keeps the Watchdog alert silent when deadMansSwitch is disabled', () => {
+    const chart = Testing.chart();
+    const config = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config });
+    const values = findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent;
+    expect(values).toMatch(/alertname: Watchdog\n\s+receiver: 'null'/);
+    expect(values).not.toContain('deadmansswitch');
+  });
+
   it('omits the staging route and receiver when stagingAlerts is disabled', () => {
     const chart = Testing.chart();
     const config = createTestConfig();

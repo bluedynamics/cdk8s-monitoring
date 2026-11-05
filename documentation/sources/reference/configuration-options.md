@@ -238,6 +238,23 @@ When `stagingAlerts.enabled` is false, the Alertmanager configuration carries no
 The `staging` receiver mails the same address as the production receiver with a `[STAGING]` subject prefix.
 The noise-drop routes for alertnames such as `Watchdog` keep precedence over the staging route.
 
+### deadMansSwitch
+
+The `deadMansSwitch` block forwards the always-firing `Watchdog` alert to an external heartbeat service.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `deadMansSwitch.enabled` is false, `Watchdog` goes to the `null` receiver.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `deadMansSwitch.enabled` | `boolean` | `false` | Master switch; when true, routes `Watchdog` to a `deadmansswitch` webhook receiver. |
+| `deadMansSwitch.urlSecret.name` | `string` | `''` | Secret in the monitoring namespace that holds the webhook URL; Prometheus Operator mounts it into Alertmanager. |
+| `deadMansSwitch.urlSecret.key` | `string` | `''` | Key of the webhook URL in that Secret; Alertmanager reads it with `url_file`. |
+| `deadMansSwitch.repeatInterval` | `string` | `5m` | `repeat_interval` of the `Watchdog` route: how often the webhook is posted. |
+
+`mergeConfig` throws `deadMansSwitch.urlSecret needs a name and a key when deadMansSwitch.enabled is true` when you enable the block without both.
+
+The URL never appears in the synthesized manifests.
+
 ### alertRouting
 
 The `alertRouting` block paces Alertmanager notifications.

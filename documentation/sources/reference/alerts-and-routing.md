@@ -101,7 +101,7 @@ Alertmanager evaluates the child routes in this order and stops at the first mat
 
 | Order | Matcher | Receiver |
 |---|---|---|
-| 1 | `alertname: Watchdog` | `null` |
+| 1 | `alertname: Watchdog` | `null`, or `deadmansswitch` when `deadMansSwitch.enabled` is true |
 | 2 | `alertname: CPUThrottlingHigh` | `null` |
 | 3 | `alertname: KubeMemoryOvercommit` | `null` |
 | 4 | `alertname: KubeCPUOvercommit` | `null` |
@@ -110,6 +110,7 @@ Alertmanager evaluates the child routes in this order and stops at the first mat
 | 7 | `namespace` matches `^(<stagingAlerts.namespaces>)$` | `staging` |
 
 Route 7 exists only when `stagingAlerts.enabled` is true.
+With `deadMansSwitch.enabled`, route 1 also sets `group_wait: 0s`, `group_interval: 1m`, and `repeat_interval` from `deadMansSwitch.repeatInterval`.
 Every alert that matches no child route goes to `email`.
 
 ## Receivers
@@ -126,6 +127,11 @@ Every alert that matches no child route goes to `email`.
 :   Exists only when `stagingAlerts.enabled` is true.
     Sends to the same addresses as `email`, with resolved notifications.
     Sets the subject to `[STAGING]` followed by the default subject, and adds every entry of `smtp.headers`.
+
+`deadmansswitch`
+:   Exists only when `deadMansSwitch.enabled` is true.
+    Posts the alert to the URL read from `/etc/alertmanager/secrets/<deadMansSwitch.urlSecret.name>/<deadMansSwitch.urlSecret.key>`.
+    Sends no resolved notifications.
 
 ## SMTP settings
 
