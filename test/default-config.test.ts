@@ -120,6 +120,16 @@ test('throws when deadMansSwitch is enabled without a URL secret', () => {
     .toThrow(/deadMansSwitch\.urlSecret/);
 });
 
+test('leaves argocd monitoring disabled by default, with alerts once enabled', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.argocd).toEqual({ enabled: false, namespace: 'argocd', alerts: true });
+});
+
+test('throws when argocd is enabled without a namespace', () => {
+  expect(() => mergeConfig({ ...cluster, argocd: { enabled: true, namespace: '' } }))
+    .toThrow(/argocd\.namespace/);
+});
+
 test('passes clusterName through unchanged', () => {
   const cfg = mergeConfig({ ...cluster, clusterName: 'my-cluster' } as any);
   expect(cfg.clusterName).toBe('my-cluster');

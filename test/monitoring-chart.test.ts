@@ -608,6 +608,16 @@ describe('MonitoringChart Integration Tests', () => {
     expect(offManifests.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'alloy-traces')).toHaveLength(0);
   });
 
+  it('creates the ArgoCD monitor only when argocd is enabled', () => {
+    const enabled = createTestConfig({ argocd: { ...createTestConfig().argocd, enabled: true } });
+    const onManifests = synthesizeChart(new MonitoringChart(new App(), 'm', enabled));
+    expect(findResource(onManifests, 'PodMonitor', 'argocd-application-controller')).toBeDefined();
+    expect(findResource(onManifests, 'PrometheusRule', 'argocd-gitops')).toBeDefined();
+
+    const offManifests = synthesizeChart(new MonitoringChart(new App(), 'm2', createTestConfig()));
+    expect(findResource(offManifests, 'PodMonitor', 'argocd-application-controller')).toBeUndefined();
+  });
+
   it('sets failurePolicy abort on every HelmChart', () => {
     // The helm-controller default (reinstall) uninstalls a failed release,
     // which deletes Helm-owned PVCs such as Grafana's database (#23).

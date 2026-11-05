@@ -238,6 +238,18 @@ export interface LonghornConfig {
 }
 
 /**
+ * ArgoCD GitOps monitoring (generic infra, opt-in).
+ * PodMonitor for the application controller (the argo-helm chart exposes its
+ * metrics Service only with controller.metrics.enabled, the Pod port always)
+ * plus optional alerts on applications ArgoCD can no longer compare with Git.
+ */
+export interface ArgoCdConfig {
+  enabled: boolean; // default false — when false, no ArgoCD monitoring resources are created
+  namespace: string; // namespace ArgoCD runs in (PodMonitor namespaceSelector); default 'argocd'
+  alerts: boolean; // ship the GitOps PrometheusRule; default true
+}
+
+/**
  * Browser embedding of Grafana in an <iframe> (opt-in).
  *
  * Grafana refuses framing by default (`X-Frame-Options: deny`), which also
@@ -325,6 +337,7 @@ export interface DefaultableConfig {
   tempo: TempoConfig; // Grafana Tempo tracing (opt-in)
   traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
+  argocd: ArgoCdConfig; // ArgoCD GitOps monitoring (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
   deadMansSwitch: DeadMansSwitchConfig; // Watchdog forwarding to an external heartbeat (opt-in)
