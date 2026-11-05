@@ -79,6 +79,19 @@ The `longhorn-volume-health` `PrometheusRule` exists only when `longhorn.enabled
 
 The metric `longhorn_volume_robustness` takes the values `0` (unknown), `1` (healthy), `2` (degraded), and `3` (faulted).
 
+### argocd.gitops
+
+The `argocd-gitops` `PrometheusRule` exists only when `argocd.enabled` and `argocd.alerts` are both true.
+
+| Alert | Severity | For | Expression |
+|---|---|---|---|
+| `ArgoCdAppSyncUnknown` | `warning` | 15m | `argocd_app_info{sync_status="Unknown"}` |
+| `ArgoCdMetricsAbsent` | `warning` | 15m | `absent(argocd_app_info)` |
+
+ArgoCD sets the sync status `Unknown` when it cannot compare an application with Git, for example after a `ComparisonError` from expired repository credentials.
+The workloads keep running, so no other alert notices that deployments have stopped.
+`ArgoCdMetricsAbsent` fires when the scrape itself fails, because `ArgoCdAppSyncUnknown` cannot fire without metrics.
+
 ## Alert labels
 
 Prometheus adds the external label `cluster` with the value of `clusterName` to every alert.

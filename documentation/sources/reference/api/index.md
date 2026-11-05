@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -48,7 +48,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `alertRouting`, `externalUrls`, and `priorityClasses`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `argocd`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `alertRouting`, `externalUrls`, and `priorityClasses`.
 
 `TempoConfig`
 :   The opt-in distributed tracing block.
@@ -66,6 +66,10 @@ The package is TypeScript-only and ships no generated API document; this curated
 
 `LonghornConfig`
 :   The opt-in Longhorn monitor.
+    Fields: `enabled`, `namespace`, and `alerts`.
+
+`ArgoCdConfig`
+:   The opt-in ArgoCD monitor.
     Fields: `enabled`, `namespace`, and `alerts`.
 
 `EmbeddingConfig`
@@ -182,7 +186,7 @@ The following four constructs are created only when `config.tempo.enabled` is tr
 
 When tracing is enabled, `PrometheusStackConstruct` also adds a Tempo datasource to Grafana, wired for traces-to-logs and traces-to-metrics correlation.
 
-The following two constructs are created only when their configuration block is enabled.
+The following three constructs are created only when their configuration block is enabled.
 
 `TraefikMonitorConstruct`
 :   Creates the `traefik-metrics` `PodMonitor` and, unless `traefik.dashboard` is false, the `traefik-dashboard` `ConfigMap`.
@@ -193,6 +197,11 @@ The following two constructs are created only when their configuration block is 
 :   Creates the `longhorn-metrics` `ServiceMonitor` and, unless `longhorn.alerts` is false, the `longhorn-volume-health` `PrometheusRule`.
     Props: `monitoringNamespace` and `longhorn`.
     `MonitoringChart` creates it when `longhorn.enabled` is true.
+
+`ArgoCdMonitorConstruct`
+:   Creates the `argocd-application-controller` `PodMonitor` and, unless `argocd.alerts` is false, the `argocd-gitops` `PrometheusRule`.
+    Props: `monitoringNamespace` and `argocd`.
+    `MonitoringChart` creates it when `argocd.enabled` is true.
 
 ## Re-exported helper
 

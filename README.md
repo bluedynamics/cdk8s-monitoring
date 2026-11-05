@@ -16,7 +16,7 @@ The library is **application-agnostic**. It synthesizes the stack itself; your o
 - Loki + Alloy for log aggregation and collection.
 - Optional Tempo tracing behind a tail-sampling Alloy gateway.
 - Email alerting with curated defaults: noise-free routing, CronJob and PodDisruptionBudget health rules, optional staging demotion.
-- Optional Traefik and Longhorn monitors, optional Grafana iframe embedding.
+- Optional Traefik, Longhorn, and ArgoCD monitors, optional Grafana iframe embedding.
 - S3 buckets and credentials wired through Crossplane and External Secrets Operator.
 - ArgoCD sync-wave ordering baked in.
 - Sensible production defaults you override only where needed (deep-merge).

@@ -32,7 +32,7 @@ Your own dashboards and alert rules live in your integration chart and attach be
 - Loki and Alloy for log aggregation and collection.
 - Optional Tempo tracing behind a tail-sampling Alloy gateway.
 - Email alerting with curated defaults that keep the alert channel readable.
-- Optional monitors for Traefik and Longhorn.
+- Optional monitors for Traefik, Longhorn, and ArgoCD.
 - S3 buckets and credentials wired through Crossplane and External Secrets Operator.
 - ArgoCD sync-wave ordering baked into the orchestrator.
 - A typed configuration split into required cluster values and overridable package defaults.
