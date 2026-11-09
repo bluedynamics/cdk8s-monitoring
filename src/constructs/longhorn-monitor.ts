@@ -24,7 +24,11 @@ export interface LonghornMonitorProps {
  * alert; noticed only 2h later via a downstream CNPG error. These rules surface
  * storage health within minutes.
  *
- * longhorn_volume_robustness: 0=unknown, 1=healthy, 2=degraded, 3=faulted.
+ * longhorn_volume_robustness and longhorn_volume_state export one series per
+ * state (label `state`); the current state has value 1, every other 0
+ * (Longhorn 1.13). Comparing the value against 0..3 matches nothing useful.
+ * A detached volume always reports robustness `unknown`, so `unknown` counts
+ * only while the volume is attached.
  */
 export class LonghornMonitorConstruct extends Construct {
   constructor(scope: Construct, id: string, props: LonghornMonitorProps) {
@@ -60,28 +64,30 @@ export class LonghornMonitorConstruct extends Construct {
               rules: [
                 {
                   alert: 'LonghornVolumeFaulted',
-                  expr: PrometheusRuleSpecGroupsRulesExpr.fromString('longhorn_volume_robustness == 3'),
+                  expr: PrometheusRuleSpecGroupsRulesExpr.fromString('longhorn_volume_robustness{state="faulted"} == 1'),
                   for: '1m',
                   labels: { severity: 'critical' },
                   annotations: {
                     summary: 'Longhorn volume {{ $labels.volume }} is faulted',
                     description:
-                      'Volume {{ $labels.volume }} (node={{ $labels.node }}, pvc={{ $labels.pvc }}) is in faulted state. ' +
+                      'Volume {{ $labels.volume }} (node={{ $labels.node }}, pvc={{ $labels.pvc_namespace }}/{{ $labels.pvc }}) is in faulted state. ' +
                       'Data may be lost. Recovery: scale workload down, delete PVC, scale up so the StatefulSet/operator re-creates and re-syncs from a healthy source.',
                   },
                 },
                 {
                   alert: 'LonghornVolumeUnhealthy',
                   expr: PrometheusRuleSpecGroupsRulesExpr.fromString(
-                    'longhorn_volume_robustness == 0 or longhorn_volume_robustness == 2',
+                    'longhorn_volume_robustness{state="degraded"} == 1 or '
+                    + '(longhorn_volume_robustness{state="unknown"} == 1 and on (volume) longhorn_volume_state{state="attached"} == 1)',
                   ),
                   for: '10m',
                   labels: { severity: 'warning' },
                   annotations: {
-                    summary: 'Longhorn volume {{ $labels.volume }} not healthy (robustness={{ $value }})',
+                    summary: 'Longhorn volume {{ $labels.volume }} not healthy (robustness {{ $labels.state }})',
                     description:
-                      'Volume {{ $labels.volume }} (node={{ $labels.node }}, pvc={{ $labels.pvc }}) has been non-healthy for >10m. ' +
-                      'robustness values: 0=unknown, 2=degraded. A short degraded window during a replica rebuild is normal; 10m+ means manual investigation.',
+                      'Volume {{ $labels.volume }} (node={{ $labels.node }}, pvc={{ $labels.pvc_namespace }}/{{ $labels.pvc }}) has been non-healthy for >10m. ' +
+                      'Degraded means fewer healthy replicas than configured; unknown on an attached volume means Longhorn has lost track of it. ' +
+                      'A short degraded window during a replica rebuild is normal; 10m+ means manual investigation.',
                   },
                 },
               ],

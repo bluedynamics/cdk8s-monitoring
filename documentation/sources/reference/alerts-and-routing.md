@@ -74,10 +74,13 @@ The `longhorn-volume-health` `PrometheusRule` exists only when `longhorn.enabled
 
 | Alert | Severity | For | Expression |
 |---|---|---|---|
-| `LonghornVolumeFaulted` | `critical` | 1m | `longhorn_volume_robustness == 3` |
-| `LonghornVolumeUnhealthy` | `warning` | 10m | `longhorn_volume_robustness == 0 or longhorn_volume_robustness == 2` |
+| `LonghornVolumeFaulted` | `critical` | 1m | `longhorn_volume_robustness{state="faulted"} == 1` |
+| `LonghornVolumeUnhealthy` | `warning` | 10m | `longhorn_volume_robustness{state="degraded"} == 1 or (longhorn_volume_robustness{state="unknown"} == 1 and on (volume) longhorn_volume_state{state="attached"} == 1)` |
 
-The metric `longhorn_volume_robustness` takes the values `0` (unknown), `1` (healthy), `2` (degraded), and `3` (faulted).
+Longhorn exports `longhorn_volume_robustness` and `longhorn_volume_state` as one series per state, with the label `state`.
+The series of the current state has the value `1`, every other series `0`.
+The robustness states are `unknown`, `healthy`, `degraded`, and `faulted`.
+A detached volume always reports the robustness `unknown`, so `LonghornVolumeUnhealthy` counts `unknown` only while the volume is attached.
 
 ### argocd.gitops
 

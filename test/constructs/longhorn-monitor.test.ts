@@ -18,7 +18,7 @@ describe('LonghornMonitorConstruct', () => {
     expectLabels(sm, { release: 'kube-prometheus-stack' });
   });
 
-  it('creates volume-health alert rules (faulted=critical, unhealthy=warning) when alerts=true', () => {
+  it('creates volume-health alert rules on the labeled robustness series when alerts=true', () => {
     const chart = Testing.chart();
     const { longhorn } = createTestConfig();
     new LonghornMonitorConstruct(chart, 'test-longhorn', {
@@ -30,9 +30,14 @@ describe('LonghornMonitorConstruct', () => {
     const rules = rule.spec.groups[0].rules;
     const faulted = rules.find((r: any) => r.alert === 'LonghornVolumeFaulted');
     const unhealthy = rules.find((r: any) => r.alert === 'LonghornVolumeUnhealthy');
-    expect(faulted.expr).toBe('longhorn_volume_robustness == 3');
+    // Longhorn exports one series per state (label `state`), 1 for the current one.
+    expect(faulted.expr).toBe('longhorn_volume_robustness{state="faulted"} == 1');
     expect(faulted.labels.severity).toBe('critical');
-    expect(unhealthy.expr).toBe('longhorn_volume_robustness == 0 or longhorn_volume_robustness == 2');
+    // A detached volume always reports robustness unknown, so unknown counts only while attached.
+    expect(unhealthy.expr).toBe(
+      'longhorn_volume_robustness{state="degraded"} == 1 or '
+      + '(longhorn_volume_robustness{state="unknown"} == 1 and on (volume) longhorn_volume_state{state="attached"} == 1)',
+    );
     expect(unhealthy.labels.severity).toBe('warning');
     expect(unhealthy.for).toBe('10m');
   });
