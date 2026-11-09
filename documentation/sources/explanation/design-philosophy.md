@@ -30,7 +30,7 @@ The {doc}`../how-to/add-app-dashboards` guide is the litmus test that this decou
 
 Two kinds of content are the exception, because they concern every cluster rather than any application.
 The library ships a small set of rules about the cluster itself, such as failed CronJobs and undrainable PodDisruptionBudgets; see {doc}`alerting-defaults`.
-It also ships monitors for Traefik and Longhorn, the infrastructure components its clusters share, but keeps them off until a consumer enables them.
+It also ships monitors for Traefik, Longhorn, and ArgoCD, the infrastructure components its clusters share, but keeps them off until a consumer enables them.
 
 An alternative would have been a callback or registration API in the library through which consumers inject dashboards.
 That would add surface area and coupling for no gain, since the integration chart can simply instantiate its own constructs.

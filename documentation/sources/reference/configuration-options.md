@@ -312,6 +312,22 @@ The `ServiceMonitor` selects services labeled `app: longhorn-manager` and scrape
 The alert rules are listed in {doc}`alerts-and-routing`.
 `mergeConfig` throws `longhorn.namespace is required when longhorn.enabled is true` when you enable the block with an empty namespace.
 
+### argocd
+
+The `argocd` block adds opt-in monitoring for ArgoCD.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `argocd.enabled` is false, no ArgoCD resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `argocd.enabled` | `boolean` | `false` | Master switch; when true, creates the `argocd-application-controller` `PodMonitor`. |
+| `argocd.namespace` | `string` | `argocd` | Namespace ArgoCD runs in, used as the `PodMonitor` namespace selector. |
+| `argocd.alerts` | `boolean` | `true` | Ship the `argocd-gitops` `PrometheusRule`. |
+
+The `PodMonitor` selects pods labeled `app.kubernetes.io/name: argocd-application-controller` and scrapes their `metrics` port at `/metrics` every 30 seconds.
+The alert rules are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `argocd.namespace is required when argocd.enabled is true` when you enable the block with an empty namespace.
+
 ### priorityClasses
 
 The `priorityClasses` block sets the `priorityClassName` of every pod in the stack.
@@ -338,7 +354,7 @@ Kubernetes rejects pods that name a missing `PriorityClass`.
 - {doc}`../how-to/override-defaults` — how to change these values.
 - {doc}`../how-to/embed-grafana` — how to enable and verify embedding.
 - {doc}`../how-to/route-staging-alerts` — how to enable and verify staging alert routing.
-- {doc}`../how-to/enable-infrastructure-monitors` — how to turn on the Traefik and Longhorn monitors.
+- {doc}`../how-to/enable-infrastructure-monitors` — how to turn on the Traefik, Longhorn, and ArgoCD monitors.
 - {doc}`../how-to/set-priority-classes` — how to use your cluster's own priority classes.
 - {doc}`alerts-and-routing` — the shipped alert rules and the Alertmanager routing tree.
 - {doc}`sync-waves` — the rollout order of the resources.

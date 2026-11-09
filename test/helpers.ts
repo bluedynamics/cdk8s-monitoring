@@ -165,6 +165,11 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       namespace: 'longhorn-system',
       alerts: true,
     },
+    argocd: {
+      enabled: false,
+      namespace: 'argocd',
+      alerts: true,
+    },
     embedding: {
       enabled: false,
       frameAncestors: [],

@@ -4,6 +4,7 @@ import { Construct } from 'constructs';
 // Import all constructs
 import { AlloyConstruct } from './constructs/alloy';
 import { AlloyTracesConstruct } from './constructs/alloy-traces';
+import { ArgoCdMonitorConstruct } from './constructs/argocd-monitor';
 import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
 import { LokiConstruct } from './constructs/loki';
 import { LokiS3BucketConstruct } from './constructs/loki-s3-bucket';
@@ -52,8 +53,9 @@ import { MonitoringConfig } from './types';
  * `grafana_dashboard: "1"` in the same namespace).
  *
  * Exception: monitors for GENERIC infrastructure components that ship with the
- * stack's environment (Traefik ingress, Longhorn storage) are available as
- * opt-in, off-by-default constructs here (config.traefik / config.longhorn), so
+ * stack's environment (Traefik ingress, Longhorn storage, ArgoCD) are available as
+ * opt-in, off-by-default constructs here (config.traefik / config.longhorn /
+ * config.argocd), so
  * every consumer can enable them without re-implementing the same scrape/alert
  * specs. They stay disabled unless explicitly turned on.
  *
@@ -185,6 +187,12 @@ export class MonitoringChart extends Chart {
       new LonghornMonitorConstruct(this, 'longhorn-monitor', {
         monitoringNamespace: namespace,
         longhorn: config.longhorn,
+      });
+    }
+    if (config.argocd.enabled) {
+      new ArgoCdMonitorConstruct(this, 'argocd-monitor', {
+        monitoringNamespace: namespace,
+        argocd: config.argocd,
       });
     }
   }
