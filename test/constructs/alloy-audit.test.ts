@@ -33,6 +33,7 @@ describe('AlloyAuditConstruct', () => {
     expect(values).toContain('mountPath: /var/log/k3s-audit\n        readOnly: true');
     expect(values).toContain('storagePath: /var/lib/alloy-audit');
     expect(values).toContain('runAsUser: 0');
+    expect(values).toContain('seLinuxOptions:\n      type: spc_t');
     expect(values).toContain('drop:\n        - ALL');
     expect(values).toContain('rbac:\n  create: false');
   });
