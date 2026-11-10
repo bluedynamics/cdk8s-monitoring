@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 // Import all constructs
 import { AlloyConstruct } from './constructs/alloy';
+import { AlloyAuditConstruct } from './constructs/alloy-audit';
 import { AlloyTracesConstruct } from './constructs/alloy-traces';
 import { ArgoCdMonitorConstruct } from './constructs/argocd-monitor';
 import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
@@ -134,6 +135,11 @@ export class MonitoringChart extends Chart {
       namespace,
       config,
     });
+
+    // Alloy audit collector on the control planes (opt-in)
+    if (config.auditLog.enabled) {
+      new AlloyAuditConstruct(this, 'alloy-audit', { namespace, config });
+    }
 
     // Thanos Query (unified query interface - after Prometheus is ready)
     new ThanosQueryConstruct(this, 'thanos-query', {
