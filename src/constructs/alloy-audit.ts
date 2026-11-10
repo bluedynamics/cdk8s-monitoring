@@ -15,7 +15,10 @@ export interface AlloyAuditProps {
  * (nodeSelector + taint tolerations), tails the audit files the API server writes
  * to `config.auditLog.path` and sends them to the Loki gateway with the labels
  * `job=k3s-audit`, `node` and `cluster`. Verb, user, resource and namespace of
- * each event become structured metadata, the JSON line stays intact.
+ * each event become structured metadata, the JSON line stays intact. The same
+ * fields plus the response code feed the Prometheus counter
+ * `loki_process_custom_k3s_audit_events_total`, scraped through a ServiceMonitor,
+ * so alert rules and dashboards can work on identities without touching Loki.
  *
  * The API server creates the files as root with mode 0600, so the container runs
  * as uid 0 and, for SELinux hosts, as `spc_t`; it drops every capability and has
@@ -135,7 +138,34 @@ alloy:
             user      = "user.username",
             resource  = "objectRef.resource",
             namespace = "objectRef.namespace",
+            code      = "responseStatus.code",
           }
+        }
+
+        // Counter for Prometheus: who touched what, how often, with which result.
+        // The labels exist only while counting and are dropped again before the
+        // line goes to Loki, so the streams stay low-cardinality.
+        stage.labels {
+          values = {
+            verb      = "verb",
+            user      = "user",
+            resource  = "resource",
+            namespace = "namespace",
+            code      = "code",
+          }
+        }
+
+        stage.metrics {
+          metric.counter {
+            name        = "k3s_audit_events_total"
+            description = "Kubernetes API audit events by identity, verb, resource, namespace and response code"
+            match_all   = true
+            action      = "inc"
+          }
+        }
+
+        stage.label_drop {
+          values = ["verb", "user", "resource", "namespace", "code"]
         }
 
         stage.structured_metadata {
@@ -176,6 +206,11 @@ configReloader:
     limits:
       cpu: ${config.resources.configReloader.limits.cpu}
       memory: ${config.resources.configReloader.limits.memory}
+# Prometheus scrapes the audit counters (loki_process_custom_k3s_audit_events_total).
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack
 # The collector reads files only; it needs no Kubernetes API access.
 rbac:
   create: false
