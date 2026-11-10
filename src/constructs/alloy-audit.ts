@@ -18,8 +18,9 @@ export interface AlloyAuditProps {
  * each event become structured metadata, the JSON line stays intact.
  *
  * The API server creates the files as root with mode 0600, so the container runs
- * as uid 0; it drops every capability and has no Kubernetes API access. Read
- * positions live on the host so a restart does not re-ingest the files.
+ * as uid 0 and, for SELinux hosts, as `spc_t`; it drops every capability and has
+ * no Kubernetes API access. Read positions live on the host so a restart does not
+ * re-ingest the files.
  *
  * Opt-in through `config.auditLog.enabled`. Sync Wave: 3 (after Loki).
  */
@@ -83,10 +84,14 @@ ${nodeSelectorYaml}
           path: ${positionsPath}
           type: DirectoryOrCreate
 alloy:
-  # The API server writes the audit files as root with mode 0600.
+  # The API server writes the audit files as root with mode 0600. On SELinux hosts
+  # (openSUSE MicroOS) container_t may not write the hostPath for the positions, so
+  # the container runs as a super privileged container type; capabilities stay dropped.
   securityContext:
     runAsUser: 0
     runAsGroup: 0
+    seLinuxOptions:
+      type: spc_t
     allowPrivilegeEscalation: false
     capabilities:
       drop:

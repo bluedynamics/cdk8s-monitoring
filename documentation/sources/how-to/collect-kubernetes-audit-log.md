@@ -53,6 +53,6 @@ For anything else, parse the line:
 
 ## What the collector may do
 
-The API server creates the audit files as root with mode 0600, so the Alloy container runs as uid 0.
+The API server creates the audit files as root with mode 0600, so the Alloy container runs as uid 0, and as the SELinux type `spc_t`, because on enforcing hosts such as openSUSE MicroOS the default `container_t` may not write the positions directory on the host.
 It drops every Linux capability, mounts the audit directory read-only, has no Kubernetes API access (`rbac.create: false`) and keeps its read positions in `/var/lib/alloy-audit` on the host, so a restart does not re-ingest the files.
 The regular `alloy` DaemonSet is unchanged and still does not run on the control planes.
