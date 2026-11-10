@@ -48,6 +48,16 @@ describe('AlloyAuditConstruct', () => {
     expect(values).toContain('cluster = "test-cluster"');
   });
 
+  it('counts audit events for Prometheus without adding labels to the Loki streams', () => {
+    const values = synth().spec.valuesContent;
+    expect(values).toContain('code      = "responseStatus.code"');
+    expect(values).toContain('name        = "k3s_audit_events_total"');
+    expect(values.indexOf('stage.labels')).toBeLessThan(values.indexOf('stage.metrics'));
+    expect(values.indexOf('stage.metrics')).toBeLessThan(values.indexOf('stage.label_drop'));
+    expect(values).toContain('values = ["verb", "user", "resource", "namespace", "code"]');
+    expect(values).toContain('serviceMonitor:\n  enabled: true\n  additionalLabels:\n    release: kube-prometheus-stack');
+  });
+
   it('honours a custom path and node selector', () => {
     const values = synth({ path: '/var/log/kubernetes/audit', nodeSelector: { 'node-role.kubernetes.io/master': '' } }).spec.valuesContent;
     expect(values).toContain('__path__ = "/var/log/kubernetes/audit/*.log"');

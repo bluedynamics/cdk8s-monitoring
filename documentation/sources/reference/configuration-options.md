@@ -294,6 +294,7 @@ When `auditLog.enabled` is false, no collector is created.
 
 Resources of the collector come from `resources.alloyAudit` (default requests 50m/128Mi, limits 200m/256Mi) and `resources.configReloader`.
 The collector writes to the Loki gateway of the same namespace with the labels `job="k3s-audit"`, `node` and `cluster`, and stores `verb`, `user`, `resource` and `namespace` as structured metadata.
+It exposes the Prometheus counter `loki_process_custom_k3s_audit_events_total{user, verb, resource, namespace, code, node}` through a ServiceMonitor with the label `release: kube-prometheus-stack`.
 See [Collect the Kubernetes API audit log](../how-to/collect-kubernetes-audit-log.md).
 
 ### traefik

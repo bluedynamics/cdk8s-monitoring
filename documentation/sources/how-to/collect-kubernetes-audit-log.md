@@ -51,6 +51,23 @@ For anything else, parse the line:
 {job="k3s-audit"} | json | responseStatus_code >= 400
 ```
 
+## Alert on identities with Prometheus
+
+The collector also counts every audit event in the Prometheus counter `loki_process_custom_k3s_audit_events_total` with the labels `user`, `verb`, `resource`, `namespace`, `code` and `node`, scraped through a ServiceMonitor labelled `release: kube-prometheus-stack`.
+Write your alert rules as `PrometheusRule`s beside the chart, with the identities of your cluster:
+
+```yaml
+- alert: AuditSecretAccessByUnexpectedIdentity
+  expr: >-
+    sum by (user, verb, namespace) (
+      increase(loki_process_custom_k3s_audit_events_total{resource="secrets",
+        user!~"system:(apiserver|k3s-supervisor|kube-controller-manager|serviceaccount:(external-secrets|argocd|cert-manager|monitoring):.*)"}[10m])
+    ) > 0
+  labels: { severity: warning }
+```
+
+The counter keeps a series for five minutes after the last event, so use `increase` over a window of at least ten minutes.
+
 ## What the collector may do
 
 The API server creates the audit files as root with mode 0600, so the Alloy container runs as uid 0, and as the SELinux type `spc_t`, because on enforcing hosts such as openSUSE MicroOS the default `container_t` may not write the positions directory on the host.
