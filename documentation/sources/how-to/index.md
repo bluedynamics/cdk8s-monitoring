@@ -59,6 +59,7 @@ titlesonly: true
 ---
 add-app-dashboards
 enable-infrastructure-monitors
+collect-kubernetes-audit-log
 ```
 
 ## Operations

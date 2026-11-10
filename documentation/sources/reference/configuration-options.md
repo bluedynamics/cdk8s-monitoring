@@ -281,6 +281,21 @@ The setting changes only the links; the pods keep serving under the route prefix
 
 Grafana carries an `Alertmanager` datasource, so the active alerts and silences are visible in Grafana as well.
 
+### auditLog
+
+The `auditLog` block adds an opt-in collector for the Kubernetes API audit log on the control planes.
+When `auditLog.enabled` is false, no collector is created.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `auditLog.enabled` | `boolean` | `false` | Master switch; when true, creates the `alloy-audit` HelmChart (Alloy DaemonSet on the control planes). |
+| `auditLog.path` | `string` | `/var/log/k3s-audit` | Directory on the control planes that holds the audit log files; the collector tails `<path>/*.log`. |
+| `auditLog.nodeSelector` | `object` | `{ "node-role.kubernetes.io/control-plane": "true" }` | Node selector of the collector; it also tolerates the `node-role.kubernetes.io/control-plane` and `node-role.kubernetes.io/master` taints. |
+
+Resources of the collector come from `resources.alloyAudit` (default requests 50m/128Mi, limits 200m/256Mi) and `resources.configReloader`.
+The collector writes to the Loki gateway of the same namespace with the labels `job="k3s-audit"`, `node` and `cluster`, and stores `verb`, `user`, `resource` and `namespace` as structured metadata.
+See [Collect the Kubernetes API audit log](../how-to/collect-kubernetes-audit-log.md).
+
 ### traefik
 
 The `traefik` block adds opt-in monitoring for a Traefik ingress controller.

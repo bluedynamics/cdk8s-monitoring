@@ -18,6 +18,7 @@ import {
   TempoConfig,
   TraefikConfig,
   VersionConfig,
+  AuditLogConfig,
 } from './types';
 
 /**
@@ -78,6 +79,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     thanosSidecar: { requests: { cpu: '10m', memory: '50Mi' }, limits: { cpu: '100m', memory: '100Mi' } },
     tempo: { requests: { cpu: '100m', memory: '512Mi' }, limits: { cpu: '1', memory: '2Gi' } },
     alloyTraces: { requests: { cpu: '100m', memory: '256Mi' }, limits: { cpu: '500m', memory: '512Mi' } },
+    alloyAudit: { requests: { cpu: '50m', memory: '128Mi' }, limits: { cpu: '200m', memory: '256Mi' } },
   },
   tempo: {
     enabled: false,
@@ -89,6 +91,11 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     enabled: false,
     namespace: 'traefik',
     dashboard: true,
+  },
+  auditLog: {
+    enabled: false,
+    path: '/var/log/k3s-audit',
+    nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
   },
   longhorn: {
     enabled: false,
@@ -176,6 +183,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     traefik,
     longhorn,
     argocd,
+    auditLog: deepmerge(DEFAULT_CONFIG.auditLog, input.auditLog ?? {}) as AuditLogConfig,
     embedding,
     stagingAlerts,
     deadMansSwitch,

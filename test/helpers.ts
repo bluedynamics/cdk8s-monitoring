@@ -142,6 +142,10 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
         requests: { cpu: '100m', memory: '256Mi' },
         limits: { cpu: '500m', memory: '512Mi' },
       },
+      alloyAudit: {
+        requests: { cpu: '50m', memory: '128Mi' },
+        limits: { cpu: '200m', memory: '256Mi' },
+      },
     },
 
     tempo: {
@@ -169,6 +173,11 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       enabled: false,
       namespace: 'argocd',
       alerts: true,
+    },
+    auditLog: {
+      enabled: false,
+      path: '/var/log/k3s-audit',
+      nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
     },
     embedding: {
       enabled: false,

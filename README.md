@@ -13,7 +13,7 @@ The library is **application-agnostic**. It synthesizes the stack itself; your o
 
 - Prometheus + Alertmanager + Grafana via the kube-prometheus-stack Helm chart.
 - Thanos Query, Store, and Compactor for long-term metrics with downsampling.
-- Loki + Alloy for log aggregation and collection.
+- Loki + Alloy for log aggregation and collection, optionally including the Kubernetes API audit log from the control planes.
 - Optional Tempo tracing behind a tail-sampling Alloy gateway.
 - Email alerting with curated defaults: noise-free routing, CronJob and PodDisruptionBudget health rules, optional staging demotion.
 - Optional Traefik, Longhorn, and ArgoCD monitors, optional Grafana iframe embedding.

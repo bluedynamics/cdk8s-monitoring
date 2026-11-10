@@ -125,6 +125,19 @@ test('leaves argocd monitoring disabled by default, with alerts once enabled', (
   expect(cfg.argocd).toEqual({ enabled: false, namespace: 'argocd', alerts: true });
 });
 
+test('leaves audit log collection disabled by default and merges overrides', () => {
+  const cfg = mergeConfig(cluster);
+  expect(cfg.auditLog).toEqual({
+    enabled: false,
+    path: '/var/log/k3s-audit',
+    nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
+  });
+  expect(cfg.resources.alloyAudit.limits.memory).toBeDefined();
+  const custom = mergeConfig({ ...cluster, auditLog: { enabled: true, path: '/var/log/audit' } });
+  expect(custom.auditLog.enabled).toBe(true);
+  expect(custom.auditLog.path).toBe('/var/log/audit');
+});
+
 test('throws when argocd is enabled without a namespace', () => {
   expect(() => mergeConfig({ ...cluster, argocd: { enabled: true, namespace: '' } }))
     .toThrow(/argocd\.namespace/);

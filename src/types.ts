@@ -169,6 +169,7 @@ export interface ResourceConfig {
   thanosSidecar: ResourceRequirements; // thanos-sidecar for Prometheus
   tempo: ResourceRequirements; // Tempo (monolithic)
   alloyTraces: ResourceRequirements; // Alloy traces OTLP gateway
+  alloyAudit: ResourceRequirements; // Alloy audit log collector on the control planes
 }
 
 /**
@@ -205,6 +206,20 @@ export interface TempoConfig {
  * PodMonitor (not ServiceMonitor: the k3s-bundled Traefik exposes the metrics
  * port on the Pod, not the Service) plus an optional Grafana dashboard.
  */
+/**
+ * Kubernetes API audit log collection (opt-in).
+ *
+ * A dedicated Alloy DaemonSet on the control planes tails the audit files the API
+ * server writes to `path` and ships them to Loki as `job="k3s-audit"`.
+ * The consumer enables audit logging on the API server itself (for k3s:
+ * `audit-policy-file` and `audit-log-path`); this library only collects the files.
+ */
+export interface AuditLogConfig {
+  enabled: boolean; // default false — when false, no collector is created
+  path: string; // default /var/log/k3s-audit — directory with the audit log files on the control planes
+  nodeSelector: { [key: string]: string }; // default node-role.kubernetes.io/control-plane: "true"
+}
+
 export interface TraefikConfig {
   enabled: boolean; // default false — when false, no Traefik monitoring resources are created
   namespace: string; // namespace Traefik runs in (PodMonitor namespaceSelector); default 'traefik'
@@ -338,6 +353,7 @@ export interface DefaultableConfig {
   traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   argocd: ArgoCdConfig; // ArgoCD GitOps monitoring (opt-in)
+  auditLog: AuditLogConfig; // Kubernetes API audit log collection (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
   deadMansSwitch: DeadMansSwitchConfig; // Watchdog forwarding to an external heartbeat (opt-in)

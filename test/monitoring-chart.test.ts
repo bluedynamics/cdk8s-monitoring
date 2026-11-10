@@ -298,6 +298,22 @@ describe('MonitoringChart Integration Tests', () => {
     expect(prometheusChart.spec.valuesContent).toContain('ingressClassName: traefik');
   });
 
+  it('creates no alloy-audit HelmChart by default', () => {
+    const app = new App();
+    const chart = new MonitoringChart(app, 'test-monitoring', createTestConfig());
+    expect(findResource(synthesizeChart(chart), 'HelmChart', 'alloy-audit')).toBeUndefined();
+  });
+
+  it('creates the alloy-audit HelmChart when auditLog is enabled', () => {
+    const app = new App();
+    const config = createTestConfig();
+    config.auditLog = { ...config.auditLog, enabled: true };
+    const chart = new MonitoringChart(app, 'test-monitoring', config);
+    const helm = findResource(synthesizeChart(chart), 'HelmChart', 'alloy-audit');
+    expect(helm).toBeDefined();
+    expectSyncWave(helm, '3');
+  });
+
   it('should omit the grafana ingressClassName by default', () => {
     // Arrange
     const app = new App();
