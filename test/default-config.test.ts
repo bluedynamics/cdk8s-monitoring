@@ -130,6 +130,7 @@ test('leaves audit log collection disabled by default and merges overrides', () 
   expect(cfg.auditLog).toEqual({
     enabled: false,
     path: '/var/log/k3s-audit',
+    file: 'audit.log',
     nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
   });
   expect(cfg.resources.alloyAudit.limits.memory).toBeDefined();

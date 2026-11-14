@@ -95,6 +95,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
   auditLog: {
     enabled: false,
     path: '/var/log/k3s-audit',
+    file: 'audit.log',
     nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
   },
   longhorn: {
