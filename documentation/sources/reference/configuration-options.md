@@ -324,10 +324,18 @@ When `longhorn.enabled` is false, no Longhorn resources are created.
 | `longhorn.enabled` | `boolean` | `false` | Master switch; when true, creates the `longhorn-metrics` `ServiceMonitor`. |
 | `longhorn.namespace` | `string` | `longhorn-system` | Namespace Longhorn runs in, used as the `ServiceMonitor` namespace selector. |
 | `longhorn.alerts` | `boolean` | `true` | Ship the `longhorn-volume-health` `PrometheusRule`. |
+| `longhorn.backupAlerts.enabled` | `boolean` | `false` | Ship the `longhorn-backups` `PrometheusRule`. |
+| `longhorn.backupAlerts.maxAgeHours` | `number` | `30` | An attached volume whose last backup is older than this alerts. |
+| `longhorn.backupAlerts.exemptGroups` | `string[]` | `[]` | Recurring-job groups whose volumes are not backed up on purpose. |
 
 The `ServiceMonitor` selects services labeled `app: longhorn-manager` and scrapes their `manager` port.
 The alert rules are listed in {doc}`alerts-and-routing`.
 `mergeConfig` throws `longhorn.namespace is required when longhorn.enabled is true` when you enable the block with an empty namespace.
+
+The backup alerts recognize an exempt volume by the label `recurring-job-group.longhorn.io/<group>: enabled` on its PVC.
+For every exempt group, the stack adds that label to the `metricLabelsAllowlist` of kube-state-metrics, so that `kube_persistentvolumeclaim_labels` carries it.
+A group label set only on the Longhorn volume, not on the PVC, is not seen.
+`mergeConfig` throws `longhorn.backupAlerts.maxAgeHours must be positive when longhorn.backupAlerts.enabled is true` for a zero or negative age.
 
 ### argocd
 

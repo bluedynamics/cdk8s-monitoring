@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -66,7 +66,11 @@ The package is TypeScript-only and ships no generated API document; this curated
 
 `LonghornConfig`
 :   The opt-in Longhorn monitor.
-    Fields: `enabled`, `namespace`, and `alerts`.
+    Fields: `enabled`, `namespace`, `alerts`, and `backupAlerts`.
+
+`LonghornBackupAlertsConfig`
+:   The opt-in Longhorn backup alerts.
+    Fields: `enabled`, `maxAgeHours`, and `exemptGroups`.
 
 `ArgoCdConfig`
 :   The opt-in ArgoCD monitor.
@@ -194,7 +198,7 @@ The following three constructs are created only when their configuration block i
     `MonitoringChart` creates it when `traefik.enabled` is true.
 
 `LonghornMonitorConstruct`
-:   Creates the `longhorn-metrics` `ServiceMonitor` and, unless `longhorn.alerts` is false, the `longhorn-volume-health` `PrometheusRule`.
+:   Creates the `longhorn-metrics` `ServiceMonitor`, unless `longhorn.alerts` is false the `longhorn-volume-health` `PrometheusRule`, and when `longhorn.backupAlerts.enabled` is true the `longhorn-backups` `PrometheusRule`.
     Props: `monitoringNamespace` and `longhorn`.
     `MonitoringChart` creates it when `longhorn.enabled` is true.
 
@@ -203,12 +207,15 @@ The following three constructs are created only when their configuration block i
     Props: `monitoringNamespace` and `argocd`.
     `MonitoringChart` creates it when `argocd.enabled` is true.
 
-## Re-exported helper
+## Helpers
 
 `KubeConfigMap`
 :   Re-exported from the generated Kubernetes imports.
     Integration charts use it to build Grafana dashboard `ConfigMap`s without depending on the generated imports directly.
     See {doc}`../../how-to/add-app-dashboards`.
+
+`longhornGroupPvcLabel(group)`
+:   Returns the PVC label that puts a volume into a Longhorn recurring-job group, `recurring-job-group.longhorn.io/<group>`.
 
 ## See also
 

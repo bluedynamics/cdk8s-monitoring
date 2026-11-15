@@ -47,6 +47,21 @@ const config = mergeConfig({
 The stack then scrapes the `manager` port of the `longhorn-manager` service and ships two volume-health alerts.
 If you manage Longhorn alerts yourself, set `alerts: false` to keep only the scrape.
 
+If Longhorn backs up your volumes with a recurring job, turn on the backup alerts as well.
+Name every recurring-job group whose volumes are not backed up on purpose, and set `maxAgeHours` to the schedule plus a margin.
+
+```typescript
+const config = mergeConfig({
+  // required cluster values ...
+  longhorn: {
+    enabled: true,
+    backupAlerts: { enabled: true, maxAgeHours: 30, exemptGroups: ['no-backup'] },
+  },
+});
+```
+
+An exempt volume needs the group label `recurring-job-group.longhorn.io/no-backup: enabled` on its PVC, not only on the Longhorn volume.
+
 ## Enable the ArgoCD monitor
 
 Set `argocd.enabled` in your `mergeConfig` input.
@@ -93,5 +108,5 @@ If you kept the Traefik dashboard, find it in Grafana under the folder {guilabel
 ## See also
 
 - {doc}`../reference/configuration-options` — the `traefik`, `longhorn`, and `argocd` fields.
-- {doc}`../reference/alerts-and-routing` — the Longhorn volume-health and ArgoCD GitOps alerts.
+- {doc}`../reference/alerts-and-routing` — the Longhorn volume-health and backup alerts and the ArgoCD GitOps alerts.
 - {doc}`add-app-dashboards` — attach monitors for components the library does not cover.

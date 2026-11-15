@@ -52,3 +52,52 @@ describe('LonghornMonitorConstruct', () => {
     expect(findResource(synthesizeChart(chart), 'PrometheusRule', 'longhorn-volume-health')).toBeUndefined();
   });
 });
+
+describe('LonghornMonitorConstruct backup alerts', () => {
+  const synthBackupRules = (backupAlerts: object, alerts = true) => {
+    const chart = Testing.chart();
+    const { longhorn } = createTestConfig();
+    new LonghornMonitorConstruct(chart, 'test-longhorn', {
+      monitoringNamespace: 'monitoring',
+      longhorn: { ...longhorn, enabled: true, alerts, backupAlerts: { ...longhorn.backupAlerts, ...backupAlerts } },
+    });
+    return findResource(synthesizeChart(chart), 'PrometheusRule', 'longhorn-backups');
+  };
+  const backupRule = (rule: any, name: string) => rule.spec.groups[0].rules.find((r: any) => r.alert === name);
+
+  it('omits the backup rules unless backupAlerts.enabled', () => {
+    expect(synthBackupRules({ enabled: false })).toBeUndefined();
+  });
+
+  it('ships the backup rules independently of the volume-health alerts', () => {
+    expect(synthBackupRules({ enabled: true }, false)).toBeDefined();
+  });
+
+  it('alerts on a backup in state Error (4)', () => {
+    const failed = backupRule(synthBackupRules({ enabled: true }), 'LonghornBackupFailed');
+    expect(failed.expr).toBe('max by (volume, backup, recurring_job) (longhorn_backup_state) == 4');
+    expect(failed.labels.severity).toBe('warning');
+  });
+
+  it('alerts on attached volumes whose last backup is too old, skipping exempt groups and young PVCs', () => {
+    const stale = backupRule(
+      synthBackupRules({ enabled: true, maxAgeHours: 30, exemptGroups: ['no-backup'] }),
+      'LonghornVolumeBackupStale',
+    );
+    expect(stale.expr).toBe(
+      '(max by (volume, pvc, pvc_namespace) (time() - longhorn_volume_last_backup_at) > 108000'
+      + ' and on (volume) longhorn_volume_state{state="attached"} == 1)'
+      + ' unless on (pvc_namespace, pvc) label_replace(label_replace('
+      + 'kube_persistentvolumeclaim_labels{label_recurring_job_group_longhorn_io_no_backup="enabled"}'
+      + ' or (time() - kube_persistentvolumeclaim_created < 108000)'
+      + ', "pvc_namespace", "$1", "namespace", "(.+)"), "pvc", "$1", "persistentvolumeclaim", "(.+)")',
+    );
+    expect(stale.labels.severity).toBe('warning');
+  });
+
+  it('skips only young PVCs when no group is exempt', () => {
+    const stale = backupRule(synthBackupRules({ enabled: true }), 'LonghornVolumeBackupStale');
+    expect(stale.expr).toContain('label_replace(label_replace((time() - kube_persistentvolumeclaim_created < 108000), ');
+    expect(stale.expr).not.toContain('kube_persistentvolumeclaim_labels');
+  });
+});

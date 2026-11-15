@@ -251,6 +251,19 @@ export interface LonghornConfig {
   enabled: boolean; // default false — when false, no Longhorn monitoring resources are created
   namespace: string; // namespace Longhorn runs in (ServiceMonitor namespaceSelector); default 'longhorn-system'
   alerts: boolean; // ship the volume-health PrometheusRule; default true
+  backupAlerts: LonghornBackupAlertsConfig; // failed and stale backups (opt-in)
+}
+
+/**
+ * Alerts on failed and stale Longhorn backups (opt-in, needs recurring backup jobs).
+ * Volumes of an exempt recurring-job group are recognized by their PVC label
+ * `recurring-job-group.longhorn.io/<group>: enabled`, which kube-state-metrics
+ * then exports; a label set only on the Longhorn volume is not seen.
+ */
+export interface LonghornBackupAlertsConfig {
+  enabled: boolean; // default false — when false, no backup PrometheusRule is created
+  maxAgeHours: number; // last backup of an attached volume older than this alerts; default 30 (daily job plus slack)
+  exemptGroups: string[]; // recurring-job groups whose volumes are not backed up on purpose; default []
 }
 
 /**

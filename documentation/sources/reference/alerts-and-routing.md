@@ -82,6 +82,27 @@ The series of the current state has the value `1`, every other series `0`.
 The robustness states are `unknown`, `healthy`, `degraded`, and `faulted`.
 A detached volume always reports the robustness `unknown`, so `LonghornVolumeUnhealthy` counts `unknown` only while the volume is attached.
 
+### longhorn.backups
+
+The `longhorn-backups` `PrometheusRule` exists only when `longhorn.enabled` and `longhorn.backupAlerts.enabled` are both true.
+It does not depend on `longhorn.alerts`.
+
+| Alert | Severity | For | Fires when |
+|---|---|---|---|
+| `LonghornBackupFailed` | `warning` | 5m | `max by (volume, backup, recurring_job) (longhorn_backup_state) == 4` |
+| `LonghornVolumeBackupStale` | `warning` | 15m | An attached volume's last backup is older than `maxAgeHours`, or it has none |
+
+Unlike the robustness, `longhorn_backup_state` is a single number: `0` New, `1` Pending, `2` InProgress, `3` Completed, `4` Error, `5` Unknown.
+Longhorn deletes a failed backup after the setting `failed-backup-ttl`, 24 hours by default; from then on only `LonghornVolumeBackupStale` still fires.
+
+`LonghornVolumeBackupStale` evaluates `time() - longhorn_volume_last_backup_at` per volume and skips these volumes:
+
+- detached volumes, because Longhorn does not back them up by default and their data cannot change
+- volumes whose PVC carries the label of an exempt group from `longhorn.backupAlerts.exemptGroups`
+- volumes whose PVC is younger than `maxAgeHours`, because their first scheduled backup may not have run yet
+
+A volume that has never been backed up reports `longhorn_volume_last_backup_at` as `0` and alerts once its PVC is older than `maxAgeHours`.
+
 ### argocd.gitops
 
 The `argocd-gitops` `PrometheusRule` exists only when `argocd.enabled` and `argocd.alerts` are both true.
