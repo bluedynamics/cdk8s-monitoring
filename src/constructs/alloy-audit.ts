@@ -12,9 +12,9 @@ export interface AlloyAuditProps {
  * Ships the Kubernetes API audit log from the control planes to Loki.
  *
  * A second Alloy DaemonSet, `alloy-audit`, runs only on the control planes
- * (nodeSelector + taint tolerations), tails the audit files the API server writes
- * to `config.auditLog.path` and sends them to the Loki gateway with the labels
- * `job=k3s-audit`, `node` and `cluster`. Verb, user, resource and namespace of
+ * (nodeSelector + taint tolerations), tails the live audit file
+ * `config.auditLog.file` in `config.auditLog.path` and sends every line to the
+ * Loki gateway with the labels `job=k3s-audit`, `node` and `cluster`. Verb, user, resource and namespace of
  * each event become structured metadata, the JSON line stays intact. The same
  * fields plus the response code feed the Prometheus counter
  * `loki_process_custom_k3s_audit_events_total`, scraped through a ServiceMonitor,
@@ -23,7 +23,12 @@ export interface AlloyAuditProps {
  * The API server creates the files as root with mode 0600, so the container runs
  * as uid 0 and, for SELinux hosts, as `spc_t`; it drops every capability and has
  * no Kubernetes API access. Read positions live on the host so a restart does not
- * re-ingest the files.
+ * re-ingest the file.
+ *
+ * Only the live file is a target. The API server rotates it by renaming it and
+ * starting a new one; the tailer follows that rename. A glob on the directory
+ * would pick every rotated copy up as a new file without a position and count
+ * all of its events a second time.
  *
  * Opt-in through `config.auditLog.enabled`. Sync Wave: 3 (after Loki).
  */
@@ -61,7 +66,7 @@ export class AlloyAuditConstruct extends Construct {
   }
 
   private generateHelmValues(config: MonitoringConfig): string {
-    const { path, nodeSelector } = config.auditLog;
+    const { path, file, nodeSelector } = config.auditLog;
     const positionsPath = '/var/lib/alloy-audit';
     const nodeSelectorYaml = Object.entries(nodeSelector)
       .map(([key, value]) => `    ${key}: "${value}"`)
@@ -117,7 +122,7 @@ alloy:
 
       local.file_match "audit" {
         path_targets = [{
-          __path__ = "${path}/*.log",
+          __path__ = "${path}/${file}",
           job      = "k3s-audit",
           node     = sys.env("HOSTNAME"),
         }]

@@ -38,9 +38,10 @@ describe('AlloyAuditConstruct', () => {
     expect(values).toContain('rbac:\n  create: false');
   });
 
-  it('tails the audit files as job k3s-audit and writes to the Loki gateway with the cluster label', () => {
+  it('tails only the live audit file as job k3s-audit and writes to the Loki gateway with the cluster label', () => {
     const values = synth().spec.valuesContent;
-    expect(values).toContain('__path__ = "/var/log/k3s-audit/*.log"');
+    expect(values).toContain('__path__ = "/var/log/k3s-audit/audit.log"');
+    expect(values).not.toContain('*.log');
     expect(values).toContain('job      = "k3s-audit"');
     expect(values).toContain('loki.source.file "audit"');
     expect(values).toContain('user      = "user.username"');
@@ -58,9 +59,13 @@ describe('AlloyAuditConstruct', () => {
     expect(values).toContain('serviceMonitor:\n  enabled: true\n  additionalLabels:\n    release: kube-prometheus-stack');
   });
 
-  it('honours a custom path and node selector', () => {
-    const values = synth({ path: '/var/log/kubernetes/audit', nodeSelector: { 'node-role.kubernetes.io/master': '' } }).spec.valuesContent;
-    expect(values).toContain('__path__ = "/var/log/kubernetes/audit/*.log"');
+  it('honours a custom path, file and node selector', () => {
+    const values = synth({
+      path: '/var/log/kubernetes/audit',
+      file: 'kube-apiserver-audit.log',
+      nodeSelector: { 'node-role.kubernetes.io/master': '' },
+    }).spec.valuesContent;
+    expect(values).toContain('__path__ = "/var/log/kubernetes/audit/kube-apiserver-audit.log"');
     expect(values).toContain('path: /var/log/kubernetes/audit');
     expect(values).toContain('node-role.kubernetes.io/master: ""');
   });

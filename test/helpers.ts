@@ -177,6 +177,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
     auditLog: {
       enabled: false,
       path: '/var/log/k3s-audit',
+      file: 'audit.log',
       nodeSelector: { 'node-role.kubernetes.io/control-plane': 'true' },
     },
     embedding: {

@@ -24,17 +24,25 @@ const config = mergeConfig({
 });
 ```
 
-That adds the HelmChart `alloy-audit`: an Alloy DaemonSet that runs only on the control planes, tails `/var/log/k3s-audit/*.log` and sends every line to the Loki gateway with the labels `job="k3s-audit"`, `node` and `cluster`.
+That adds the HelmChart `alloy-audit`: an Alloy DaemonSet that runs only on the control planes, tails `/var/log/k3s-audit/audit.log` and sends every line to the Loki gateway with the labels `job="k3s-audit"`, `node` and `cluster`.
 Verb, user, resource and namespace of each event arrive as structured metadata; the JSON line itself stays intact.
 
-If your API server writes somewhere else, set the directory:
+If your API server writes somewhere else, set the directory and the file name:
 
 ```typescript
 auditLog: {
   enabled: true,
   path: '/var/log/kubernetes/audit',
+  file: 'kube-apiserver-audit.log',
 },
 ```
+
+## Log rotation
+
+The API server rotates the audit log by renaming the file, for example to `audit-2026-11-13T02-48-07.285.log`, and starting a new `audit.log`.
+The collector follows the rename and continues with the new file.
+It never reads the rotated copies: each of them would arrive as a new file without a read position, and every event in it would be counted a second time, which looks like a burst of Secret reads by every identity at once.
+Retention of the rotated copies stays with the API server (`audit-log-maxage`, `audit-log-maxbackup`).
 
 ## Query the log
 

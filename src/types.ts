@@ -209,14 +209,15 @@ export interface TempoConfig {
 /**
  * Kubernetes API audit log collection (opt-in).
  *
- * A dedicated Alloy DaemonSet on the control planes tails the audit files the API
- * server writes to `path` and ships them to Loki as `job="k3s-audit"`.
+ * A dedicated Alloy DaemonSet on the control planes tails the live audit file the
+ * API server writes to `path` and ships it to Loki as `job="k3s-audit"`.
  * The consumer enables audit logging on the API server itself (for k3s:
  * `audit-policy-file` and `audit-log-path`); this library only collects the files.
  */
 export interface AuditLogConfig {
   enabled: boolean; // default false — when false, no collector is created
   path: string; // default /var/log/k3s-audit — directory with the audit log files on the control planes
+  file: string; // default audit.log — the live file in that directory; rotated copies are never read
   nodeSelector: { [key: string]: string }; // default node-role.kubernetes.io/control-plane: "true"
 }
 

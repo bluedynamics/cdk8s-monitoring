@@ -289,7 +289,8 @@ When `auditLog.enabled` is false, no collector is created.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `auditLog.enabled` | `boolean` | `false` | Master switch; when true, creates the `alloy-audit` HelmChart (Alloy DaemonSet on the control planes). |
-| `auditLog.path` | `string` | `/var/log/k3s-audit` | Directory on the control planes that holds the audit log files; the collector tails `<path>/*.log`. |
+| `auditLog.path` | `string` | `/var/log/k3s-audit` | Directory on the control planes that holds the audit log files. |
+| `auditLog.file` | `string` | `audit.log` | The live audit file in that directory; the collector tails `<path>/<file>` and never the rotated copies beside it. |
 | `auditLog.nodeSelector` | `object` | `{ "node-role.kubernetes.io/control-plane": "true" }` | Node selector of the collector; it also tolerates the `node-role.kubernetes.io/control-plane` and `node-role.kubernetes.io/master` taints. |
 
 Resources of the collector come from `resources.alloyAudit` (default requests 50m/128Mi, limits 200m/256Mi) and `resources.configReloader`.
