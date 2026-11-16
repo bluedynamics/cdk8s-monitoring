@@ -77,6 +77,8 @@ describe('LonghornMonitorConstruct backup alerts', () => {
     const failed = backupRule(synthBackupRules({ enabled: true }), 'LonghornBackupFailed');
     expect(failed.expr).toBe('max by (volume, backup, recurring_job) (longhorn_backup_state) == 4');
     expect(failed.labels.severity).toBe('warning');
+    // Longhorn leaves the recurring-job label of a failed backup empty.
+    expect(failed.annotations.description).toContain('{{ with $labels.recurring_job }} (recurring job {{ . }}){{ end }}');
   });
 
   it('alerts on attached volumes whose last backup is too old, skipping exempt groups and young PVCs', () => {
@@ -93,6 +95,9 @@ describe('LonghornMonitorConstruct backup alerts', () => {
       + ', "pvc_namespace", "$1", "namespace", "(.+)"), "pvc", "$1", "persistentvolumeclaim", "(.+)")',
     );
     expect(stale.labels.severity).toBe('warning');
+    // last_backup_at 0 means never; its age since 1970 is no useful duration.
+    expect(stale.annotations.summary).toContain('{{ if gt $value 1000000000.0 }}has never been backed up{{ else }}');
+    expect(stale.annotations.summary).toContain('{{ with $labels.pvc }}{{ $labels.pvc_namespace }}/{{ . }}{{ else }}{{ $labels.volume }}{{ end }}');
   });
 
   it('skips only young PVCs when no group is exempt', () => {

@@ -121,7 +121,8 @@ export class LonghornMonitorConstruct extends Construct {
                   annotations: {
                     summary: 'Longhorn backup {{ $labels.backup }} of volume {{ $labels.volume }} failed',
                     description:
-                      'Backup {{ $labels.backup }} (recurring job "{{ $labels.recurring_job }}") of volume {{ $labels.volume }} is in state Error. ' +
+                      // Longhorn leaves the recurring-job label of a failed backup empty.
+                      'Backup {{ $labels.backup }}{{ with $labels.recurring_job }} (recurring job {{ . }}){{ end }} of volume {{ $labels.volume }} is in state Error. ' +
                       `Reason: kubectl -n ${longhorn.namespace} get backups.longhorn.io {{ $labels.backup }} -o jsonpath='{.status.error}'. ` +
                       'The live data is untouched; the next run retries.',
                   },
@@ -132,7 +133,10 @@ export class LonghornMonitorConstruct extends Construct {
                   for: '15m',
                   labels: { severity: 'warning' },
                   annotations: {
-                    summary: 'Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has no backup for {{ $value | humanizeDuration }}',
+                    // last_backup_at 0 means never; its age since 1970 is no useful duration.
+                    summary:
+                      'Longhorn volume {{ with $labels.pvc }}{{ $labels.pvc_namespace }}/{{ . }}{{ else }}{{ $labels.volume }}{{ end }} ' +
+                      '{{ if gt $value 1000000000.0 }}has never been backed up{{ else }}has no backup for {{ $value | humanizeDuration }}{{ end }}',
                     description:
                       `Volume {{ $labels.volume }} is attached and its last backup is older than ${longhorn.backupAlerts.maxAgeHours}h, or it has never been backed up. ` +
                       'Check the recurring backup job and the backup target. ' +
