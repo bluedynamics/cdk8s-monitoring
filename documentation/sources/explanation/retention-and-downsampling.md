@@ -23,9 +23,13 @@ Local retention answers recent queries directly from Prometheus, which is the co
 
 The Thanos Store Gateway serves only data older than 80% of the local retention, thirty-eight hours with the default of two days.
 Queries within the newest 80% go to the Prometheus sidecars alone and answer in milliseconds.
-Without that limit, the Store Gateway would also answer for blocks the sidecars still hold, and every query over recent data would wait for S3, which takes seconds.
-The oldest 20% of the local window overlap as a safety margin, so there is no gap between the two sources.
-The trade-off: if both Prometheus replicas lose their local data, the newest 80% of the window are missing from queries until those blocks age past the limit, although they are safe in S3.
+Without that limit, the Store Gateway would also answer for blocks the sidecars still hold.
+Every query over recent data would then wait for S3, which takes seconds.
+The oldest 20% of the local window overlap as a safety margin.
+The two sources leave no gap between them.
+The limit has a cost when both Prometheus replicas lose their local data.
+The newest 80% of the window are then missing from queries until those blocks age past the limit.
+The blocks stay safe in S3.
 
 ## Long-term metrics in Thanos
 
