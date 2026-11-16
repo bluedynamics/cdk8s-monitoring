@@ -102,6 +102,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     enabled: false,
     namespace: 'longhorn-system',
     alerts: true,
+    backupAlerts: { enabled: false, maxAgeHours: 30, exemptGroups: [] },
   },
   argocd: {
     enabled: false,
@@ -151,6 +152,9 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   const longhorn = deepmerge(DEFAULT_CONFIG.longhorn, input.longhorn ?? {}) as LonghornConfig;
   if (longhorn.enabled && !longhorn.namespace) {
     throw new Error('longhorn.namespace is required when longhorn.enabled is true');
+  }
+  if (longhorn.backupAlerts.enabled && !(longhorn.backupAlerts.maxAgeHours > 0)) {
+    throw new Error('longhorn.backupAlerts.maxAgeHours must be positive when longhorn.backupAlerts.enabled is true');
   }
   const argocd = deepmerge(DEFAULT_CONFIG.argocd, input.argocd ?? {}) as ArgoCdConfig;
   if (argocd.enabled && !argocd.namespace) {

@@ -722,3 +722,32 @@ describe('PrometheusStackConstruct storage class', () => {
     expect(values.grafana.persistence).not.toHaveProperty('storageClassName');
   });
 });
+
+describe('PrometheusStackConstruct kube-state-metrics label allowlist', () => {
+  const synthKsm = (longhorn: object) => {
+    const chart = Testing.chart();
+    const base = createTestConfig();
+    new PrometheusStackConstruct(chart, 'test-helm', {
+      namespace: 'monitoring',
+      config: createTestConfig({ longhorn: { ...base.longhorn, ...longhorn } }),
+    });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent)['kube-state-metrics'];
+  };
+
+  it('exports the PVC label of every exempt Longhorn backup group', () => {
+    const ksm = synthKsm({
+      enabled: true,
+      backupAlerts: { enabled: true, maxAgeHours: 30, exemptGroups: ['no-backup', 'scratch'] },
+    });
+    expect(ksm.metricLabelsAllowlist).toEqual([
+      'persistentvolumeclaims=[recurring-job-group.longhorn.io/no-backup,recurring-job-group.longhorn.io/scratch]',
+    ]);
+  });
+
+  it('exports no extra labels without exempt groups or with backup alerts off', () => {
+    expect(synthKsm({ enabled: true, backupAlerts: { enabled: true, maxAgeHours: 30, exemptGroups: [] } }))
+      .not.toHaveProperty('metricLabelsAllowlist');
+    expect(synthKsm({ enabled: true, backupAlerts: { enabled: false, maxAgeHours: 30, exemptGroups: ['no-backup'] } }))
+      .not.toHaveProperty('metricLabelsAllowlist');
+  });
+});

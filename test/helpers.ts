@@ -168,6 +168,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       enabled: false,
       namespace: 'longhorn-system',
       alerts: true,
+      backupAlerts: { enabled: false, maxAgeHours: 30, exemptGroups: [] },
     },
     argocd: {
       enabled: false,

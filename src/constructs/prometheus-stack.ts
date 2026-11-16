@@ -2,6 +2,7 @@ import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
 import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
+import { longhornGroupPvcLabel } from './longhorn-monitor';
 import { storageClassLine } from './storage-class';
 
 export interface PrometheusStackProps {
@@ -144,6 +145,19 @@ export class PrometheusStackConstruct extends Construct {
     return `
     secrets:${unique.map((name) => `
     - ${name}`).join('')}`;
+  }
+
+  /**
+   * PVC labels kube-state-metrics must export for the Longhorn stale-backup rule
+   * to skip volumes of exempt recurring-job groups.
+   */
+  private generateKsmLabelAllowlist(config: MonitoringConfig): string {
+    const { longhorn } = config;
+    if (!longhorn.enabled || !longhorn.backupAlerts.enabled || longhorn.backupAlerts.exemptGroups.length === 0) return '';
+    const labels = longhorn.backupAlerts.exemptGroups.map(longhornGroupPvcLabel).join(',');
+    return `
+  metricLabelsAllowlist:
+    - persistentvolumeclaims=[${labels}]`;
   }
 
   /**
@@ -800,7 +814,7 @@ prometheus-node-exporter:
       memory: 16Mi
   priorityClassName: ${config.priorityClasses.capture}
 
-kube-state-metrics:
+kube-state-metrics:${this.generateKsmLabelAllowlist(config)}
   resources:
     limits:
       cpu: 1

@@ -158,6 +158,15 @@ test('uses the library high-priority class for both pod roles unless priorityCla
   expect(own).toEqual({ create: false, capture: 'kup6s-high', query: 'kup6s-standard' });
 });
 
+test('leaves Longhorn backup alerts off by default, with a 30h maximum age and no exempt groups', () => {
+  expect(mergeConfig(cluster).longhorn.backupAlerts).toEqual({ enabled: false, maxAgeHours: 30, exemptGroups: [] });
+});
+
+test('throws when Longhorn backup alerts are enabled with a non-positive maximum age', () => {
+  expect(() => mergeConfig({ ...cluster, longhorn: { backupAlerts: { enabled: true, maxAgeHours: 0 } } }))
+    .toThrow(/longhorn\.backupAlerts\.maxAgeHours/);
+});
+
 test('defaults storage.className to longhorn and accepts an empty override', () => {
   expect(mergeConfig(cluster).storage.className).toBe('longhorn');
   expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');
