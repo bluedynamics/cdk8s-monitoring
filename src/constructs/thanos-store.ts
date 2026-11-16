@@ -8,11 +8,40 @@ export interface ThanosStoreProps {
 }
 
 /**
+ * Share of the Prometheus local retention that the sidecars answer alone.
+ * The remaining oldest share overlaps with the store as a safety margin.
+ */
+const SIDECAR_ONLY_SHARE = 0.8;
+
+const PROMETHEUS_DURATION = /^(?:(\d+)y)?(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?(?:(\d+)ms)?$/;
+const UNIT_HOURS = [365 * 24, 7 * 24, 24, 1, 1 / 60, 1 / 3600, 1 / 3_600_000];
+
+function durationHours(duration: string): number {
+  const match = PROMETHEUS_DURATION.exec(duration);
+  if (!duration || !match) {
+    throw new Error(`retention.prometheus must be a Prometheus duration like "2d" or "1d12h", got "${duration}"`);
+  }
+  return match.slice(1).reduce((hours, value, i) => hours + Number(value ?? 0) * UNIT_HOURS[i], 0);
+}
+
+/**
+ * Without a limit the store also serves blocks the sidecars still hold
+ * locally, and every query over recent data waits for S3 (seconds instead
+ * of a few hundred milliseconds). Rounding down only widens the overlap.
+ */
+function storeMaxTimeArg(prometheusRetention: string): string {
+  return `--max-time=-${Math.floor(durationHours(prometheusRetention) * SIDECAR_ONLY_SHARE)}h`;
+}
+
+/**
  * Creates Thanos Store Gateway StatefulSet and Services.
  *
  * Thanos Store Gateway queries historical data from S3 and makes it
  * available via gRPC to Thanos Query. This enables transparent querying
- * of metrics older than the Prometheus local retention (>3 days).
+ * of metrics older than the Prometheus local retention.
+ *
+ * The store serves only data older than 80% of the local retention, so
+ * queries over recent data go to the Prometheus sidecars alone.
  *
  * Components:
  * - StatefulSet (2 replicas with anti-affinity, 10Gi PVC each for index cache)
@@ -107,6 +136,7 @@ export class ThanosStoreConstruct extends Construct {
                   '--objstore.config-file=/etc/thanos/objstore.yml',
                   '--index-cache-size=500MB',
                   '--chunk-pool-size=500MB',
+                  storeMaxTimeArg(config.retention.prometheus),
                 ],
                 ports: [
                   {

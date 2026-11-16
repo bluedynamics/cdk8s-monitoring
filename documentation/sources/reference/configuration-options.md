@@ -123,6 +123,10 @@ The Alloy traces gateway uses `versions.alloy`; it has no separate version field
 
 The `prometheusS3Raw`, `prometheusS35m`, and `prometheusS31h` values are Thanos retention windows in days for raw, 5-minute, and 1-hour resolutions.
 
+`retention.prometheus` takes a Prometheus duration such as `2d`, `48h`, or `1d12h`.
+It also sets the Thanos Store Gateway's `--max-time` to 80% of that duration, rounded down to whole hours, for example `-38h` for `2d`.
+A value that is not a Prometheus duration fails the synth.
+
 ### storage
 
 | Field | Type | Default |

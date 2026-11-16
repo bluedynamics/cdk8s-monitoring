@@ -429,3 +429,33 @@ describe('ThanosStoreConstruct storage class', () => {
     expect(synthClaimSpec('')).not.toHaveProperty('storageClassName');
   });
 });
+
+describe('ThanosStoreConstruct time window', () => {
+  const synthArgs = (prometheusRetention: string): string[] => {
+    const chart = Testing.chart();
+    new ThanosStoreConstruct(chart, 'test', {
+      namespace: 'monitoring',
+      config: createTestConfig({ retention: { ...createTestConfig().retention, prometheus: prometheusRetention } }),
+    });
+    const statefulSet = findResource(synthesizeChart(chart), 'StatefulSet', 'thanos-store');
+    return findContainer(statefulSet.spec.template.spec, 'thanos-store').args;
+  };
+
+  it('leaves the newest 80% of the Prometheus local retention to the sidecars', () => {
+    expect(synthArgs('2d')).toContain('--max-time=-38h');
+  });
+
+  it('rounds down to whole hours, so the overlap only grows', () => {
+    expect(synthArgs('3d')).toContain('--max-time=-57h');
+  });
+
+  it('reads compound and week durations', () => {
+    expect(synthArgs('1d12h')).toContain('--max-time=-28h');
+    expect(synthArgs('1w')).toContain('--max-time=-134h');
+  });
+
+  it('fails the synth on a retention it cannot read', () => {
+    expect(() => synthArgs('two days')).toThrow(/retention\.prometheus/);
+    expect(() => synthArgs('')).toThrow(/retention\.prometheus/);
+  });
+});

@@ -25,6 +25,7 @@ Three Thanos workloads then act on that object storage.
 
 Thanos Store Gateway
 :   Reads historical blocks from S3 and serves them over gRPC, so data older than the local Prometheus window is still queryable.
+    It serves only data older than 80% of the local retention and leaves recent data to the faster Prometheus sidecars, see {doc}`retention-and-downsampling`.
 
 Thanos Compactor
 :   Compacts small blocks into larger ones and downsamples raw data into lower resolutions, which keeps long-range queries fast and bounds storage growth.
