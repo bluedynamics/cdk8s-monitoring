@@ -634,6 +634,14 @@ describe('MonitoringChart Integration Tests', () => {
     expect(findResource(offManifests, 'PodMonitor', 'argocd-application-controller')).toBeUndefined();
   });
 
+  it('creates the CNPG backup rules only when cnpgBackups is enabled', () => {
+    const enabled = createTestConfig({ cnpgBackups: { enabled: true, maxAgeHours: 30 } });
+    expect(findResource(synthesizeChart(new MonitoringChart(new App(), 'm', enabled)), 'PrometheusRule', 'cnpg-backups'))
+      .toBeDefined();
+    expect(findResource(synthesizeChart(new MonitoringChart(new App(), 'm2', createTestConfig())), 'PrometheusRule', 'cnpg-backups'))
+      .toBeUndefined();
+  });
+
   it('sets failurePolicy abort on every HelmChart', () => {
     // The helm-controller default (reinstall) uninstalls a failed release,
     // which deletes Helm-owned PVCs such as Grafana's database (#23).

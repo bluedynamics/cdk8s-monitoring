@@ -167,6 +167,15 @@ test('throws when Longhorn backup alerts are enabled with a non-positive maximum
     .toThrow(/longhorn\.backupAlerts\.maxAgeHours/);
 });
 
+test('leaves CNPG backup alerts off by default, with a 30h maximum age', () => {
+  expect(mergeConfig(cluster).cnpgBackups).toEqual({ enabled: false, maxAgeHours: 30 });
+});
+
+test('throws when CNPG backup alerts are enabled with a non-positive maximum age', () => {
+  expect(() => mergeConfig({ ...cluster, cnpgBackups: { enabled: true, maxAgeHours: -1 } }))
+    .toThrow(/cnpgBackups\.maxAgeHours/);
+});
+
 test('defaults storage.className to longhorn and accepts an empty override', () => {
   expect(mergeConfig(cluster).storage.className).toBe('longhorn');
   expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');

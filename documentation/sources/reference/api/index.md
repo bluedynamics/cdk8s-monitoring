@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, a positive `cnpgBackups.maxAgeHours`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -48,7 +48,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `argocd`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `alertRouting`, `externalUrls`, and `priorityClasses`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `argocd`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `cnpgBackups`, `alertRouting`, `externalUrls`, and `priorityClasses`.
 
 `TempoConfig`
 :   The opt-in distributed tracing block.
@@ -87,6 +87,10 @@ The package is TypeScript-only and ships no generated API document; this curated
 `DeadMansSwitchConfig`
 :   The opt-in forwarding of the `Watchdog` alert to an external heartbeat service.
     Fields: `enabled`, `urlSecret`, and `repeatInterval`.
+
+`CnpgBackupsConfig`
+:   The opt-in CNPG backup and WAL archiving alerts.
+    Fields: `enabled` and `maxAgeHours`.
 
 `SecretKeyRef`
 :   A key in a Secret in the monitoring namespace.
@@ -190,7 +194,7 @@ The following four constructs are created only when `config.tempo.enabled` is tr
 
 When tracing is enabled, `PrometheusStackConstruct` also adds a Tempo datasource to Grafana, wired for traces-to-logs and traces-to-metrics correlation.
 
-The following three constructs are created only when their configuration block is enabled.
+The following four constructs are created only when their configuration block is enabled.
 
 `TraefikMonitorConstruct`
 :   Creates the `traefik-metrics` `PodMonitor` and, unless `traefik.dashboard` is false, the `traefik-dashboard` `ConfigMap`.
@@ -207,12 +211,20 @@ The following three constructs are created only when their configuration block i
     Props: `monitoringNamespace` and `argocd`.
     `MonitoringChart` creates it when `argocd.enabled` is true.
 
+`CnpgBackupMonitorConstruct`
+:   Creates the `cnpg-backups` `PrometheusRule`.
+    Props: `monitoringNamespace` and `cnpgBackups`.
+    `MonitoringChart` creates it when `cnpgBackups.enabled` is true; `PrometheusStackConstruct` adds the matching ObjectStore metrics to kube-state-metrics.
+
 ## Helpers
 
 `KubeConfigMap`
 :   Re-exported from the generated Kubernetes imports.
     Integration charts use it to build Grafana dashboard `ConfigMap`s without depending on the generated imports directly.
     See {doc}`../../how-to/add-app-dashboards`.
+
+`OBJECTSTORE_METRIC_PREFIX`
+:   The metric prefix of the barman `ObjectStore` series in kube-state-metrics, `kube_barmancloud_objectstore`.
 
 `longhornGroupPvcLabel(group)`
 :   Returns the PVC label that puts a volume into a Longhorn recurring-job group, `recurring-job-group.longhorn.io/<group>`.

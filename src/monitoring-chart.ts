@@ -6,6 +6,7 @@ import { AlloyConstruct } from './constructs/alloy';
 import { AlloyAuditConstruct } from './constructs/alloy-audit';
 import { AlloyTracesConstruct } from './constructs/alloy-traces';
 import { ArgoCdMonitorConstruct } from './constructs/argocd-monitor';
+import { CnpgBackupMonitorConstruct } from './constructs/cnpg-backup-monitor';
 import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
 import { LokiConstruct } from './constructs/loki';
 import { LokiS3BucketConstruct } from './constructs/loki-s3-bucket';
@@ -199,6 +200,12 @@ export class MonitoringChart extends Chart {
       new ArgoCdMonitorConstruct(this, 'argocd-monitor', {
         monitoringNamespace: namespace,
         argocd: config.argocd,
+      });
+    }
+    if (config.cnpgBackups.enabled) {
+      new CnpgBackupMonitorConstruct(this, 'cnpg-backup-monitor', {
+        monitoringNamespace: namespace,
+        cnpgBackups: config.cnpgBackups,
       });
     }
   }

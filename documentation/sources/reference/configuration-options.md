@@ -357,6 +357,29 @@ The `PodMonitor` selects pods labeled `app.kubernetes.io/name: argocd-applicatio
 The alert rules are listed in {doc}`alerts-and-routing`.
 `mergeConfig` throws `argocd.namespace is required when argocd.enabled is true` when you enable the block with an empty namespace.
 
+### cnpgBackups
+
+The `cnpgBackups` block adds opt-in alerts for CloudNativePG clusters backed up by the barman-cloud plugin.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `cnpgBackups.enabled` is false, no CNPG backup resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `cnpgBackups.enabled` | `boolean` | `false` | Master switch; when true, creates the `cnpg-backups` `PrometheusRule` and the ObjectStore metrics in kube-state-metrics. |
+| `cnpgBackups.maxAgeHours` | `number` | `30` | The last successful base backup of a running cluster older than this alerts. |
+
+kube-state-metrics reads the base backup times from the status of every barman `ObjectStore` (`barmancloud.cnpg.io/v1`), one series per CNPG cluster in `status.serverRecoveryWindow`.
+The stack grants kube-state-metrics `list` and `watch` on `objectstores` and enables its custom resource state for these two metrics:
+
+| Metric | Labels | Value |
+|---|---|---|
+| `kube_barmancloud_objectstore_last_successful_backup_time` | `namespace`, `objectstore`, `cnpg_cluster` | Unix time of the last successful base backup, `0` if none |
+| `kube_barmancloud_objectstore_last_failed_backup_time` | `namespace`, `objectstore`, `cnpg_cluster` | Unix time of the last failed base backup, `0` if none |
+
+The WAL archiving rules use CNPG's own `pg_stat_archiver` metrics, so every cluster needs its `PodMonitor` (`spec.monitoring.enablePodMonitor`).
+The alert rules are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `cnpgBackups.maxAgeHours must be positive when cnpgBackups.enabled is true` for a zero or negative age.
+
 ### priorityClasses
 
 The `priorityClasses` block sets the `priorityClassName` of every pod in the stack.

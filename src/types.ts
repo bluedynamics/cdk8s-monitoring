@@ -255,6 +255,17 @@ export interface LonghornConfig {
 }
 
 /**
+ * Alerts on CloudNativePG clusters backed up by the barman-cloud plugin (opt-in).
+ * kube-state-metrics reads the base backup times from the status of the
+ * barman ObjectStores; WAL archiving comes from CNPG's own pg_stat_archiver
+ * metrics, so the clusters need their PodMonitor.
+ */
+export interface CnpgBackupsConfig {
+  enabled: boolean; // default false — when false, no CNPG backup rules and no ObjectStore metrics
+  maxAgeHours: number; // last successful base backup of a running cluster older than this alerts; default 30
+}
+
+/**
  * Alerts on failed and stale Longhorn backups (opt-in, needs recurring backup jobs).
  * Volumes of an exempt recurring-job group are recognized by their PVC label
  * `recurring-job-group.longhorn.io/<group>: enabled`, which kube-state-metrics
@@ -371,6 +382,7 @@ export interface DefaultableConfig {
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
   deadMansSwitch: DeadMansSwitchConfig; // Watchdog forwarding to an external heartbeat (opt-in)
+  cnpgBackups: CnpgBackupsConfig; // CloudNativePG barman backup and WAL archiving alerts (opt-in)
   alertRouting: AlertRoutingConfig; // Alertmanager notification pacing
   externalUrls: ExternalUrlsConfig; // browser-facing URLs used in notification links
   priorityClasses: PriorityClassesConfig; // scheduling priority by pod role

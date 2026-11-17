@@ -1,6 +1,7 @@
 import { ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { MonitoringConfig } from '../types';
+import { OBJECTSTORE_METRIC_PREFIX } from './cnpg-backup-monitor';
 import { HELM_CHART_FAILURE_POLICY } from './helm-chart';
 import { longhornGroupPvcLabel } from './longhorn-monitor';
 import { storageClassLine } from './storage-class';
@@ -158,6 +159,47 @@ export class PrometheusStackConstruct extends Construct {
     return `
   metricLabelsAllowlist:
     - persistentvolumeclaims=[${labels}]`;
+  }
+
+  /**
+   * Base backup times of the barman ObjectStores, one series per CNPG cluster
+   * (the keys of status.serverRecoveryWindow), for CnpgBackupMonitorConstruct.
+   * kube-state-metrics turns the RFC3339 timestamps into Unix time; a missing
+   * time (no failure yet, or no success yet) is exported as 0.
+   */
+  private generateKsmCustomResourceState(config: MonitoringConfig): string {
+    if (!config.cnpgBackups.enabled) return '';
+    const gauge = (name: string, field: string, help: string) => `
+              - name: ${name}
+                help: ${help}
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [status, serverRecoveryWindow]
+                    labelFromKey: cnpg_cluster
+                    valueFrom: [${field}]
+                    nilIsZero: true`;
+    return `
+  rbac:
+    extraRules:
+      - apiGroups: ["barmancloud.cnpg.io"]
+        resources: ["objectstores"]
+        verbs: ["list", "watch"]
+  customResourceState:
+    enabled: true
+    config:
+      kind: CustomResourceStateMetrics
+      spec:
+        resources:
+          - groupVersionKind:
+              group: barmancloud.cnpg.io
+              version: v1
+              kind: ObjectStore
+            metricNamePrefix: ${OBJECTSTORE_METRIC_PREFIX}
+            labelsFromPath:
+              namespace: [metadata, namespace]
+              objectstore: [metadata, name]
+            metrics:${gauge('last_successful_backup_time', 'lastSuccessfulBackupTime', 'Unix time of the last successful barman base backup of a CNPG cluster.')}${gauge('last_failed_backup_time', 'lastFailedBackupTime', 'Unix time of the last failed barman base backup of a CNPG cluster.')}`;
   }
 
   /**
@@ -814,7 +856,7 @@ prometheus-node-exporter:
       memory: 16Mi
   priorityClassName: ${config.priorityClasses.capture}
 
-kube-state-metrics:${this.generateKsmLabelAllowlist(config)}
+kube-state-metrics:${this.generateKsmLabelAllowlist(config)}${this.generateKsmCustomResourceState(config)}
   resources:
     limits:
       cpu: 1
