@@ -25,3 +25,4 @@ export * from './constructs/alloy-audit';
 export * from './constructs/traefik-monitor';
 export * from './constructs/longhorn-monitor';
 export * from './constructs/argocd-monitor';
+export * from './constructs/cnpg-backup-monitor';

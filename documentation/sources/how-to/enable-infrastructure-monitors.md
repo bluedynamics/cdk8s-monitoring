@@ -79,6 +79,21 @@ The argo-helm chart keeps that port open even when `controller.metrics.enabled` 
 If a NetworkPolicy guards the application controller, it must admit Prometheus on the `metrics` port; the argo-helm chart's own policy admits every namespace.
 If you manage ArgoCD alerts yourself, set `alerts: false` to keep only the scrape.
 
+## Enable the CNPG backup alerts
+
+If your CloudNativePG clusters back up with the barman-cloud plugin, set `cnpgBackups.enabled` in your `mergeConfig` input.
+Set `maxAgeHours` to the backup schedule plus a margin.
+
+```typescript
+const config = mergeConfig({
+  // required cluster values ...
+  cnpgBackups: { enabled: true, maxAgeHours: 30 },
+});
+```
+
+The stack then lets kube-state-metrics read the barman `ObjectStore` status and alerts on stale and failed base backups and on WAL archiving that fails or falls behind.
+Every CNPG cluster needs `spec.monitoring.enablePodMonitor: true`, so that Prometheus scrapes its WAL archiving metrics.
+
 ## Synthesize and deploy
 
 Synthesize your integration chart and deploy it the way you deploy the rest of the stack.
@@ -92,7 +107,7 @@ npx cdk8s synth
 Check that the monitor resources exist in the monitoring namespace.
 
 ```shell
-kubectl get podmonitor,servicemonitor,prometheusrule -n monitoring | grep -E 'traefik|longhorn|argocd'
+kubectl get podmonitor,servicemonitor,prometheusrule -n monitoring | grep -E 'traefik|longhorn|argocd|cnpg'
 ```
 
 Open the {guilabel}`Targets` page of Prometheus, or query Thanos, and confirm that the new targets report `up`.

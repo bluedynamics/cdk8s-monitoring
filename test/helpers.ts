@@ -194,6 +194,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       urlSecret: { name: '', key: '' },
       repeatInterval: '5m',
     },
+    cnpgBackups: { enabled: false, maxAgeHours: 30 },
     alertRouting: {
       repeatInterval: '12h',
     },

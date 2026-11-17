@@ -116,6 +116,21 @@ ArgoCD sets the sync status `Unknown` when it cannot compare an application with
 The workloads keep running, so no other alert notices that deployments have stopped.
 `ArgoCdMetricsAbsent` fires when the scrape itself fails, because `ArgoCdAppSyncUnknown` cannot fire without metrics.
 
+### cnpg.backups
+
+The `cnpg-backups` `PrometheusRule` exists only when `cnpgBackups.enabled` is true.
+
+| Alert | Severity | For | Fires when |
+|---|---|---|---|
+| `CnpgBackupStale` | `warning` | 15m | The last successful base backup of a cluster with a running instance is older than `maxAgeHours`, or there is none |
+| `CnpgBackupFailed` | `warning` | 5m | The last failed base backup is newer than the last successful one |
+| `CnpgWalArchivingFailing` | `warning` | 15m | On a primary, `cnpg_pg_stat_archiver_last_failed_time` is newer than `cnpg_pg_stat_archiver_last_archived_time` |
+| `CnpgWalArchiveBacklog` | `warning` | 30m | More than 10 WAL files wait for archiving (`cnpg_collector_pg_wal_archive_status{value="ready"}`) |
+
+The base backup times come from the barman `ObjectStore` status through kube-state-metrics, because the plugin's own `barman_cloud_cloudnative_pg_io_last_available_backup_timestamp` only appears on instances whose instance manager started after the plugin gained metrics, and `cnpg_collector_last_available_backup_timestamp` stays `0` with the plugin.
+A cluster without a running instance, for example a hibernated or scaled-down one, takes no backups and changes no data, so `CnpgBackupStale` skips it.
+The time since the last archival is no signal on its own, because an idle database archives nothing for hours.
+
 ## Alert labels
 
 Prometheus adds the external label `cluster` with the value of `clusterName` to every alert.

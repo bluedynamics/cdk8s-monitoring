@@ -2,6 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   AlertRoutingConfig,
   ArgoCdConfig,
+  CnpgBackupsConfig,
   DefaultableConfig,
   EmbeddingConfig,
   ExternalUrlsConfig,
@@ -122,6 +123,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     urlSecret: { name: '', key: '' },
     repeatInterval: '5m',
   },
+  cnpgBackups: { enabled: false, maxAgeHours: 30 },
   alertRouting: {
     repeatInterval: '12h',
   },
@@ -172,6 +174,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (deadMansSwitch.enabled && (!deadMansSwitch.urlSecret.name || !deadMansSwitch.urlSecret.key)) {
     throw new Error('deadMansSwitch.urlSecret needs a name and a key when deadMansSwitch.enabled is true');
   }
+  const cnpgBackups = deepmerge(DEFAULT_CONFIG.cnpgBackups, input.cnpgBackups ?? {}) as CnpgBackupsConfig;
+  if (cnpgBackups.enabled && !(cnpgBackups.maxAgeHours > 0)) {
+    throw new Error('cnpgBackups.maxAgeHours must be positive when cnpgBackups.enabled is true');
+  }
   return {
     namespace: input.namespace,
     clusterName: input.clusterName,
@@ -192,6 +198,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     embedding,
     stagingAlerts,
     deadMansSwitch,
+    cnpgBackups,
     alertRouting: deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig,
     externalUrls: deepmerge(DEFAULT_CONFIG.externalUrls, input.externalUrls ?? {}) as ExternalUrlsConfig,
     priorityClasses: deepmerge(DEFAULT_CONFIG.priorityClasses, input.priorityClasses ?? {}) as PriorityClassesConfig,

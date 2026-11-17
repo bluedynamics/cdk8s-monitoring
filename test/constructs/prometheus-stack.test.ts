@@ -751,3 +751,48 @@ describe('PrometheusStackConstruct kube-state-metrics label allowlist', () => {
       .not.toHaveProperty('metricLabelsAllowlist');
   });
 });
+
+describe('PrometheusStackConstruct kube-state-metrics custom resource state', () => {
+  const synthKsm = (overrides: object) => {
+    const chart = Testing.chart();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config: createTestConfig(overrides) });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent)['kube-state-metrics'];
+  };
+
+  it('exports the barman ObjectStore backup times per CNPG cluster when cnpgBackups is enabled', () => {
+    const ksm = synthKsm({ cnpgBackups: { enabled: true, maxAgeHours: 30 } });
+    expect(ksm.rbac.extraRules).toEqual([
+      { apiGroups: ['barmancloud.cnpg.io'], resources: ['objectstores'], verbs: ['list', 'watch'] },
+    ]);
+    expect(ksm.customResourceState.enabled).toBe(true);
+    const [resource] = ksm.customResourceState.config.spec.resources;
+    expect(resource.groupVersionKind).toEqual({ group: 'barmancloud.cnpg.io', version: 'v1', kind: 'ObjectStore' });
+    expect(resource.metricNamePrefix).toBe('kube_barmancloud_objectstore');
+    expect(resource.labelsFromPath).toEqual({ namespace: ['metadata', 'namespace'], objectstore: ['metadata', 'name'] });
+    expect(resource.metrics.map((m: any) => [m.name, m.each.gauge])).toEqual([
+      ['last_successful_backup_time', {
+        path: ['status', 'serverRecoveryWindow'], labelFromKey: 'cnpg_cluster', valueFrom: ['lastSuccessfulBackupTime'], nilIsZero: true,
+      }],
+      ['last_failed_backup_time', {
+        path: ['status', 'serverRecoveryWindow'], labelFromKey: 'cnpg_cluster', valueFrom: ['lastFailedBackupTime'], nilIsZero: true,
+      }],
+    ]);
+  });
+
+  it('keeps custom resource state off without cnpgBackups', () => {
+    const ksm = synthKsm({});
+    expect(ksm).not.toHaveProperty('customResourceState');
+    expect(ksm).not.toHaveProperty('rbac');
+  });
+
+  it('combines the Longhorn label allowlist with the custom resource state', () => {
+    const base = createTestConfig();
+    const ksm = synthKsm({
+      cnpgBackups: { enabled: true, maxAgeHours: 30 },
+      longhorn: { ...base.longhorn, enabled: true, backupAlerts: { enabled: true, maxAgeHours: 30, exemptGroups: ['no-backup'] } },
+    });
+    expect(ksm.metricLabelsAllowlist).toHaveLength(1);
+    expect(ksm.customResourceState.enabled).toBe(true);
+    expect(ksm.resources.requests.memory).toBe('128Mi');
+  });
+});
