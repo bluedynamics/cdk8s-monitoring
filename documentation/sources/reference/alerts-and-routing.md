@@ -159,9 +159,12 @@ Alertmanager evaluates the child routes in this order and stops at the first mat
 | 4 | `alertname: KubeCPUOvercommit` | `null` |
 | 5 | `alertname: KubeletTooManyPods` | `null` |
 | 6 | `alertname: InfoInhibitor` | `null` |
-| 7 | `namespace` matches `^(<stagingAlerts.namespaces>)$` | `staging` |
+| 7 | `severity: info` | `null` |
+| 8 | `namespace` matches `^(<stagingAlerts.namespaces>)$` | `staging` |
+| 9 | `severity: critical` | `critical` |
 
-Route 7 exists only when `stagingAlerts.enabled` is true.
+Route 8 exists only when `stagingAlerts.enabled` is true, route 9 only when `alertRouting.criticalPush.enabled` is true.
+Route 9 groups by `['alertname', 'namespace']` and repeats every `alertRouting.criticalPush.repeatInterval`, default `4h`.
 With `deadMansSwitch.enabled`, route 1 also sets `group_wait: 0s`, `group_interval: 1m`, and `repeat_interval` from `deadMansSwitch.repeatInterval`.
 Every alert that matches no child route goes to `email`.
 
@@ -174,6 +177,11 @@ Every alert that matches no child route goes to `email`.
 :   Sends to every address in `smtp.recipients`, or to `smtp.from` when `smtp.recipients` is unset.
     Sends resolved notifications as well.
     Adds every entry of `smtp.headers` as a mail header.
+
+`critical`
+:   Exists only when `alertRouting.criticalPush.enabled` is true.
+    Mails like `email`, and posts up to 10 alerts per group to `alertRouting.criticalPush.url` with resolved notifications.
+    Sends the token read from `/etc/alertmanager/secrets/<tokenSecret.name>/<tokenSecret.key>` as bearer token.
 
 `staging`
 :   Exists only when `stagingAlerts.enabled` is true.

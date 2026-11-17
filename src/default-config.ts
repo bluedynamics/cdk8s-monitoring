@@ -126,6 +126,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
   cnpgBackups: { enabled: false, maxAgeHours: 30 },
   alertRouting: {
     repeatInterval: '12h',
+    criticalPush: { enabled: false, url: '', tokenSecret: { name: '', key: '' }, repeatInterval: '4h' },
   },
   externalUrls: {
     alertmanager: '',
@@ -174,6 +175,11 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (deadMansSwitch.enabled && (!deadMansSwitch.urlSecret.name || !deadMansSwitch.urlSecret.key)) {
     throw new Error('deadMansSwitch.urlSecret needs a name and a key when deadMansSwitch.enabled is true');
   }
+  const alertRouting = deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig;
+  const { criticalPush } = alertRouting;
+  if (criticalPush.enabled && (!criticalPush.url || !criticalPush.tokenSecret.name || !criticalPush.tokenSecret.key)) {
+    throw new Error('alertRouting.criticalPush needs a url and a tokenSecret with name and key when enabled');
+  }
   const cnpgBackups = deepmerge(DEFAULT_CONFIG.cnpgBackups, input.cnpgBackups ?? {}) as CnpgBackupsConfig;
   if (cnpgBackups.enabled && !(cnpgBackups.maxAgeHours > 0)) {
     throw new Error('cnpgBackups.maxAgeHours must be positive when cnpgBackups.enabled is true');
@@ -199,7 +205,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     stagingAlerts,
     deadMansSwitch,
     cnpgBackups,
-    alertRouting: deepmerge(DEFAULT_CONFIG.alertRouting, input.alertRouting ?? {}) as AlertRoutingConfig,
+    alertRouting,
     externalUrls: deepmerge(DEFAULT_CONFIG.externalUrls, input.externalUrls ?? {}) as ExternalUrlsConfig,
     priorityClasses: deepmerge(DEFAULT_CONFIG.priorityClasses, input.priorityClasses ?? {}) as PriorityClassesConfig,
   };

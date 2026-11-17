@@ -267,8 +267,13 @@ It belongs to `DefaultableConfig`.
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `alertRouting.repeatInterval` | `string` | `12h` | Alertmanager `repeat_interval`: how often a still-firing alert group is mailed again. |
+| `alertRouting.criticalPush.enabled` | `boolean` | `false` | Send critical alerts to the `critical` receiver, mail plus webhook. |
+| `alertRouting.criticalPush.url` | `string` | `''` | Webhook URL, for example an ntfy topic with a template. |
+| `alertRouting.criticalPush.tokenSecret` | `SecretKeyRef` | `{ name: '', key: '' }` | Secret key holding the bearer token for the webhook. |
+| `alertRouting.criticalPush.repeatInterval` | `string` | `4h` | How often a still-firing critical group is sent again. |
 
 The routes, receivers, and inhibition rules around this interval are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `alertRouting.criticalPush needs a url and a tokenSecret with name and key when enabled` for an incomplete push block.
 
 ### externalUrls
 

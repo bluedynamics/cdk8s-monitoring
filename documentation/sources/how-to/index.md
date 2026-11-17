@@ -48,6 +48,7 @@ configure-tail-sampling
 embed-grafana
 route-staging-alerts
 forward-watchdog-to-dead-mans-switch
+push-critical-alerts
 ```
 
 ## Extending the stack

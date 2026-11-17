@@ -362,6 +362,20 @@ export interface AlertRoutingConfig {
    * that gets the channel muted.
    */
   repeatInterval: string;
+  criticalPush: CriticalPushConfig; // second channel for critical alerts (opt-in)
+}
+
+/**
+ * Sends critical alerts to a webhook as well as by mail, for a channel that
+ * reaches someone at night (for example an ntfy topic). The webhook also
+ * carries the critical alert that mail delivery itself fails
+ * (AlertmanagerClusterFailedToSendAlerts).
+ */
+export interface CriticalPushConfig {
+  enabled: boolean; // default false
+  url: string; // webhook URL, for example https://ntfy.example.com/topic?template=alertmanager
+  tokenSecret: SecretKeyRef; // Secret key holding the bearer token for the webhook
+  repeatInterval: string; // how often a still-firing critical group is sent again; default '4h'
 }
 
 /**

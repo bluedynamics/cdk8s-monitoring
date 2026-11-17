@@ -34,6 +34,17 @@ With `deadMansSwitch` enabled, Alertmanager posts it to such a service instead o
 `CPUThrottlingHigh`, `KubeMemoryOvercommit`, `KubeCPUOvercommit`, and `KubeletTooManyPods` describe capacity planning, not incidents.
 They fire for weeks on a cluster that runs fine and stay in Grafana for anyone who looks.
 
+Every alert with `severity: info` goes to `null` as well.
+The chart marks those as context for dashboards, not as something to act on.
+
+## Severity decides the channel
+
+`warning` alerts go by mail, grouped and repeated every `alertRouting.repeatInterval`.
+Mail is slow, and that is fine for something that can wait until the next working day.
+`critical` alerts mean that something is broken or about to break, and mail can sit unread all night.
+With `alertRouting.criticalPush` enabled, they go to a webhook as well, for example an ntfy topic that pushes to a phone, and repeat more often.
+That channel also carries the one alert mail cannot deliver: the critical `AlertmanagerClusterFailedToSendAlerts` when mail delivery itself fails.
+
 ## One alert, one mail
 
 Prometheus runs as two replicas, and both evaluate every rule.

@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, a positive `cnpgBackups.maxAgeHours`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, a positive `cnpgBackups.maxAgeHours`, `alertRouting.criticalPush.url` and `.tokenSecret`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -98,7 +98,11 @@ The package is TypeScript-only and ships no generated API document; this curated
 
 `AlertRoutingConfig`
 :   The Alertmanager notification pacing.
-    Field: `repeatInterval`.
+    Fields: `repeatInterval` and `criticalPush`.
+
+`CriticalPushConfig`
+:   The opt-in second channel for critical alerts.
+    Fields: `enabled`, `url`, `tokenSecret`, and `repeatInterval`.
 
 `ExternalUrlsConfig`
 :   The browser-facing URLs used in notification links.
