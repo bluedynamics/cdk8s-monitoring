@@ -106,6 +106,40 @@ export class PrometheusStackConstruct extends Construct {
   }
 
   /**
+   * Critical alerts go to the `critical` receiver (mail and push), empty unless
+   * criticalPush is enabled. After the staging route, so staging alerts never push.
+   */
+  private generateCriticalRoute(config: MonitoringConfig): string {
+    if (!config.alertRouting.criticalPush.enabled) return '';
+    return `
+      - match:
+          severity: critical
+        receiver: critical
+        group_by: ['alertname', 'namespace']
+        repeat_interval: ${config.alertRouting.criticalPush.repeatInterval}`;
+  }
+
+  /**
+   * Mails like the production receiver and posts to the push webhook. The bearer
+   * token stays in a mounted Secret. max_alerts keeps a large group within the
+   * size a push message can show.
+   */
+  private generateCriticalReceiver(config: MonitoringConfig): string {
+    const push = config.alertRouting.criticalPush;
+    if (!push.enabled) return '';
+    return `
+    - name: critical${this.generateEmailConfigs(config)}
+      webhook_configs:
+      - url: ${JSON.stringify(push.url)}
+        send_resolved: true
+        max_alerts: 10
+        http_config:
+          authorization:
+            type: Bearer
+            credentials_file: /etc/alertmanager/secrets/${push.tokenSecret.name}/${push.tokenSecret.key}`;
+  }
+
+  /**
    * The `staging` email receiver, empty unless stagingAlerts is enabled. Same
    * mailbox as the production receiver, but the subject prefix marks the mail
    * as non-production and keeps it filterable.
@@ -141,6 +175,7 @@ export class PrometheusStackConstruct extends Construct {
   private generateAlertmanagerSecrets(config: MonitoringConfig): string {
     const names = [config.smtp.passwordSecret?.name];
     if (config.deadMansSwitch.enabled) names.push(config.deadMansSwitch.urlSecret.name);
+    if (config.alertRouting.criticalPush.enabled) names.push(config.alertRouting.criticalPush.tokenSecret.name);
     const unique = [...new Set(names.filter((name): name is string => !!name))];
     if (unique.length === 0) return '';
     return `
@@ -559,11 +594,15 @@ alertmanager:
       # Severity "none": exists only to inhibit info alerts, never meant for a human.
       - match:
           alertname: InfoInhibitor
-        receiver: 'null'${this.generateStagingRoute(config)}
+        receiver: 'null'
+      # Info alerts only belong on dashboards.
+      - match:
+          severity: info
+        receiver: 'null'${this.generateStagingRoute(config)}${this.generateCriticalRoute(config)}
 
     receivers:
     - name: 'null'
-    - name: email${this.generateEmailConfigs(config)}${this.generateStagingReceiver(config)}${this.generateDeadMansSwitchReceiver(config)}
+    - name: email${this.generateEmailConfigs(config)}${this.generateCriticalReceiver(config)}${this.generateStagingReceiver(config)}${this.generateDeadMansSwitchReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.

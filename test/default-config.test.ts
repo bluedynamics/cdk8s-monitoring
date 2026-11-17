@@ -176,6 +176,19 @@ test('throws when CNPG backup alerts are enabled with a non-positive maximum age
     .toThrow(/cnpgBackups\.maxAgeHours/);
 });
 
+test('leaves the critical push off by default, repeating every 4h once enabled', () => {
+  expect(mergeConfig(cluster).alertRouting.criticalPush).toEqual({
+    enabled: false, url: '', tokenSecret: { name: '', key: '' }, repeatInterval: '4h',
+  });
+});
+
+test('throws when the critical push is enabled without a URL or a token secret', () => {
+  expect(() => mergeConfig({ ...cluster, alertRouting: { criticalPush: { enabled: true, tokenSecret: { name: 't', key: 'k' } } } }))
+    .toThrow(/alertRouting\.criticalPush/);
+  expect(() => mergeConfig({ ...cluster, alertRouting: { criticalPush: { enabled: true, url: 'https://ntfy.example/t' } } }))
+    .toThrow(/alertRouting\.criticalPush/);
+});
+
 test('defaults storage.className to longhorn and accepts an empty override', () => {
   expect(mergeConfig(cluster).storage.className).toBe('longhorn');
   expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');

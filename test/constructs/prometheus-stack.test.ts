@@ -545,8 +545,13 @@ describe('PrometheusStackConstruct', () => {
     });
 
     it('takes the repeat interval from config.alertRouting', () => {
-      const config = createTestConfig({ alertRouting: { repeatInterval: '4h' } });
+      const config = createTestConfig({ alertRouting: { ...createTestConfig().alertRouting, repeatInterval: '4h' } });
       expect(helmValues(config).alertmanager.config.route.repeat_interval).toBe('4h');
+    });
+
+    it('routes info alerts to the null receiver, they only belong on dashboards', () => {
+      const routes = helmValues().alertmanager.config.route.routes;
+      expect(routes).toContainEqual({ match: { severity: 'info' }, receiver: 'null' });
     });
 
     it('routes InfoInhibitor to the null receiver', () => {
@@ -794,5 +799,59 @@ describe('PrometheusStackConstruct kube-state-metrics custom resource state', ()
     expect(ksm.metricLabelsAllowlist).toHaveLength(1);
     expect(ksm.customResourceState.enabled).toBe(true);
     expect(ksm.resources.requests.memory).toBe('128Mi');
+  });
+});
+
+describe('PrometheusStackConstruct critical push', () => {
+  const push = {
+    enabled: true,
+    url: 'https://ntfy.example.com/critical?template=alertmanager',
+    tokenSecret: { name: 'alertmanager-ntfy', key: 'token' },
+    repeatInterval: '4h',
+  };
+  const helmValues = (overrides: object = {}) => {
+    const chart = Testing.chart();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config: createTestConfig(overrides) });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent);
+  };
+  const withPush = (overrides: object = {}) =>
+    helmValues({ alertRouting: { ...createTestConfig().alertRouting, criticalPush: push }, ...overrides });
+
+  it('sends critical alerts to email only by default', () => {
+    const am = helmValues().alertmanager.config;
+    expect(am.receivers.map((r: any) => r.name)).not.toContain('critical');
+    expect(am.route.routes.find((r: any) => r.receiver === 'critical')).toBeUndefined();
+  });
+
+  it('routes critical alerts to a receiver with email and the webhook, repeated every 4h', () => {
+    const am = withPush().alertmanager.config;
+    expect(am.route.routes).toContainEqual({
+      match: { severity: 'critical' },
+      receiver: 'critical',
+      group_by: ['alertname', 'namespace'],
+      repeat_interval: '4h',
+    });
+    const critical = am.receivers.find((r: any) => r.name === 'critical');
+    const email = am.receivers.find((r: any) => r.name === 'email');
+    expect(critical.email_configs).toEqual(email.email_configs);
+    expect(critical.webhook_configs).toEqual([{
+      url: push.url,
+      send_resolved: true,
+      max_alerts: 10,
+      http_config: {
+        authorization: { type: 'Bearer', credentials_file: '/etc/alertmanager/secrets/alertmanager-ntfy/token' },
+      },
+    }]);
+  });
+
+  it('mounts the token secret into Alertmanager', () => {
+    expect(withPush().alertmanager.alertmanagerSpec.secrets).toContain('alertmanager-ntfy');
+  });
+
+  it('keeps staging alerts off the push channel', () => {
+    const routes = withPush({ stagingAlerts: { enabled: true, namespaces: ['app-stage'] } }).alertmanager.config.route.routes;
+    const index = (receiver: string) => routes.findIndex((r: any) => r.receiver === receiver);
+    expect(index('staging')).toBeGreaterThanOrEqual(0);
+    expect(index('staging')).toBeLessThan(index('critical'));
   });
 });

@@ -197,6 +197,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
     cnpgBackups: { enabled: false, maxAgeHours: 30 },
     alertRouting: {
       repeatInterval: '12h',
+      criticalPush: { enabled: false, url: '', tokenSecret: { name: '', key: '' }, repeatInterval: '4h' },
     },
     externalUrls: {
       alertmanager: '',
