@@ -254,6 +254,14 @@ export class PrometheusStackConstruct extends Construct {
       .join('');
   }
 
+  /** The `email_configs` of a receiver that mails the production recipients. */
+  private generateEmailConfigs(config: MonitoringConfig): string {
+    return `
+      email_configs:
+      - send_resolved: true
+        to: ${this.generateRecipients(config)}${this.generateEmailHeaders(config)}`;
+  }
+
   private generateEmailHeaders(config: MonitoringConfig): string {
     const lines = this.generateHeaderLines(config);
     return lines ? `\n        headers:${lines}` : '';
@@ -555,10 +563,7 @@ alertmanager:
 
     receivers:
     - name: 'null'
-    - name: email
-      email_configs:
-      - send_resolved: true
-        to: ${this.generateRecipients(config)}${this.generateEmailHeaders(config)}${this.generateStagingReceiver(config)}${this.generateDeadMansSwitchReceiver(config)}
+    - name: email${this.generateEmailConfigs(config)}${this.generateStagingReceiver(config)}${this.generateDeadMansSwitchReceiver(config)}
 
     # Inhibition rules allow to mute a set of alerts given that another alert is firing.
     # We use this to mute any warning-level notifications if the same alert is already critical.
