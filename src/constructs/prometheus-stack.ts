@@ -901,6 +901,20 @@ prometheus-node-exporter:
   priorityClassName: ${config.priorityClasses.capture}
 
 kube-state-metrics:${this.generateKsmLabelAllowlist(config)}${this.generateKsmCustomResourceState(config)}
+  # Without this, every series carries pod, container, endpoint, service and
+  # instance of the kube-state-metrics pod. A restart changes pod and instance,
+  # so every alert on these metrics resolves and fires again as a new alert.
+  # honorLabels keeps the exported labels (pod, container, namespace of the
+  # object). A constant instance assumes a single, unsharded replica.
+  prometheus:
+    monitor:
+      http:
+        honorLabels: true
+        relabelings:
+          - action: labeldrop
+            regex: (pod|container|endpoint|service)
+          - targetLabel: instance
+            replacement: kube-state-metrics
   resources:
     limits:
       cpu: 1

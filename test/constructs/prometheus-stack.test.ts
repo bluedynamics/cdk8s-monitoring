@@ -855,3 +855,16 @@ describe('PrometheusStackConstruct critical push', () => {
     expect(index('staging')).toBeLessThan(index('critical'));
   });
 });
+
+describe('PrometheusStackConstruct kube-state-metrics series identity', () => {
+  it('drops the target labels of the kube-state-metrics pod, so a restart does not re-fire its alerts', () => {
+    const chart = Testing.chart();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config: createTestConfig() });
+    const ksm = parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent)['kube-state-metrics'];
+    expect(ksm.prometheus.monitor.http.honorLabels).toBe(true);
+    expect(ksm.prometheus.monitor.http.relabelings).toEqual([
+      { action: 'labeldrop', regex: '(pod|container|endpoint|service)' },
+      { targetLabel: 'instance', replacement: 'kube-state-metrics' },
+    ]);
+  });
+});

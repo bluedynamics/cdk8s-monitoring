@@ -55,6 +55,12 @@ The stack drops `replica` from alerts but keeps it on metrics, so deduplication 
 For the same reason, a `critical` alert suppresses the `warning` alert of the same name in the same namespace.
 The reader gets the more severe signal, not both.
 
+kube-state-metrics needs the same care.
+By default, every series it exports carries the `pod`, `container`, `endpoint`, `service`, and `instance` labels of the kube-state-metrics pod itself.
+A restart of that pod changes `pod` and `instance`, so every alert built on these series, such as a stuck rollout or an unhealthy PodDisruptionBudget, resolves and fires again as a new alert.
+The stack drops these target labels and sets `instance` to `kube-state-metrics`, so a series keeps its identity across restarts.
+The labels kube-state-metrics exports itself, such as the `pod` of a `kube_pod_info` series, stay, because the scrape honors them.
+
 ## Failed jobs that are no longer failing
 
 The stock `KubeJobFailed` rule fires for as long as a failed `Job` object exists.
