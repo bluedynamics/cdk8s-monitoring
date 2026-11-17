@@ -642,6 +642,14 @@ describe('MonitoringChart Integration Tests', () => {
       .toBeUndefined();
   });
 
+  it('creates the cert-manager monitor only when certManager is enabled', () => {
+    const enabled = createTestConfig({ certManager: { ...createTestConfig().certManager, enabled: true } });
+    expect(findResource(synthesizeChart(new MonitoringChart(new App(), 'm', enabled)), 'ServiceMonitor', 'cert-manager'))
+      .toBeDefined();
+    expect(findResource(synthesizeChart(new MonitoringChart(new App(), 'm2', createTestConfig())), 'ServiceMonitor', 'cert-manager'))
+      .toBeUndefined();
+  });
+
   it('sets failurePolicy abort on every HelmChart', () => {
     // The helm-controller default (reinstall) uninstalls a failed release,
     // which deletes Helm-owned PVCs such as Grafana's database (#23).

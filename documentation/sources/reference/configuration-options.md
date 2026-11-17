@@ -362,6 +362,23 @@ The `PodMonitor` selects pods labeled `app.kubernetes.io/name: argocd-applicatio
 The alert rules are listed in {doc}`alerts-and-routing`.
 `mergeConfig` throws `argocd.namespace is required when argocd.enabled is true` when you enable the block with an empty namespace.
 
+### certManager
+
+The `certManager` block adds opt-in monitoring for cert-manager.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `certManager.enabled` is false, no cert-manager resources are created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `certManager.enabled` | `boolean` | `false` | Master switch; when true, creates the `cert-manager` `ServiceMonitor`. |
+| `certManager.namespace` | `string` | `cert-manager` | Namespace cert-manager runs in, used as the `ServiceMonitor` namespace selector. |
+| `certManager.alerts` | `boolean` | `true` | Ship the `cert-manager` `PrometheusRule`. |
+
+The `ServiceMonitor` selects services labeled `app.kubernetes.io/name: cert-manager` and `app.kubernetes.io/component: controller` and scrapes their `http-metrics` port every 60 seconds.
+It honors the exported labels, so each series keeps the namespace of its `Certificate`, sets `job` to `cert-manager`, and drops the labels of the controller pod.
+The alert rules are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `certManager.namespace is required when certManager.enabled is true` when you enable the block with an empty namespace.
+
 ### cnpgBackups
 
 The `cnpgBackups` block adds opt-in alerts for CloudNativePG clusters backed up by the barman-cloud plugin.

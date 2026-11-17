@@ -116,6 +116,22 @@ ArgoCD sets the sync status `Unknown` when it cannot compare an application with
 The workloads keep running, so no other alert notices that deployments have stopped.
 `ArgoCdMetricsAbsent` fires when the scrape itself fails, because `ArgoCdAppSyncUnknown` cannot fire without metrics.
 
+### cert-manager
+
+The `cert-manager` `PrometheusRule` exists only when `certManager.enabled` and `certManager.alerts` are both true.
+
+| Alert | Severity | For | Fires when |
+|---|---|---|---|
+| `CertManagerCertificateNotReady` | `warning` | 30m | A `Certificate` has its `Ready` condition `False` or `Unknown` |
+| `CertManagerCertificateRenewalOverdue` | `warning` | 15m | The planned renewal time (`certmanager_certificate_renewal_timestamp_seconds`) passed more than a day ago |
+| `CertManagerCertificateExpiringSoon` | `critical` | 1h | The certificate expires within 7 days |
+| `CertManagerMetricsAbsent` | `warning` | 15m | `absent(up{job="cert-manager"} == 1)` |
+
+Automatic renewal makes an expired certificate unlikely, so the useful signal is a renewal that fails quietly.
+cert-manager renews an ACME certificate a third of its lifetime before expiry, 30 days for Let's Encrypt, and moves the renewal time forward after each success.
+`CertManagerCertificateRenewalOverdue` therefore fires about four weeks before the certificate expires.
+All rules aggregate by `namespace` and `name` of the `Certificate`.
+
 ### cnpg.backups
 
 The `cnpg-backups` `PrometheusRule` exists only when `cnpgBackups.enabled` is true.

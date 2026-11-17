@@ -175,6 +175,11 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       namespace: 'argocd',
       alerts: true,
     },
+    certManager: {
+      enabled: false,
+      namespace: 'cert-manager',
+      alerts: true,
+    },
     auditLog: {
       enabled: false,
       path: '/var/log/k3s-audit',

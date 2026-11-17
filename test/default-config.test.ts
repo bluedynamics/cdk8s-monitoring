@@ -189,6 +189,15 @@ test('throws when the critical push is enabled without a URL or a token secret',
     .toThrow(/alertRouting\.criticalPush/);
 });
 
+test('leaves cert-manager monitoring disabled by default, with alerts once enabled', () => {
+  expect(mergeConfig(cluster).certManager).toEqual({ enabled: false, namespace: 'cert-manager', alerts: true });
+});
+
+test('throws when certManager is enabled without a namespace', () => {
+  expect(() => mergeConfig({ ...cluster, certManager: { enabled: true, namespace: '' } }))
+    .toThrow(/certManager\.namespace/);
+});
+
 test('defaults storage.className to longhorn and accepts an empty override', () => {
   expect(mergeConfig(cluster).storage.className).toBe('longhorn');
   expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');
