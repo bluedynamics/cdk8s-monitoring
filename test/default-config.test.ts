@@ -198,6 +198,15 @@ test('throws when certManager is enabled without a namespace', () => {
     .toThrow(/certManager\.namespace/);
 });
 
+test('leaves the blackbox probes off by default', () => {
+  expect(mergeConfig(cluster).blackbox).toEqual({ enabled: false, httpTargets: [], tlsTargets: [], alerts: true, certWarningDays: 14 });
+});
+
+test('throws when the blackbox probes are enabled without a target', () => {
+  expect(() => mergeConfig({ ...cluster, blackbox: { enabled: true } }))
+    .toThrow(/blackbox needs at least one/);
+});
+
 test('defaults storage.className to longhorn and accepts an empty override', () => {
   expect(mergeConfig(cluster).storage.className).toBe('longhorn');
   expect(mergeConfig({ ...cluster, storage: { className: '' } }).storage.className).toBe('');

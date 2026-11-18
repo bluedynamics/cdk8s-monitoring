@@ -2,6 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   AlertRoutingConfig,
   ArgoCdConfig,
+  BlackboxConfig,
   CertManagerConfig,
   CnpgBackupsConfig,
   DefaultableConfig,
@@ -35,6 +36,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     alloy: '1.10.0',
     thanos: 'v0.41.0',
     tempo: '1.24.4', // grafana/tempo chart (Tempo app 2.9.0)
+    blackboxExporter: '11.21.3', // prometheus-blackbox-exporter chart (exporter v0.29.1)
   },
   retention: {
     prometheus: '2d',
@@ -116,6 +118,7 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     namespace: 'cert-manager',
     alerts: true,
   },
+  blackbox: { enabled: false, httpTargets: [], tlsTargets: [], alerts: true, certWarningDays: 14 },
   embedding: {
     enabled: false,
     frameAncestors: [],
@@ -173,6 +176,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (certManager.enabled && !certManager.namespace) {
     throw new Error('certManager.namespace is required when certManager.enabled is true');
   }
+  const blackbox = deepmerge(DEFAULT_CONFIG.blackbox, input.blackbox ?? {}) as BlackboxConfig;
+  if (blackbox.enabled && blackbox.httpTargets.length + blackbox.tlsTargets.length === 0) {
+    throw new Error('blackbox needs at least one httpTargets or tlsTargets entry when enabled');
+  }
   const embedding = deepmerge(DEFAULT_CONFIG.embedding, input.embedding ?? {}) as EmbeddingConfig;
   if (embedding.enabled && embedding.frameAncestors.length === 0) {
     throw new Error('embedding.frameAncestors must name at least one origin when embedding.enabled is true');
@@ -211,6 +218,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     longhorn,
     argocd,
     certManager,
+    blackbox,
     auditLog: deepmerge(DEFAULT_CONFIG.auditLog, input.auditLog ?? {}) as AuditLogConfig,
     embedding,
     stagingAlerts,

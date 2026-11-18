@@ -238,6 +238,23 @@ export class PrometheusStackConstruct extends Construct {
   }
 
   /**
+   * The critical stage of a probe suppresses its warning stage for the same
+   * target. The generic rule above matches on namespace, and every probe lives
+   * in the monitoring namespace, so it would let one failing site hide the
+   * warnings of all others.
+   */
+  private generateBlackboxInhibitRules(config: MonitoringConfig): string {
+    if (!config.blackbox.enabled) return '';
+    const pair = (source: string, target: string) => `
+    - source_match:
+        alertname: ${source}
+      target_match:
+        alertname: ${target}
+      equal: ['instance']`;
+    return pair('BlackboxProbeDown', 'BlackboxProbeFailed') + pair('BlackboxCertificateExpiring', 'BlackboxCertificateExpiringSoon');
+  }
+
+  /**
    * Watchdog always fires. Without a dead man's switch it is silenced; with one it
    * is posted to the external heartbeat on a short, fixed cadence.
    */
@@ -618,7 +635,7 @@ alertmanager:
         alertname: PodDisruptionBudgetUndrainableCritical
       target_match:
         alertname: PodDisruptionBudgetUndrainable
-      equal: ['namespace', 'poddisruptionbudget']
+      equal: ['namespace', 'poddisruptionbudget']${this.generateBlackboxInhibitRules(config)}
 
   alertmanagerSpec:
     replicas: ${config.replicas.alertmanager}

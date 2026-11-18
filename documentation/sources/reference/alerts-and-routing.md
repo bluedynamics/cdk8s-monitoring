@@ -132,6 +132,21 @@ cert-manager renews an ACME certificate a third of its lifetime before expiry, 3
 `CertManagerCertificateRenewalOverdue` therefore fires about four weeks before the certificate expires.
 All rules aggregate by `namespace` and `name` of the `Certificate`.
 
+### blackbox
+
+The `blackbox` `PrometheusRule` exists only when `blackbox.enabled` and `blackbox.alerts` are both true.
+
+| Alert | Severity | For | Expression |
+|---|---|---|---|
+| `BlackboxProbeFailed` | `warning` | 5m | `probe_success == 0` |
+| `BlackboxProbeDown` | `critical` | 15m | `probe_success == 0` |
+| `BlackboxCertificateExpiringSoon` | `warning` | 1h | `probe_ssl_earliest_cert_expiry - time() < certWarningDays` |
+| `BlackboxCertificateExpiring` | `critical` | 1h | `probe_ssl_earliest_cert_expiry - time() < 7d` |
+| `BlackboxProbesAbsent` | `warning` | 15m | `absent(probe_success)` |
+
+The `instance` label holds the probed URL or `host:port`.
+Each critical alert suppresses its warning counterpart for the same `instance`; see {ref}`inhibition-rules`.
+
 ### cnpg.backups
 
 The `cnpg-backups` `PrometheusRule` exists only when `cnpgBackups.enabled` is true.
@@ -222,12 +237,19 @@ The Alertmanager `global` block takes its values from the `smtp` configuration.
 | `smtp_auth_password_file` | `/etc/alertmanager/secrets/<name>/<key>` from `smtp.passwordSecret` |
 | `smtp_auth_password` | `smtp.password`, only when `smtp.passwordSecret` is unset |
 
+(inhibition-rules)=
+
 ## Inhibition rules
 
 | Source | Target | Equal labels |
 |---|---|---|
 | `severity: critical` | `severity: warning` | `alertname`, `namespace` |
 | `alertname: PodDisruptionBudgetUndrainableCritical` | `alertname: PodDisruptionBudgetUndrainable` | `namespace`, `poddisruptionbudget` |
+| `alertname: BlackboxProbeDown` | `alertname: BlackboxProbeFailed` | `instance` |
+| `alertname: BlackboxCertificateExpiring` | `alertname: BlackboxCertificateExpiringSoon` | `instance` |
+
+The two blackbox rules exist only when `blackbox.enabled` is true.
+They match on `instance`, because every probe lives in the monitoring namespace, and the generic rule would let one failing target hide the warnings of all others.
 
 ## Notification links
 

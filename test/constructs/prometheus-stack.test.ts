@@ -868,3 +868,31 @@ describe('PrometheusStackConstruct kube-state-metrics series identity', () => {
     ]);
   });
 });
+
+describe('PrometheusStackConstruct blackbox inhibition', () => {
+  const inhibitRules = (overrides: object) => {
+    const chart = Testing.chart();
+    new PrometheusStackConstruct(chart, 'test-helm', { namespace: 'monitoring', config: createTestConfig(overrides) });
+    return parse(findResource(synthesizeChart(chart), 'HelmChart').spec.valuesContent).alertmanager.config.inhibit_rules;
+  };
+
+  it('lets the critical stage of a probe suppress its warning stage, per target', () => {
+    const rules = inhibitRules({
+      blackbox: { ...createTestConfig().blackbox, enabled: true, httpTargets: ['https://example.com/'] },
+    });
+    expect(rules).toContainEqual({
+      source_match: { alertname: 'BlackboxProbeDown' },
+      target_match: { alertname: 'BlackboxProbeFailed' },
+      equal: ['instance'],
+    });
+    expect(rules).toContainEqual({
+      source_match: { alertname: 'BlackboxCertificateExpiring' },
+      target_match: { alertname: 'BlackboxCertificateExpiringSoon' },
+      equal: ['instance'],
+    });
+  });
+
+  it('adds no blackbox inhibition without blackbox', () => {
+    expect(JSON.stringify(inhibitRules({}))).not.toContain('Blackbox');
+  });
+});

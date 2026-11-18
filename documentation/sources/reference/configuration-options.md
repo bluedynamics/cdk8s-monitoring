@@ -107,6 +107,7 @@ Each one shows the value shipped in `DEFAULT_CONFIG`.
 | `versions.alloy` | `string` | `1.10.0` |
 | `versions.thanos` | `string` | `v0.41.0` |
 | `versions.tempo` | `string` | `1.24.4` |
+| `versions.blackboxExporter` | `string` | `11.21.3` |
 
 A version of `latest` omits the version field and lets the Helm controller resolve the newest chart.
 The Alloy traces gateway uses `versions.alloy`; it has no separate version field.
@@ -378,6 +379,25 @@ The `ServiceMonitor` selects services labeled `app.kubernetes.io/name: cert-mana
 It honors the exported labels, so each series keeps the namespace of its `Certificate`, sets `job` to `cert-manager`, and drops the labels of the controller pod.
 The alert rules are listed in {doc}`alerts-and-routing`.
 `mergeConfig` throws `certManager.namespace is required when certManager.enabled is true` when you enable the block with an empty namespace.
+
+### blackbox
+
+The `blackbox` block adds an opt-in blackbox exporter that probes public endpoints.
+It belongs to `DefaultableConfig`, so it defaults to disabled.
+When `blackbox.enabled` is false, no exporter, probe, or rule is created.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `blackbox.enabled` | `boolean` | `false` | Master switch; when true, creates the `blackbox-exporter` `HelmChart` and the probes. |
+| `blackbox.httpTargets` | `string[]` | `[]` | URLs probed with the `http_2xx` module: GET, redirects followed, `2xx` and a valid certificate expected. |
+| `blackbox.tlsTargets` | `string[]` | `[]` | `host:port` probed with the `tls_connect` module: a TLS handshake only. |
+| `blackbox.alerts` | `boolean` | `true` | Ship the `blackbox` `PrometheusRule`. |
+| `blackbox.certWarningDays` | `number` | `14` | Warn when a served certificate expires within this many days. |
+
+The exporter runs as the chart `prometheus-blackbox-exporter` with the fixed name `blackbox-exporter`; both modules prefer IPv4.
+The `Probe` `blackbox-http` exists when `httpTargets` is not empty, the `Probe` `blackbox-tls` when `tlsTargets` is not empty; both probe every 60 seconds.
+The alert rules are listed in {doc}`alerts-and-routing`.
+`mergeConfig` throws `blackbox needs at least one httpTargets or tlsTargets entry when enabled` for an enabled block without targets.
 
 ### cnpgBackups
 

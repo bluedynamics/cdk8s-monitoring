@@ -181,6 +181,7 @@ export interface VersionConfig {
   alloy: string; // Alloy chart version
   thanos: string; // Thanos image version (e.g., "v0.36.1")
   tempo: string; // grafana/tempo chart version
+  blackboxExporter: string; // prometheus-community/prometheus-blackbox-exporter chart version
 }
 
 /**
@@ -301,6 +302,18 @@ export interface CertManagerConfig {
 }
 
 /**
+ * Blackbox probes of public endpoints (opt-in): a blackbox-exporter plus Probe
+ * resources and alerts on failed probes and expiring certificates.
+ */
+export interface BlackboxConfig {
+  enabled: boolean; // default false — when false, no exporter, probes or rules
+  httpTargets: string[]; // URLs fetched with GET; redirects followed, 2xx and a valid certificate expected
+  tlsTargets: string[]; // host:port that only complete a TLS handshake (IMAPS, SMTPS)
+  alerts: boolean; // ship the blackbox PrometheusRule; default true
+  certWarningDays: number; // warn when a served certificate expires within this many days; default 14
+}
+
+/**
  * Browser embedding of Grafana in an <iframe> (opt-in).
  *
  * Grafana refuses framing by default (`X-Frame-Options: deny`), which also
@@ -404,6 +417,7 @@ export interface DefaultableConfig {
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   argocd: ArgoCdConfig; // ArgoCD GitOps monitoring (opt-in)
   certManager: CertManagerConfig; // cert-manager certificate monitoring (opt-in)
+  blackbox: BlackboxConfig; // blackbox probes of public endpoints (opt-in)
   auditLog: AuditLogConfig; // Kubernetes API audit log collection (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
