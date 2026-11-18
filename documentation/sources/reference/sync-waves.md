@@ -79,8 +79,18 @@ They carry no sync-wave annotation, so ArgoCD applies them in wave `0`.
 | `ConfigMap` `traefik-dashboard` | `TraefikMonitorConstruct` | `traefik.enabled` and `traefik.dashboard` |
 | `ServiceMonitor` `longhorn-metrics` | `LonghornMonitorConstruct` | `longhorn.enabled` |
 | `PrometheusRule` `longhorn-volume-health` | `LonghornMonitorConstruct` | `longhorn.enabled` and `longhorn.alerts` |
+| `PrometheusRule` `longhorn-backups` | `LonghornMonitorConstruct` | `longhorn.enabled` and `longhorn.backupAlerts.enabled` |
+| `PodMonitor` `argocd-application-controller` | `ArgoCdMonitorConstruct` | `argocd.enabled` |
+| `PrometheusRule` `argocd-gitops` | `ArgoCdMonitorConstruct` | `argocd.enabled` and `argocd.alerts` |
+| `ServiceMonitor` `cert-manager` | `CertManagerMonitorConstruct` | `certManager.enabled` |
+| `PrometheusRule` `cert-manager` | `CertManagerMonitorConstruct` | `certManager.enabled` and `certManager.alerts` |
+| `PrometheusRule` `cnpg-backups` | `CnpgBackupMonitorConstruct` | `cnpgBackups.enabled` |
+| `Probe` `blackbox-http`, `blackbox-tls` | `BlackboxConstruct` | `blackbox.enabled` and targets of that kind |
+| `PrometheusRule` `blackbox` | `BlackboxConstruct` | `blackbox.enabled` and `blackbox.alerts` |
 
-The `PodMonitor`, `ServiceMonitor`, and `PrometheusRule` kinds come from the prometheus-operator CRDs, which must exist before the first sync.
+The `blackbox-exporter` `HelmChart` from `BlackboxConstruct` carries wave `3`, like the other workloads.
+
+The `PodMonitor`, `ServiceMonitor`, `Probe`, and `PrometheusRule` kinds come from the prometheus-operator CRDs, which must exist before the first sync.
 See {doc}`../how-to/setup-prerequisites`.
 
 ## Application dashboards and alerts

@@ -16,6 +16,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       alloy: 'v1.6.1',
       thanos: 'v0.37.2',
       tempo: 'latest',
+      blackboxExporter: 'latest',
     },
 
     domains: {
@@ -180,6 +181,7 @@ export function createTestConfig(overrides?: Partial<MonitoringConfig>): Monitor
       namespace: 'cert-manager',
       alerts: true,
     },
+    blackbox: { enabled: false, httpTargets: [], tlsTargets: [], alerts: true, certWarningDays: 14 },
     auditLog: {
       enabled: false,
       path: '/var/log/k3s-audit',

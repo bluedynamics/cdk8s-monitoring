@@ -6,6 +6,7 @@ import { AlloyConstruct } from './constructs/alloy';
 import { AlloyAuditConstruct } from './constructs/alloy-audit';
 import { AlloyTracesConstruct } from './constructs/alloy-traces';
 import { ArgoCdMonitorConstruct } from './constructs/argocd-monitor';
+import { BlackboxConstruct } from './constructs/blackbox';
 import { CertManagerMonitorConstruct } from './constructs/cert-manager-monitor';
 import { CnpgBackupMonitorConstruct } from './constructs/cnpg-backup-monitor';
 import { GrafanaPasswordSecret } from './constructs/grafana-password-secret';
@@ -202,6 +203,9 @@ export class MonitoringChart extends Chart {
         monitoringNamespace: namespace,
         argocd: config.argocd,
       });
+    }
+    if (config.blackbox.enabled) {
+      new BlackboxConstruct(this, 'blackbox', { namespace, config });
     }
     if (config.certManager.enabled) {
       new CertManagerMonitorConstruct(this, 'cert-manager-monitor', {

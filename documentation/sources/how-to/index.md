@@ -49,6 +49,7 @@ embed-grafana
 route-staging-alerts
 forward-watchdog-to-dead-mans-switch
 push-critical-alerts
+probe-public-endpoints
 ```
 
 ## Extending the stack

@@ -255,6 +255,7 @@ describe('MonitoringChart Integration Tests', () => {
         alloy: 'v2.0.0',
         thanos: 'v0.38.0',
         tempo: 'latest',
+        blackboxExporter: 'latest',
       },
     });
 
@@ -648,6 +649,15 @@ describe('MonitoringChart Integration Tests', () => {
       .toBeDefined();
     expect(findResource(synthesizeChart(new MonitoringChart(new App(), 'm2', createTestConfig())), 'ServiceMonitor', 'cert-manager'))
       .toBeUndefined();
+  });
+
+  it('creates the blackbox exporter only when blackbox is enabled', () => {
+    const enabled = createTestConfig({ blackbox: { ...createTestConfig().blackbox, enabled: true, httpTargets: ['https://example.com/'] } });
+    const on = synthesizeChart(new MonitoringChart(new App(), 'm', enabled));
+    expect(on.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'blackbox-exporter')).toHaveLength(1);
+    expect(findResource(on, 'Probe', 'blackbox-http')).toBeDefined();
+    const off = synthesizeChart(new MonitoringChart(new App(), 'm2', createTestConfig()));
+    expect(off.filter((m: any) => m.kind === 'HelmChart' && m.metadata?.name === 'blackbox-exporter')).toHaveLength(0);
   });
 
   it('sets failurePolicy abort on every HelmChart', () => {
