@@ -2,6 +2,7 @@ import { deepmerge } from 'deepmerge-ts';
 import {
   AlertRoutingConfig,
   ArgoCdConfig,
+  CertManagerConfig,
   CnpgBackupsConfig,
   DefaultableConfig,
   EmbeddingConfig,
@@ -110,6 +111,11 @@ export const DEFAULT_CONFIG: DefaultableConfig = {
     namespace: 'argocd',
     alerts: true,
   },
+  certManager: {
+    enabled: false,
+    namespace: 'cert-manager',
+    alerts: true,
+  },
   embedding: {
     enabled: false,
     frameAncestors: [],
@@ -163,6 +169,10 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
   if (argocd.enabled && !argocd.namespace) {
     throw new Error('argocd.namespace is required when argocd.enabled is true');
   }
+  const certManager = deepmerge(DEFAULT_CONFIG.certManager, input.certManager ?? {}) as CertManagerConfig;
+  if (certManager.enabled && !certManager.namespace) {
+    throw new Error('certManager.namespace is required when certManager.enabled is true');
+  }
   const embedding = deepmerge(DEFAULT_CONFIG.embedding, input.embedding ?? {}) as EmbeddingConfig;
   if (embedding.enabled && embedding.frameAncestors.length === 0) {
     throw new Error('embedding.frameAncestors must name at least one origin when embedding.enabled is true');
@@ -200,6 +210,7 @@ export function mergeConfig(input: MonitoringConfigInput): MonitoringConfig {
     traefik,
     longhorn,
     argocd,
+    certManager,
     auditLog: deepmerge(DEFAULT_CONFIG.auditLog, input.auditLog ?? {}) as AuditLogConfig,
     embedding,
     stagingAlerts,

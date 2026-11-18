@@ -25,7 +25,7 @@ The package is TypeScript-only and ships no generated API document; this curated
 `mergeConfig(input)`
 :   Resolves a full `MonitoringConfig` by deep-merging the caller's overrides over `DEFAULT_CONFIG`.
     Accepts a `MonitoringConfigInput` and returns a `MonitoringConfig`.
-    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, a positive `cnpgBackups.maxAgeHours`, `alertRouting.criticalPush.url` and `.tokenSecret`, `argocd.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
+    Throws when an enabled opt-in block lacks a value it needs: `tempo.bucket`, `traefik.namespace`, `longhorn.namespace`, a positive `longhorn.backupAlerts.maxAgeHours`, a positive `cnpgBackups.maxAgeHours`, `alertRouting.criticalPush.url` and `.tokenSecret`, `argocd.namespace`, `certManager.namespace`, `embedding.frameAncestors`, `stagingAlerts.namespaces`, or `deadMansSwitch.urlSecret`.
 
 `DEFAULT_CONFIG`
 :   The package-shipped `DefaultableConfig`.
@@ -48,7 +48,7 @@ The package is TypeScript-only and ships no generated API document; this curated
     All are required strings; see {doc}`../configuration-options` for each one.
 
 `DefaultableConfig`
-:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `argocd`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `cnpgBackups`, `alertRouting`, `externalUrls`, and `priorityClasses`.
+:   The fields with defaults: `versions`, `retention`, `storage`, `replicas`, `resources`, `tempo`, `traefik`, `longhorn`, `argocd`, `certManager`, `embedding`, `stagingAlerts`, `deadMansSwitch`, `cnpgBackups`, `alertRouting`, `externalUrls`, and `priorityClasses`.
 
 `TempoConfig`
 :   The opt-in distributed tracing block.
@@ -87,6 +87,10 @@ The package is TypeScript-only and ships no generated API document; this curated
 `DeadMansSwitchConfig`
 :   The opt-in forwarding of the `Watchdog` alert to an external heartbeat service.
     Fields: `enabled`, `urlSecret`, and `repeatInterval`.
+
+`CertManagerConfig`
+:   The opt-in cert-manager monitor.
+    Fields: `enabled`, `namespace`, and `alerts`.
 
 `CnpgBackupsConfig`
 :   The opt-in CNPG backup and WAL archiving alerts.
@@ -198,7 +202,7 @@ The following four constructs are created only when `config.tempo.enabled` is tr
 
 When tracing is enabled, `PrometheusStackConstruct` also adds a Tempo datasource to Grafana, wired for traces-to-logs and traces-to-metrics correlation.
 
-The following four constructs are created only when their configuration block is enabled.
+The following five constructs are created only when their configuration block is enabled.
 
 `TraefikMonitorConstruct`
 :   Creates the `traefik-metrics` `PodMonitor` and, unless `traefik.dashboard` is false, the `traefik-dashboard` `ConfigMap`.
@@ -214,6 +218,11 @@ The following four constructs are created only when their configuration block is
 :   Creates the `argocd-application-controller` `PodMonitor` and, unless `argocd.alerts` is false, the `argocd-gitops` `PrometheusRule`.
     Props: `monitoringNamespace` and `argocd`.
     `MonitoringChart` creates it when `argocd.enabled` is true.
+
+`CertManagerMonitorConstruct`
+:   Creates the `cert-manager` `ServiceMonitor` and, unless `certManager.alerts` is false, the `cert-manager` `PrometheusRule`.
+    Props: `monitoringNamespace` and `certManager`.
+    `MonitoringChart` creates it when `certManager.enabled` is true.
 
 `CnpgBackupMonitorConstruct`
 :   Creates the `cnpg-backups` `PrometheusRule`.

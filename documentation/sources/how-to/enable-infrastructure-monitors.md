@@ -1,15 +1,15 @@
 ---
 myst:
   html_meta:
-    "description": "Turn on the opt-in Traefik, Longhorn, and ArgoCD monitors of cdk8s-monitoring and verify that Prometheus scrapes them."
-    "property=og:description": "Turn on the opt-in Traefik, Longhorn, and ArgoCD monitors of cdk8s-monitoring and verify that Prometheus scrapes them."
+    "description": "Turn on the opt-in Traefik, Longhorn, ArgoCD, and cert-manager monitors of cdk8s-monitoring and verify that Prometheus scrapes them."
+    "property=og:description": "Turn on the opt-in Traefik, Longhorn, ArgoCD, and cert-manager monitors of cdk8s-monitoring and verify that Prometheus scrapes them."
     "property=og:title": "Enable the infrastructure monitors"
     "keywords": "cdk8s, Kubernetes, monitoring, Traefik, Longhorn, ArgoCD, PodMonitor, ServiceMonitor"
 ---
 
 # Enable the infrastructure monitors
 
-This guide shows you how to turn on the built-in monitors for a Traefik ingress controller, for Longhorn storage, and for ArgoCD.
+This guide shows you how to turn on the built-in monitors for a Traefik ingress controller, for Longhorn storage, for ArgoCD, and for cert-manager.
 All are disabled by default, and you enable each one independently.
 
 ## Enable the Traefik monitor
@@ -79,6 +79,22 @@ The argo-helm chart keeps that port open even when `controller.metrics.enabled` 
 If a NetworkPolicy guards the application controller, it must admit Prometheus on the `metrics` port; the argo-helm chart's own policy admits every namespace.
 If you manage ArgoCD alerts yourself, set `alerts: false` to keep only the scrape.
 
+## Enable the cert-manager monitor
+
+Set `certManager.enabled` in your `mergeConfig` input.
+Set `certManager.namespace` if cert-manager does not run in the namespace `cert-manager`.
+
+```typescript
+const config = mergeConfig({
+  // required cluster values ...
+  certManager: { enabled: true },
+});
+```
+
+The stack then scrapes the cert-manager controller and alerts on certificates that are not ready, overdue for renewal, or about to expire.
+The cert-manager Helm chart creates the metrics Service by default.
+If you manage cert-manager alerts yourself, set `alerts: false` to keep only the scrape.
+
 ## Enable the CNPG backup alerts
 
 If your CloudNativePG clusters back up with the barman-cloud plugin, set `cnpgBackups.enabled` in your `mergeConfig` input.
@@ -107,7 +123,7 @@ npx cdk8s synth
 Check that the monitor resources exist in the monitoring namespace.
 
 ```shell
-kubectl get podmonitor,servicemonitor,prometheusrule -n monitoring | grep -E 'traefik|longhorn|argocd|cnpg'
+kubectl get podmonitor,servicemonitor,prometheusrule -n monitoring | grep -E 'traefik|longhorn|argocd|cert-manager|cnpg'
 ```
 
 Open the {guilabel}`Targets` page of Prometheus, or query Thanos, and confirm that the new targets report `up`.
@@ -116,7 +132,7 @@ Open the {guilabel}`Targets` page of Prometheus, or query Thanos, and confirm th
 kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090
 ```
 
-Then open `http://localhost:9090/targets` and look for the target groups `podMonitor/monitoring/traefik-metrics/0`, `serviceMonitor/monitoring/longhorn-metrics/0`, and `podMonitor/monitoring/argocd-application-controller/0`.
+Then open `http://localhost:9090/targets` and look for the target groups `podMonitor/monitoring/traefik-metrics/0`, `serviceMonitor/monitoring/longhorn-metrics/0`, and `podMonitor/monitoring/argocd-application-controller/0`, and `serviceMonitor/monitoring/cert-manager/0`.
 
 If you kept the Traefik dashboard, find it in Grafana under the folder {guilabel}`General`.
 

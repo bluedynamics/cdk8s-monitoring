@@ -290,6 +290,17 @@ export interface ArgoCdConfig {
 }
 
 /**
+ * cert-manager monitoring (generic infra, opt-in).
+ * ServiceMonitor for the controller plus optional alerts on certificates that
+ * are not ready, overdue for renewal, or about to expire.
+ */
+export interface CertManagerConfig {
+  enabled: boolean; // default false — when false, no cert-manager monitoring resources are created
+  namespace: string; // namespace cert-manager runs in (ServiceMonitor namespaceSelector); default 'cert-manager'
+  alerts: boolean; // ship the cert-manager PrometheusRule; default true
+}
+
+/**
  * Browser embedding of Grafana in an <iframe> (opt-in).
  *
  * Grafana refuses framing by default (`X-Frame-Options: deny`), which also
@@ -392,6 +403,7 @@ export interface DefaultableConfig {
   traefik: TraefikConfig; // Traefik ingress monitoring (opt-in)
   longhorn: LonghornConfig; // Longhorn storage monitoring (opt-in)
   argocd: ArgoCdConfig; // ArgoCD GitOps monitoring (opt-in)
+  certManager: CertManagerConfig; // cert-manager certificate monitoring (opt-in)
   auditLog: AuditLogConfig; // Kubernetes API audit log collection (opt-in)
   embedding: EmbeddingConfig; // Grafana iframe embedding (opt-in)
   stagingAlerts: StagingAlertsConfig; // demoted alert routing for staging namespaces (opt-in)
