@@ -4,14 +4,7 @@ import { Construct } from 'constructs';
 
 
 /**
- * The `PodMonitor` custom resource definition (CRD) defines how `Prometheus` and `PrometheusAgent` can scrape metrics from a group of pods.
-Among other things, it allows to specify:
-* The pods to scrape via label selectors.
-* The container ports to scrape.
-* Authentication credentials to use.
-* Target and metric relabeling.
-
-`Prometheus` and `PrometheusAgent` objects select `PodMonitor` objects using label and namespace selectors.
+ *
  *
  * @schema PodMonitor
  */
@@ -65,15 +58,6 @@ export class PodMonitor extends ApiObject {
 }
 
 /**
- * The `PodMonitor` custom resource definition (CRD) defines how `Prometheus` and `PrometheusAgent` can scrape metrics from a group of pods.
- * Among other things, it allows to specify:
- * * The pods to scrape via label selectors.
- * * The container ports to scrape.
- * * Authentication credentials to use.
- * * Target and metric relabeling.
- *
- * `Prometheus` and `PrometheusAgent` objects select `PodMonitor` objects using label and namespace selectors.
- *
  * @schema PodMonitor
  */
 export interface PodMonitorProps {
@@ -83,8 +67,6 @@ export interface PodMonitorProps {
   readonly metadata?: ApiObjectMetadata;
 
   /**
-   * spec defines the specification of desired Pod selection for target discovery by Prometheus.
-   *
    * @schema PodMonitor#spec
    */
   readonly spec: PodMonitorSpec;
@@ -106,202 +88,115 @@ export function toJson_PodMonitorProps(obj: PodMonitorProps | undefined): Record
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * spec defines the specification of desired Pod selection for target discovery by Prometheus.
- *
  * @schema PodMonitorSpec
  */
 export interface PodMonitorSpec {
   /**
-   * attachMetadata defines additional metadata which is added to the
-   * discovered targets.
-   *
-   * It requires Prometheus >= v2.35.0.
-   *
    * @schema PodMonitorSpec#attachMetadata
    */
   readonly attachMetadata?: PodMonitorSpecAttachMetadata;
 
   /**
-   * bodySizeLimit when defined specifies a job level limit on the size
-   * of uncompressed response body that will be accepted by Prometheus.
-   *
-   * It requires Prometheus >= v2.28.0.
-   *
    * @schema PodMonitorSpec#bodySizeLimit
    */
   readonly bodySizeLimit?: string;
 
   /**
-   * convertClassicHistogramsToNHCB defines whether to convert all scraped classic histograms into a native histogram with custom buckets.
-   * It requires Prometheus >= v3.0.0.
-   *
    * @schema PodMonitorSpec#convertClassicHistogramsToNHCB
    */
   readonly convertClassicHistogramsToNhcb?: boolean;
 
   /**
-   * fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
-   *
-   * It requires Prometheus >= v3.0.0.
-   *
    * @schema PodMonitorSpec#fallbackScrapeProtocol
    */
   readonly fallbackScrapeProtocol?: PodMonitorSpecFallbackScrapeProtocol;
 
   /**
-   * jobLabel defines the label to use to retrieve the job name from.
-   * `jobLabel` selects the label from the associated Kubernetes `Pod`
-   * object which will be used as the `job` label for all metrics.
-   *
-   * For example if `jobLabel` is set to `foo` and the Kubernetes `Pod`
-   * object is labeled with `foo: bar`, then Prometheus adds the `job="bar"`
-   * label to all ingested metrics.
-   *
-   * If the value of this field is empty, the `job` label of the metrics
-   * defaults to the namespace and name of the PodMonitor object (e.g. `<namespace>/<name>`).
-   *
    * @schema PodMonitorSpec#jobLabel
    */
   readonly jobLabel?: string;
 
   /**
-   * keepDroppedTargets defines the per-scrape limit on the number of targets dropped by relabeling
-   * that will be kept in memory. 0 means no limit.
-   *
-   * It requires Prometheus >= v2.47.0.
-   *
    * @schema PodMonitorSpec#keepDroppedTargets
    */
   readonly keepDroppedTargets?: number;
 
   /**
-   * labelLimit defines the per-scrape limit on number of labels that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema PodMonitorSpec#labelLimit
    */
   readonly labelLimit?: number;
 
   /**
-   * labelNameLengthLimit defines the per-scrape limit on length of labels name that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema PodMonitorSpec#labelNameLengthLimit
    */
   readonly labelNameLengthLimit?: number;
 
   /**
-   * labelValueLengthLimit defines the per-scrape limit on length of labels value that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema PodMonitorSpec#labelValueLengthLimit
    */
   readonly labelValueLengthLimit?: number;
 
   /**
-   * namespaceSelector defines in which namespace(s) Prometheus should discover the pods.
-   * By default, the pods are discovered in the same namespace as the `PodMonitor` object but it is possible to select pods across different/all namespaces.
-   *
    * @schema PodMonitorSpec#namespaceSelector
    */
   readonly namespaceSelector?: PodMonitorSpecNamespaceSelector;
 
   /**
-   * nativeHistogramBucketLimit defines ff there are more than this many buckets in a native histogram,
-   * buckets will be merged to stay within the limit.
-   * It requires Prometheus >= v2.45.0.
-   *
    * @schema PodMonitorSpec#nativeHistogramBucketLimit
    */
   readonly nativeHistogramBucketLimit?: number;
 
   /**
-   * nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
-   * buckets will be merged to increase the factor sufficiently.
-   * It requires Prometheus >= v2.50.0.
-   *
    * @schema PodMonitorSpec#nativeHistogramMinBucketFactor
    */
   readonly nativeHistogramMinBucketFactor?: PodMonitorSpecNativeHistogramMinBucketFactor;
 
   /**
-   * podMetricsEndpoints defines how to scrape metrics from the selected pods.
-   *
    * @schema PodMonitorSpec#podMetricsEndpoints
    */
   readonly podMetricsEndpoints?: PodMonitorSpecPodMetricsEndpoints[];
 
   /**
-   * podTargetLabels defines the labels which are transferred from the
-   * associated Kubernetes `Pod` object onto the ingested metrics.
-   *
    * @schema PodMonitorSpec#podTargetLabels
    */
   readonly podTargetLabels?: string[];
 
   /**
-   * sampleLimit defines a per-scrape limit on the number of scraped samples
-   * that will be accepted.
-   *
    * @schema PodMonitorSpec#sampleLimit
    */
   readonly sampleLimit?: number;
 
   /**
-   * scrapeClass defines the scrape class to apply.
-   *
    * @schema PodMonitorSpec#scrapeClass
    */
   readonly scrapeClass?: string;
 
   /**
-   * scrapeClassicHistograms defines whether to scrape a classic histogram that is also exposed as a native histogram.
-   * It requires Prometheus >= v2.45.0.
-   *
-   * Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
-   *
    * @schema PodMonitorSpec#scrapeClassicHistograms
    */
   readonly scrapeClassicHistograms?: boolean;
 
   /**
-   * scrapeProtocols defines the protocols to negotiate during a scrape. It tells clients the
-   * protocols supported by Prometheus in order of preference (from most to least preferred).
-   *
-   * If unset, Prometheus uses its default value.
-   *
-   * It requires Prometheus >= v2.49.0.
-   *
+   * @schema PodMonitorSpec#scrapeNativeHistograms
+   */
+  readonly scrapeNativeHistograms?: boolean;
+
+  /**
    * @schema PodMonitorSpec#scrapeProtocols
    */
   readonly scrapeProtocols?: PodMonitorSpecScrapeProtocols[];
 
   /**
-   * selector defines the label selector to select the Kubernetes `Pod` objects to scrape metrics from.
-   *
    * @schema PodMonitorSpec#selector
    */
   readonly selector: PodMonitorSpecSelector;
 
   /**
-   * selectorMechanism defines the mechanism used to select the endpoints to scrape.
-   * By default, the selection process relies on relabel configurations to filter the discovered targets.
-   * Alternatively, you can opt in for role selectors, which may offer better efficiency in large clusters.
-   * Which strategy is best for your use case needs to be carefully evaluated.
-   *
-   * It requires Prometheus >= v2.17.0.
-   *
    * @schema PodMonitorSpec#selectorMechanism
    */
   readonly selectorMechanism?: PodMonitorSpecSelectorMechanism;
 
   /**
-   * targetLimit defines a limit on the number of scraped targets that will
-   * be accepted.
-   *
    * @schema PodMonitorSpec#targetLimit
    */
   readonly targetLimit?: number;
@@ -331,6 +226,7 @@ export function toJson_PodMonitorSpec(obj: PodMonitorSpec | undefined): Record<s
     'sampleLimit': obj.sampleLimit,
     'scrapeClass': obj.scrapeClass,
     'scrapeClassicHistograms': obj.scrapeClassicHistograms,
+    'scrapeNativeHistograms': obj.scrapeNativeHistograms,
     'scrapeProtocols': obj.scrapeProtocols?.map(y => y),
     'selector': toJson_PodMonitorSpecSelector(obj.selector),
     'selectorMechanism': obj.selectorMechanism,
@@ -342,21 +238,10 @@ export function toJson_PodMonitorSpec(obj: PodMonitorSpec | undefined): Record<s
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * attachMetadata defines additional metadata which is added to the
- * discovered targets.
- *
- * It requires Prometheus >= v2.35.0.
- *
  * @schema PodMonitorSpecAttachMetadata
  */
 export interface PodMonitorSpecAttachMetadata {
   /**
-   * node when set to true, Prometheus attaches node metadata to the discovered
-   * targets.
-   *
-   * The Prometheus service account must have the `list` and `watch`
-   * permissions on the `Nodes` objects.
-   *
    * @schema PodMonitorSpecAttachMetadata#node
    */
   readonly node?: boolean;
@@ -377,10 +262,6 @@ export function toJson_PodMonitorSpecAttachMetadata(obj: PodMonitorSpecAttachMet
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
- *
- * It requires Prometheus >= v3.0.0.
- *
  * @schema PodMonitorSpecFallbackScrapeProtocol
  */
 export enum PodMonitorSpecFallbackScrapeProtocol {
@@ -397,23 +278,15 @@ export enum PodMonitorSpecFallbackScrapeProtocol {
 }
 
 /**
- * namespaceSelector defines in which namespace(s) Prometheus should discover the pods.
- * By default, the pods are discovered in the same namespace as the `PodMonitor` object but it is possible to select pods across different/all namespaces.
- *
  * @schema PodMonitorSpecNamespaceSelector
  */
 export interface PodMonitorSpecNamespaceSelector {
   /**
-   * any defines the boolean describing whether all namespaces are selected in contrast to a
-   * list restricting them.
-   *
    * @schema PodMonitorSpecNamespaceSelector#any
    */
   readonly any?: boolean;
 
   /**
-   * matchNames defines the list of namespace names to select from.
-   *
    * @schema PodMonitorSpecNamespaceSelector#matchNames
    */
   readonly matchNames?: string[];
@@ -435,10 +308,6 @@ export function toJson_PodMonitorSpecNamespaceSelector(obj: PodMonitorSpecNamesp
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
- * buckets will be merged to increase the factor sufficiently.
- * It requires Prometheus >= v2.50.0.
- *
  * @schema PodMonitorSpecNativeHistogramMinBucketFactor
  */
 export class PodMonitorSpecNativeHistogramMinBucketFactor {
@@ -453,247 +322,130 @@ export class PodMonitorSpecNativeHistogramMinBucketFactor {
 }
 
 /**
- * PodMetricsEndpoint defines an endpoint serving Prometheus metrics to be scraped by
- * Prometheus.
- *
  * @schema PodMonitorSpecPodMetricsEndpoints
  */
 export interface PodMonitorSpecPodMetricsEndpoints {
   /**
-   * authorization configures the Authorization header credentials used by
-   * the client.
-   *
-   * Cannot be set at the same time as `basicAuth`, `bearerTokenSecret` or `oauth2`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#authorization
    */
   readonly authorization?: PodMonitorSpecPodMetricsEndpointsAuthorization;
 
   /**
-   * basicAuth defines the Basic Authentication credentials used by the
-   * client.
-   *
-   * Cannot be set at the same time as `authorization`, `bearerTokenSecret` or `oauth2`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#basicAuth
    */
   readonly basicAuth?: PodMonitorSpecPodMetricsEndpointsBasicAuth;
 
   /**
-   * bearerTokenSecret defines a key of a Secret containing the bearer token
-   * used by the client for authentication. The secret needs to be in the
-   * same namespace as the custom resource and readable by the Prometheus
-   * Operator.
-   *
-   * Cannot be set at the same time as `authorization`, `basicAuth` or `oauth2`.
-   *
-   * Deprecated: use `authorization` instead.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#bearerTokenSecret
    */
   readonly bearerTokenSecret?: PodMonitorSpecPodMetricsEndpointsBearerTokenSecret;
 
   /**
-   * enableHttp2 can be used to disable HTTP2.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#enableHttp2
    */
   readonly enableHttp2?: boolean;
 
   /**
-   * filterRunning when true, the pods which are not running (e.g. either in Failed or
-   * Succeeded state) are dropped during the target discovery.
-   *
-   * If unset, the filtering is enabled.
-   *
-   * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#filterRunning
    */
   readonly filterRunning?: boolean;
 
   /**
-   * followRedirects defines whether the client should follow HTTP 3xx
-   * redirects.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#followRedirects
    */
   readonly followRedirects?: boolean;
 
   /**
-   * honorLabels when true preserves the metric's labels when they collide
-   * with the target's labels.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#honorLabels
    */
   readonly honorLabels?: boolean;
 
   /**
-   * honorTimestamps defines whether Prometheus preserves the timestamps
-   * when exposed by the target.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#honorTimestamps
    */
   readonly honorTimestamps?: boolean;
 
   /**
-   * interval at which Prometheus scrapes the metrics from the target.
-   *
-   * If empty, Prometheus uses the global scrape interval.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#interval
    */
   readonly interval?: string;
 
   /**
-   * metricRelabelings defines the relabeling rules to apply to the
-   * samples before ingestion.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#metricRelabelings
    */
   readonly metricRelabelings?: PodMonitorSpecPodMetricsEndpointsMetricRelabelings[];
 
   /**
-   * noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
-   * that should be excluded from proxying. IP and domain names can
-   * contain port numbers.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#noProxy
    */
   readonly noProxy?: string;
 
   /**
-   * oauth2 defines the OAuth2 settings used by the client.
-   *
-   * It requires Prometheus >= 2.27.0.
-   *
-   * Cannot be set at the same time as `authorization`, `basicAuth` or `bearerTokenSecret`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#oauth2
    */
   readonly oauth2?: PodMonitorSpecPodMetricsEndpointsOauth2;
 
   /**
-   * params define optional HTTP URL parameters.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#params
    */
   readonly params?: { [key: string]: string[] };
 
   /**
-   * path defines the HTTP path from which to scrape for metrics.
-   *
-   * If empty, Prometheus uses the default value (e.g. `/metrics`).
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#path
    */
   readonly path?: string;
 
   /**
-   * port defines the `Pod` port name which exposes the endpoint.
-   *
-   * It takes precedence over the `portNumber` and `targetPort` fields.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#port
    */
   readonly port?: string;
 
   /**
-   * portNumber defines the `Pod` port number which exposes the endpoint.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#portNumber
    */
   readonly portNumber?: number;
 
   /**
-   * proxyConnectHeader optionally specifies headers to send to
-   * proxies during CONNECT requests.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#proxyConnectHeader
    */
   readonly proxyConnectHeader?: { [key: string]: PodMonitorSpecPodMetricsEndpointsProxyConnectHeader[] };
 
   /**
-   * proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#proxyFromEnvironment
    */
   readonly proxyFromEnvironment?: boolean;
 
   /**
-   * proxyUrl defines the HTTP proxy server to use.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#proxyUrl
    */
   readonly proxyUrl?: string;
 
   /**
-   * relabelings defines the relabeling rules to apply the target's
-   * metadata labels.
-   *
-   * The Operator automatically adds relabelings for a few standard Kubernetes fields.
-   *
-   * The original scrape job's name is available via the `__tmp_prometheus_job_name` label.
-   *
-   * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#relabelings
    */
   readonly relabelings?: PodMonitorSpecPodMetricsEndpointsRelabelings[];
 
   /**
-   * scheme defines the HTTP scheme to use for scraping.
-   *
-   * `http` and `https` are the expected values unless you rewrite the
-   * `__scheme__` label via relabeling.
-   *
-   * If empty, Prometheus uses the default value `http`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#scheme
    */
   readonly scheme?: PodMonitorSpecPodMetricsEndpointsScheme;
 
   /**
-   * scrapeTimeout defines the timeout after which Prometheus considers the scrape to be failed.
-   *
-   * If empty, Prometheus uses the global scrape timeout unless it is less
-   * than the target's scrape interval value in which the latter is used.
-   * The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#scrapeTimeout
    */
   readonly scrapeTimeout?: string;
 
   /**
-   * targetPort defines the name or number of the target port of the `Pod` object behind the Service, the
-   * port must be specified with container port property.
-   *
-   * Deprecated: use 'port' or 'portNumber' instead.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#targetPort
    */
   readonly targetPort?: PodMonitorSpecPodMetricsEndpointsTargetPort;
 
   /**
-   * tlsConfig defines the TLS configuration used by the client.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#tlsConfig
    */
   readonly tlsConfig?: PodMonitorSpecPodMetricsEndpointsTlsConfig;
 
   /**
-   * trackTimestampsStaleness defines whether Prometheus tracks staleness of
-   * the metrics that have an explicit timestamp present in scraped data.
-   * Has no effect if `honorTimestamps` is false.
-   *
-   * It requires Prometheus >= v2.48.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpoints#trackTimestampsStaleness
    */
   readonly trackTimestampsStaleness?: boolean;
@@ -738,14 +490,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpoints(obj: PodMonitorSpecPodM
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * ScrapeProtocol represents a protocol used by Prometheus for scraping metrics.
- * Supported values are:
- * * `OpenMetricsText0.0.1`
- * * `OpenMetricsText1.0.0`
- * * `PrometheusProto`
- * * `PrometheusText0.0.4`
- * * `PrometheusText1.0.0`
- *
  * @schema PodMonitorSpecScrapeProtocols
  */
 export enum PodMonitorSpecScrapeProtocols {
@@ -762,23 +506,15 @@ export enum PodMonitorSpecScrapeProtocols {
 }
 
 /**
- * selector defines the label selector to select the Kubernetes `Pod` objects to scrape metrics from.
- *
  * @schema PodMonitorSpecSelector
  */
 export interface PodMonitorSpecSelector {
   /**
-   * matchExpressions is a list of label selector requirements. The requirements are ANDed.
-   *
    * @schema PodMonitorSpecSelector#matchExpressions
    */
   readonly matchExpressions?: PodMonitorSpecSelectorMatchExpressions[];
 
   /**
-   * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-   * map is equivalent to an element of matchExpressions, whose key field is "key", the
-   * operator is "In", and the values array contains only "value". The requirements are ANDed.
-   *
    * @schema PodMonitorSpecSelector#matchLabels
    */
   readonly matchLabels?: { [key: string]: string };
@@ -800,13 +536,6 @@ export function toJson_PodMonitorSpecSelector(obj: PodMonitorSpecSelector | unde
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * selectorMechanism defines the mechanism used to select the endpoints to scrape.
- * By default, the selection process relies on relabel configurations to filter the discovered targets.
- * Alternatively, you can opt in for role selectors, which may offer better efficiency in large clusters.
- * Which strategy is best for your use case needs to be carefully evaluated.
- *
- * It requires Prometheus >= v2.17.0.
- *
  * @schema PodMonitorSpecSelectorMechanism
  */
 export enum PodMonitorSpecSelectorMechanism {
@@ -817,28 +546,15 @@ export enum PodMonitorSpecSelectorMechanism {
 }
 
 /**
- * authorization configures the Authorization header credentials used by
- * the client.
- *
- * Cannot be set at the same time as `basicAuth`, `bearerTokenSecret` or `oauth2`.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsAuthorization
  */
 export interface PodMonitorSpecPodMetricsEndpointsAuthorization {
   /**
-   * credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsAuthorization#credentials
    */
   readonly credentials?: PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials;
 
   /**
-   * type defines the authentication type. The value is case-insensitive.
-   *
-   * "Basic" is not a supported value.
-   *
-   * Default: "Bearer"
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsAuthorization#type
    */
   readonly type?: string;
@@ -860,26 +576,15 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsAuthorization(obj: PodMo
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * basicAuth defines the Basic Authentication credentials used by the
- * client.
- *
- * Cannot be set at the same time as `authorization`, `bearerTokenSecret` or `oauth2`.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsBasicAuth
  */
 export interface PodMonitorSpecPodMetricsEndpointsBasicAuth {
   /**
-   * password defines a key of a Secret containing the password for
-   * authentication.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuth#password
    */
   readonly password?: PodMonitorSpecPodMetricsEndpointsBasicAuthPassword;
 
   /**
-   * username defines a key of a Secret containing the username for
-   * authentication.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuth#username
    */
   readonly username?: PodMonitorSpecPodMetricsEndpointsBasicAuthUsername;
@@ -901,39 +606,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsBasicAuth(obj: PodMonito
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * bearerTokenSecret defines a key of a Secret containing the bearer token
- * used by the client for authentication. The secret needs to be in the
- * same namespace as the custom resource and readable by the Prometheus
- * Operator.
- *
- * Cannot be set at the same time as `authorization`, `basicAuth` or `oauth2`.
- *
- * Deprecated: use `authorization` instead.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsBearerTokenSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsBearerTokenSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBearerTokenSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBearerTokenSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBearerTokenSecret#optional
    */
   readonly optional?: boolean;
@@ -956,76 +642,40 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsBearerTokenSecret(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
- * scraped samples and remote write samples.
- *
- * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
- *
  * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings
  */
 export interface PodMonitorSpecPodMetricsEndpointsMetricRelabelings {
   /**
-   * action to perform based on the regex matching.
-   *
-   * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
-   * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
-   *
-   * Default: "Replace"
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#action
    */
   readonly action?: PodMonitorSpecPodMetricsEndpointsMetricRelabelingsAction;
 
   /**
-   * modulus to take of the hash of the source label values.
-   *
-   * Only applicable when the action is `HashMod`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#modulus
    */
   readonly modulus?: number;
 
   /**
-   * regex defines the regular expression against which the extracted value is matched.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#regex
    */
   readonly regex?: string;
 
   /**
-   * replacement value against which a Replace action is performed if the
-   * regular expression matches.
-   *
-   * Regex capture groups are available.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#replacement
    */
   readonly replacement?: string;
 
   /**
-   * separator defines the string between concatenated SourceLabels.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#separator
    */
   readonly separator?: string;
 
   /**
-   * sourceLabels defines the source labels select values from existing labels. Their content is
-   * concatenated using the configured Separator and matched against the
-   * configured regular expression.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#sourceLabels
    */
   readonly sourceLabels?: string[];
 
   /**
-   * targetLabel defines the label to which the resulting string is written in a replacement.
-   *
-   * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
-   * `KeepEqual` and `DropEqual` actions.
-   *
-   * Regex capture groups are available.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelings#targetLabel
    */
   readonly targetLabel?: string;
@@ -1052,94 +702,55 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsMetricRelabelings(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * oauth2 defines the OAuth2 settings used by the client.
- *
- * It requires Prometheus >= 2.27.0.
- *
- * Cannot be set at the same time as `authorization`, `basicAuth` or `bearerTokenSecret`.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2 {
   /**
-   * clientId defines a key of a Secret or ConfigMap containing the
-   * OAuth2 client's ID.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#clientId
    */
   readonly clientId: PodMonitorSpecPodMetricsEndpointsOauth2ClientId;
 
   /**
-   * clientSecret defines a key of a Secret containing the OAuth2
-   * client's secret.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#clientSecret
    */
   readonly clientSecret: PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret;
 
   /**
-   * endpointParams configures the HTTP parameters to append to the token
-   * URL.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#endpointParams
    */
   readonly endpointParams?: { [key: string]: string };
 
   /**
-   * noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
-   * that should be excluded from proxying. IP and domain names can
-   * contain port numbers.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#noProxy
    */
   readonly noProxy?: string;
 
   /**
-   * proxyConnectHeader optionally specifies headers to send to
-   * proxies during CONNECT requests.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#proxyConnectHeader
    */
   readonly proxyConnectHeader?: { [key: string]: PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader[] };
 
   /**
-   * proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#proxyFromEnvironment
    */
   readonly proxyFromEnvironment?: boolean;
 
   /**
-   * proxyUrl defines the HTTP proxy server to use.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#proxyUrl
    */
   readonly proxyUrl?: string;
 
   /**
-   * scopes defines the OAuth2 scopes used for the token request.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#scopes
    */
   readonly scopes?: string[];
 
   /**
-   * tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
-   * It requires Prometheus >= v2.43.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#tlsConfig
    */
   readonly tlsConfig?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig;
 
   /**
-   * tokenUrl defines the URL to fetch the token from.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2#tokenUrl
    */
   readonly tokenUrl: string;
@@ -1169,32 +780,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2(obj: PodMonitorSp
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * SecretKeySelector selects a key of a Secret.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsProxyConnectHeader
  */
 export interface PodMonitorSpecPodMetricsEndpointsProxyConnectHeader {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsProxyConnectHeader#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsProxyConnectHeader#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsProxyConnectHeader#optional
    */
   readonly optional?: boolean;
@@ -1217,76 +816,40 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsProxyConnectHeader(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
- * scraped samples and remote write samples.
- *
- * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
- *
  * @schema PodMonitorSpecPodMetricsEndpointsRelabelings
  */
 export interface PodMonitorSpecPodMetricsEndpointsRelabelings {
   /**
-   * action to perform based on the regex matching.
-   *
-   * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
-   * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
-   *
-   * Default: "Replace"
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#action
    */
   readonly action?: PodMonitorSpecPodMetricsEndpointsRelabelingsAction;
 
   /**
-   * modulus to take of the hash of the source label values.
-   *
-   * Only applicable when the action is `HashMod`.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#modulus
    */
   readonly modulus?: number;
 
   /**
-   * regex defines the regular expression against which the extracted value is matched.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#regex
    */
   readonly regex?: string;
 
   /**
-   * replacement value against which a Replace action is performed if the
-   * regular expression matches.
-   *
-   * Regex capture groups are available.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#replacement
    */
   readonly replacement?: string;
 
   /**
-   * separator defines the string between concatenated SourceLabels.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#separator
    */
   readonly separator?: string;
 
   /**
-   * sourceLabels defines the source labels select values from existing labels. Their content is
-   * concatenated using the configured Separator and matched against the
-   * configured regular expression.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#sourceLabels
    */
   readonly sourceLabels?: string[];
 
   /**
-   * targetLabel defines the label to which the resulting string is written in a replacement.
-   *
-   * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
-   * `KeepEqual` and `DropEqual` actions.
-   *
-   * Regex capture groups are available.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsRelabelings#targetLabel
    */
   readonly targetLabel?: string;
@@ -1313,13 +876,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsRelabelings(obj: PodMoni
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * scheme defines the HTTP scheme to use for scraping.
- *
- * `http` and `https` are the expected values unless you rewrite the
- * `__scheme__` label via relabeling.
- *
- * If empty, Prometheus uses the default value `http`.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsScheme
  */
 export enum PodMonitorSpecPodMetricsEndpointsScheme {
@@ -1330,11 +886,6 @@ export enum PodMonitorSpecPodMetricsEndpointsScheme {
 }
 
 /**
- * targetPort defines the name or number of the target port of the `Pod` object behind the Service, the
- * port must be specified with container port property.
- *
- * Deprecated: use 'port' or 'portNumber' instead.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTargetPort
  */
 export class PodMonitorSpecPodMetricsEndpointsTargetPort {
@@ -1349,60 +900,40 @@ export class PodMonitorSpecPodMetricsEndpointsTargetPort {
 }
 
 /**
- * tlsConfig defines the TLS configuration used by the client.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfig {
   /**
-   * ca defines the Certificate authority used when verifying server certificates.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#ca
    */
   readonly ca?: PodMonitorSpecPodMetricsEndpointsTlsConfigCa;
 
   /**
-   * cert defines the Client certificate to present when doing client-authentication.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#cert
    */
   readonly cert?: PodMonitorSpecPodMetricsEndpointsTlsConfigCert;
 
   /**
-   * insecureSkipVerify defines how to disable target certificate validation.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#insecureSkipVerify
    */
   readonly insecureSkipVerify?: boolean;
 
   /**
-   * keySecret defines the Secret containing the client key file for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#keySecret
    */
   readonly keySecret?: PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret;
 
   /**
-   * maxVersion defines the maximum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#maxVersion
    */
   readonly maxVersion?: PodMonitorSpecPodMetricsEndpointsTlsConfigMaxVersion;
 
   /**
-   * minVersion defines the minimum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#minVersion
    */
   readonly minVersion?: PodMonitorSpecPodMetricsEndpointsTlsConfigMinVersion;
 
   /**
-   * serverName is used to verify the hostname for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfig#serverName
    */
   readonly serverName?: string;
@@ -1429,33 +960,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfig(obj: PodMonito
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * A label selector requirement is a selector that contains values, a key, and an operator that
- * relates the key and values.
- *
  * @schema PodMonitorSpecSelectorMatchExpressions
  */
 export interface PodMonitorSpecSelectorMatchExpressions {
   /**
-   * key is the label key that the selector applies to.
-   *
    * @schema PodMonitorSpecSelectorMatchExpressions#key
    */
   readonly key: string;
 
   /**
-   * operator represents a key's relationship to a set of values.
-   * Valid operators are In, NotIn, Exists and DoesNotExist.
-   *
    * @schema PodMonitorSpecSelectorMatchExpressions#operator
    */
   readonly operator: string;
 
   /**
-   * values is an array of string values. If the operator is In or NotIn,
-   * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-   * the values array must be empty. This array is replaced during a strategic
-   * merge patch.
-   *
    * @schema PodMonitorSpecSelectorMatchExpressions#values
    */
   readonly values?: string[];
@@ -1478,32 +996,20 @@ export function toJson_PodMonitorSpecSelectorMatchExpressions(obj: PodMonitorSpe
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials
  */
 export interface PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials#optional
    */
   readonly optional?: boolean;
@@ -1526,33 +1032,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsAuthorizationCredentials
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * password defines a key of a Secret containing the password for
- * authentication.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthPassword
  */
 export interface PodMonitorSpecPodMetricsEndpointsBasicAuthPassword {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthPassword#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthPassword#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthPassword#optional
    */
   readonly optional?: boolean;
@@ -1575,33 +1068,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsBasicAuthPassword(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * username defines a key of a Secret containing the username for
- * authentication.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthUsername
  */
 export interface PodMonitorSpecPodMetricsEndpointsBasicAuthUsername {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthUsername#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthUsername#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsBasicAuthUsername#optional
    */
   readonly optional?: boolean;
@@ -1624,13 +1104,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsBasicAuthUsername(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * action to perform based on the regex matching.
- *
- * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
- * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
- *
- * Default: "Replace"
- *
  * @schema PodMonitorSpecPodMetricsEndpointsMetricRelabelingsAction
  */
 export enum PodMonitorSpecPodMetricsEndpointsMetricRelabelingsAction {
@@ -1659,22 +1132,15 @@ export enum PodMonitorSpecPodMetricsEndpointsMetricRelabelingsAction {
 }
 
 /**
- * clientId defines a key of a Secret or ConfigMap containing the
- * OAuth2 client's ID.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientId
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2ClientId {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientId#configMap
    */
   readonly configMap?: PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientId#secret
    */
   readonly secret?: PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret;
@@ -1696,33 +1162,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2ClientId(obj: PodM
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * clientSecret defines a key of a Secret containing the OAuth2
- * client's secret.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret#optional
    */
   readonly optional?: boolean;
@@ -1745,32 +1198,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2ClientSecret(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * SecretKeySelector selects a key of a Secret.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader#optional
    */
   readonly optional?: boolean;
@@ -1793,61 +1234,40 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2ProxyConnectHeader
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
- * It requires Prometheus >= v2.43.0.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig {
   /**
-   * ca defines the Certificate authority used when verifying server certificates.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#ca
    */
   readonly ca?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa;
 
   /**
-   * cert defines the Client certificate to present when doing client-authentication.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#cert
    */
   readonly cert?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert;
 
   /**
-   * insecureSkipVerify defines how to disable target certificate validation.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#insecureSkipVerify
    */
   readonly insecureSkipVerify?: boolean;
 
   /**
-   * keySecret defines the Secret containing the client key file for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#keySecret
    */
   readonly keySecret?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret;
 
   /**
-   * maxVersion defines the maximum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#maxVersion
    */
   readonly maxVersion?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMaxVersion;
 
   /**
-   * minVersion defines the minimum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#minVersion
    */
   readonly minVersion?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMinVersion;
 
   /**
-   * serverName is used to verify the hostname for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig#serverName
    */
   readonly serverName?: string;
@@ -1874,13 +1294,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfig(obj: Pod
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * action to perform based on the regex matching.
- *
- * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
- * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
- *
- * Default: "Replace"
- *
  * @schema PodMonitorSpecPodMetricsEndpointsRelabelingsAction
  */
 export enum PodMonitorSpecPodMetricsEndpointsRelabelingsAction {
@@ -1909,21 +1322,15 @@ export enum PodMonitorSpecPodMetricsEndpointsRelabelingsAction {
 }
 
 /**
- * ca defines the Certificate authority used when verifying server certificates.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCa
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCa {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCa#configMap
    */
   readonly configMap?: PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCa#secret
    */
   readonly secret?: PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret;
@@ -1945,21 +1352,15 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCa(obj: PodMoni
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * cert defines the Client certificate to present when doing client-authentication.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCert
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCert {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCert#configMap
    */
   readonly configMap?: PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCert#secret
    */
   readonly secret?: PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret;
@@ -1981,32 +1382,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCert(obj: PodMo
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * keySecret defines the Secret containing the client key file for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret#optional
    */
   readonly optional?: boolean;
@@ -2029,10 +1418,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigKeySecret(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * maxVersion defines the maximum acceptable TLS version.
- *
- * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigMaxVersion
  */
 export enum PodMonitorSpecPodMetricsEndpointsTlsConfigMaxVersion {
@@ -2047,10 +1432,6 @@ export enum PodMonitorSpecPodMetricsEndpointsTlsConfigMaxVersion {
 }
 
 /**
- * minVersion defines the minimum acceptable TLS version.
- *
- * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigMinVersion
  */
 export enum PodMonitorSpecPodMetricsEndpointsTlsConfigMinVersion {
@@ -2065,32 +1446,20 @@ export enum PodMonitorSpecPodMetricsEndpointsTlsConfigMinVersion {
 }
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap {
   /**
-   * The key to select.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap#optional
    */
   readonly optional?: boolean;
@@ -2113,32 +1482,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2ClientIdConfigMap(
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret#optional
    */
   readonly optional?: boolean;
@@ -2161,21 +1518,15 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2ClientIdSecret(obj
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * ca defines the Certificate authority used when verifying server certificates.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa#configMap
    */
   readonly configMap?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa#secret
    */
   readonly secret?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret;
@@ -2197,21 +1548,15 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCa(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * cert defines the Client certificate to present when doing client-authentication.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert#configMap
    */
   readonly configMap?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert#secret
    */
   readonly secret?: PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret;
@@ -2233,32 +1578,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCert(obj:
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * keySecret defines the Secret containing the client key file for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret#optional
    */
   readonly optional?: boolean;
@@ -2281,10 +1614,6 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigKeySecret
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * maxVersion defines the maximum acceptable TLS version.
- *
- * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMaxVersion
  */
 export enum PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMaxVersion {
@@ -2299,10 +1628,6 @@ export enum PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMaxVersion {
 }
 
 /**
- * minVersion defines the minimum acceptable TLS version.
- *
- * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMinVersion
  */
 export enum PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMinVersion {
@@ -2317,32 +1642,20 @@ export enum PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigMinVersion {
 }
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap {
   /**
-   * The key to select.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap#optional
    */
   readonly optional?: boolean;
@@ -2365,32 +1678,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCaConfigMap(obj
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret#optional
    */
   readonly optional?: boolean;
@@ -2413,32 +1714,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCaSecret(obj: P
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap {
   /**
-   * The key to select.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap#optional
    */
   readonly optional?: boolean;
@@ -2461,32 +1750,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCertConfigMap(o
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret#optional
    */
   readonly optional?: boolean;
@@ -2509,32 +1786,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsTlsConfigCertSecret(obj:
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap {
   /**
-   * The key to select.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigMap#optional
    */
   readonly optional?: boolean;
@@ -2557,32 +1822,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaConfigM
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret#optional
    */
   readonly optional?: boolean;
@@ -2605,32 +1858,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCaSecret(
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap {
   /**
-   * The key to select.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfigMap#optional
    */
   readonly optional?: boolean;
@@ -2653,32 +1894,20 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertConfi
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret
  */
 export interface PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecret#optional
    */
   readonly optional?: boolean;
@@ -2702,9 +1931,2040 @@ export function toJson_PodMonitorSpecPodMetricsEndpointsOauth2TlsConfigCertSecre
 
 
 /**
- * The `PrometheusRule` custom resource definition (CRD) defines [alerting](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and [recording](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/) rules to be evaluated by `Prometheus` or `ThanosRuler` objects.
+ *
+ *
+ * @schema Probe
+ */
+export class Probe extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "Probe"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'monitoring.coreos.com/v1',
+    kind: 'Probe',
+  }
 
-`Prometheus` and `ThanosRuler` objects select `PrometheusRule` objects using label and namespace selectors.
+  /**
+   * Renders a Kubernetes manifest for "Probe".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: ProbeProps): any {
+    return {
+      ...Probe.GVK,
+      ...toJson_ProbeProps(props),
+    };
+  }
+
+  /**
+   * Defines a "Probe" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: ProbeProps) {
+    super(scope, id, {
+      ...Probe.GVK,
+      ...props,
+    });
+  }
+
+  /**
+   * Renders the object to Kubernetes JSON.
+   */
+  public override toJson(): any {
+    const resolved = super.toJson();
+
+    return {
+      ...Probe.GVK,
+      ...toJson_ProbeProps(resolved),
+    };
+  }
+}
+
+/**
+ * @schema Probe
+ */
+export interface ProbeProps {
+  /**
+   * @schema Probe#metadata
+   */
+  readonly metadata?: ApiObjectMetadata;
+
+  /**
+   * @schema Probe#spec
+   */
+  readonly spec: ProbeSpec;
+}
+
+/**
+ * Converts an object of type 'ProbeProps' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeProps(obj: ProbeProps | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'metadata': obj.metadata,
+    'spec': toJson_ProbeSpec(obj.spec),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpec
+ */
+export interface ProbeSpec {
+  /**
+   * @schema ProbeSpec#authorization
+   */
+  readonly authorization?: ProbeSpecAuthorization;
+
+  /**
+   * @schema ProbeSpec#basicAuth
+   */
+  readonly basicAuth?: ProbeSpecBasicAuth;
+
+  /**
+   * @schema ProbeSpec#bearerTokenSecret
+   */
+  readonly bearerTokenSecret?: ProbeSpecBearerTokenSecret;
+
+  /**
+   * @schema ProbeSpec#convertClassicHistogramsToNHCB
+   */
+  readonly convertClassicHistogramsToNhcb?: boolean;
+
+  /**
+   * @schema ProbeSpec#enableHttp2
+   */
+  readonly enableHttp2?: boolean;
+
+  /**
+   * @schema ProbeSpec#fallbackScrapeProtocol
+   */
+  readonly fallbackScrapeProtocol?: ProbeSpecFallbackScrapeProtocol;
+
+  /**
+   * @schema ProbeSpec#followRedirects
+   */
+  readonly followRedirects?: boolean;
+
+  /**
+   * @schema ProbeSpec#interval
+   */
+  readonly interval?: string;
+
+  /**
+   * @schema ProbeSpec#jobName
+   */
+  readonly jobName?: string;
+
+  /**
+   * @schema ProbeSpec#keepDroppedTargets
+   */
+  readonly keepDroppedTargets?: number;
+
+  /**
+   * @schema ProbeSpec#labelLimit
+   */
+  readonly labelLimit?: number;
+
+  /**
+   * @schema ProbeSpec#labelNameLengthLimit
+   */
+  readonly labelNameLengthLimit?: number;
+
+  /**
+   * @schema ProbeSpec#labelValueLengthLimit
+   */
+  readonly labelValueLengthLimit?: number;
+
+  /**
+   * @schema ProbeSpec#metricRelabelings
+   */
+  readonly metricRelabelings?: ProbeSpecMetricRelabelings[];
+
+  /**
+   * @schema ProbeSpec#module
+   */
+  readonly module?: string;
+
+  /**
+   * @schema ProbeSpec#nativeHistogramBucketLimit
+   */
+  readonly nativeHistogramBucketLimit?: number;
+
+  /**
+   * @schema ProbeSpec#nativeHistogramMinBucketFactor
+   */
+  readonly nativeHistogramMinBucketFactor?: ProbeSpecNativeHistogramMinBucketFactor;
+
+  /**
+   * @schema ProbeSpec#oauth2
+   */
+  readonly oauth2?: ProbeSpecOauth2;
+
+  /**
+   * @schema ProbeSpec#params
+   */
+  readonly params?: ProbeSpecParams[];
+
+  /**
+   * @schema ProbeSpec#prober
+   */
+  readonly prober?: ProbeSpecProber;
+
+  /**
+   * @schema ProbeSpec#sampleLimit
+   */
+  readonly sampleLimit?: number;
+
+  /**
+   * @schema ProbeSpec#scrapeClass
+   */
+  readonly scrapeClass?: string;
+
+  /**
+   * @schema ProbeSpec#scrapeClassicHistograms
+   */
+  readonly scrapeClassicHistograms?: boolean;
+
+  /**
+   * @schema ProbeSpec#scrapeNativeHistograms
+   */
+  readonly scrapeNativeHistograms?: boolean;
+
+  /**
+   * @schema ProbeSpec#scrapeProtocols
+   */
+  readonly scrapeProtocols?: ProbeSpecScrapeProtocols[];
+
+  /**
+   * @schema ProbeSpec#scrapeTimeout
+   */
+  readonly scrapeTimeout?: string;
+
+  /**
+   * @schema ProbeSpec#targetLimit
+   */
+  readonly targetLimit?: number;
+
+  /**
+   * @schema ProbeSpec#targets
+   */
+  readonly targets?: ProbeSpecTargets;
+
+  /**
+   * @schema ProbeSpec#tlsConfig
+   */
+  readonly tlsConfig?: ProbeSpecTlsConfig;
+}
+
+/**
+ * Converts an object of type 'ProbeSpec' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpec(obj: ProbeSpec | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'authorization': toJson_ProbeSpecAuthorization(obj.authorization),
+    'basicAuth': toJson_ProbeSpecBasicAuth(obj.basicAuth),
+    'bearerTokenSecret': toJson_ProbeSpecBearerTokenSecret(obj.bearerTokenSecret),
+    'convertClassicHistogramsToNHCB': obj.convertClassicHistogramsToNhcb,
+    'enableHttp2': obj.enableHttp2,
+    'fallbackScrapeProtocol': obj.fallbackScrapeProtocol,
+    'followRedirects': obj.followRedirects,
+    'interval': obj.interval,
+    'jobName': obj.jobName,
+    'keepDroppedTargets': obj.keepDroppedTargets,
+    'labelLimit': obj.labelLimit,
+    'labelNameLengthLimit': obj.labelNameLengthLimit,
+    'labelValueLengthLimit': obj.labelValueLengthLimit,
+    'metricRelabelings': obj.metricRelabelings?.map(y => toJson_ProbeSpecMetricRelabelings(y)),
+    'module': obj.module,
+    'nativeHistogramBucketLimit': obj.nativeHistogramBucketLimit,
+    'nativeHistogramMinBucketFactor': obj.nativeHistogramMinBucketFactor?.value,
+    'oauth2': toJson_ProbeSpecOauth2(obj.oauth2),
+    'params': obj.params?.map(y => toJson_ProbeSpecParams(y)),
+    'prober': toJson_ProbeSpecProber(obj.prober),
+    'sampleLimit': obj.sampleLimit,
+    'scrapeClass': obj.scrapeClass,
+    'scrapeClassicHistograms': obj.scrapeClassicHistograms,
+    'scrapeNativeHistograms': obj.scrapeNativeHistograms,
+    'scrapeProtocols': obj.scrapeProtocols?.map(y => y),
+    'scrapeTimeout': obj.scrapeTimeout,
+    'targetLimit': obj.targetLimit,
+    'targets': toJson_ProbeSpecTargets(obj.targets),
+    'tlsConfig': toJson_ProbeSpecTlsConfig(obj.tlsConfig),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecAuthorization
+ */
+export interface ProbeSpecAuthorization {
+  /**
+   * @schema ProbeSpecAuthorization#credentials
+   */
+  readonly credentials?: ProbeSpecAuthorizationCredentials;
+
+  /**
+   * @schema ProbeSpecAuthorization#type
+   */
+  readonly type?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecAuthorization' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecAuthorization(obj: ProbeSpecAuthorization | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'credentials': toJson_ProbeSpecAuthorizationCredentials(obj.credentials),
+    'type': obj.type,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecBasicAuth
+ */
+export interface ProbeSpecBasicAuth {
+  /**
+   * @schema ProbeSpecBasicAuth#password
+   */
+  readonly password?: ProbeSpecBasicAuthPassword;
+
+  /**
+   * @schema ProbeSpecBasicAuth#username
+   */
+  readonly username?: ProbeSpecBasicAuthUsername;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecBasicAuth' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecBasicAuth(obj: ProbeSpecBasicAuth | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'password': toJson_ProbeSpecBasicAuthPassword(obj.password),
+    'username': toJson_ProbeSpecBasicAuthUsername(obj.username),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecBearerTokenSecret
+ */
+export interface ProbeSpecBearerTokenSecret {
+  /**
+   * @schema ProbeSpecBearerTokenSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecBearerTokenSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecBearerTokenSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecBearerTokenSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecBearerTokenSecret(obj: ProbeSpecBearerTokenSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecFallbackScrapeProtocol
+ */
+export enum ProbeSpecFallbackScrapeProtocol {
+  /** PrometheusProto */
+  PROMETHEUS_PROTO = "PrometheusProto",
+  /** OpenMetricsText0.0.1 */
+  OPEN_METRICS_TEXT0_0_1 = "OpenMetricsText0.0.1",
+  /** OpenMetricsText1.0.0 */
+  OPEN_METRICS_TEXT1_0_0 = "OpenMetricsText1.0.0",
+  /** PrometheusText0.0.4 */
+  PROMETHEUS_TEXT0_0_4 = "PrometheusText0.0.4",
+  /** PrometheusText1.0.0 */
+  PROMETHEUS_TEXT1_0_0 = "PrometheusText1.0.0",
+}
+
+/**
+ * @schema ProbeSpecMetricRelabelings
+ */
+export interface ProbeSpecMetricRelabelings {
+  /**
+   * @schema ProbeSpecMetricRelabelings#action
+   */
+  readonly action?: ProbeSpecMetricRelabelingsAction;
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#modulus
+   */
+  readonly modulus?: number;
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#regex
+   */
+  readonly regex?: string;
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#replacement
+   */
+  readonly replacement?: string;
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#separator
+   */
+  readonly separator?: string;
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#sourceLabels
+   */
+  readonly sourceLabels?: string[];
+
+  /**
+   * @schema ProbeSpecMetricRelabelings#targetLabel
+   */
+  readonly targetLabel?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecMetricRelabelings' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecMetricRelabelings(obj: ProbeSpecMetricRelabelings | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'action': obj.action,
+    'modulus': obj.modulus,
+    'regex': obj.regex,
+    'replacement': obj.replacement,
+    'separator': obj.separator,
+    'sourceLabels': obj.sourceLabels?.map(y => y),
+    'targetLabel': obj.targetLabel,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecNativeHistogramMinBucketFactor
+ */
+export class ProbeSpecNativeHistogramMinBucketFactor {
+  public static fromNumber(value: number): ProbeSpecNativeHistogramMinBucketFactor {
+    return new ProbeSpecNativeHistogramMinBucketFactor(value);
+  }
+  public static fromString(value: string): ProbeSpecNativeHistogramMinBucketFactor {
+    return new ProbeSpecNativeHistogramMinBucketFactor(value);
+  }
+  private constructor(public readonly value: number | string) {
+  }
+}
+
+/**
+ * @schema ProbeSpecOauth2
+ */
+export interface ProbeSpecOauth2 {
+  /**
+   * @schema ProbeSpecOauth2#clientId
+   */
+  readonly clientId: ProbeSpecOauth2ClientId;
+
+  /**
+   * @schema ProbeSpecOauth2#clientSecret
+   */
+  readonly clientSecret: ProbeSpecOauth2ClientSecret;
+
+  /**
+   * @schema ProbeSpecOauth2#endpointParams
+   */
+  readonly endpointParams?: { [key: string]: string };
+
+  /**
+   * @schema ProbeSpecOauth2#noProxy
+   */
+  readonly noProxy?: string;
+
+  /**
+   * @schema ProbeSpecOauth2#proxyConnectHeader
+   */
+  readonly proxyConnectHeader?: { [key: string]: ProbeSpecOauth2ProxyConnectHeader[] };
+
+  /**
+   * @schema ProbeSpecOauth2#proxyFromEnvironment
+   */
+  readonly proxyFromEnvironment?: boolean;
+
+  /**
+   * @schema ProbeSpecOauth2#proxyUrl
+   */
+  readonly proxyUrl?: string;
+
+  /**
+   * @schema ProbeSpecOauth2#scopes
+   */
+  readonly scopes?: string[];
+
+  /**
+   * @schema ProbeSpecOauth2#tlsConfig
+   */
+  readonly tlsConfig?: ProbeSpecOauth2TlsConfig;
+
+  /**
+   * @schema ProbeSpecOauth2#tokenUrl
+   */
+  readonly tokenUrl: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2(obj: ProbeSpecOauth2 | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'clientId': toJson_ProbeSpecOauth2ClientId(obj.clientId),
+    'clientSecret': toJson_ProbeSpecOauth2ClientSecret(obj.clientSecret),
+    'endpointParams': ((obj.endpointParams) === undefined) ? undefined : (Object.entries(obj.endpointParams).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    'noProxy': obj.noProxy,
+    'proxyConnectHeader': ((obj.proxyConnectHeader) === undefined) ? undefined : (Object.entries(obj.proxyConnectHeader).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1]?.map(y => toJson_ProbeSpecOauth2ProxyConnectHeader(y)) }), {})),
+    'proxyFromEnvironment': obj.proxyFromEnvironment,
+    'proxyUrl': obj.proxyUrl,
+    'scopes': obj.scopes?.map(y => y),
+    'tlsConfig': toJson_ProbeSpecOauth2TlsConfig(obj.tlsConfig),
+    'tokenUrl': obj.tokenUrl,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecParams
+ */
+export interface ProbeSpecParams {
+  /**
+   * @schema ProbeSpecParams#name
+   */
+  readonly name: string;
+
+  /**
+   * @schema ProbeSpecParams#values
+   */
+  readonly values?: string[];
+}
+
+/**
+ * Converts an object of type 'ProbeSpecParams' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecParams(obj: ProbeSpecParams | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'name': obj.name,
+    'values': obj.values?.map(y => y),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecProber
+ */
+export interface ProbeSpecProber {
+  /**
+   * @schema ProbeSpecProber#noProxy
+   */
+  readonly noProxy?: string;
+
+  /**
+   * @schema ProbeSpecProber#path
+   */
+  readonly path?: string;
+
+  /**
+   * @schema ProbeSpecProber#proxyConnectHeader
+   */
+  readonly proxyConnectHeader?: { [key: string]: ProbeSpecProberProxyConnectHeader[] };
+
+  /**
+   * @schema ProbeSpecProber#proxyFromEnvironment
+   */
+  readonly proxyFromEnvironment?: boolean;
+
+  /**
+   * @schema ProbeSpecProber#proxyUrl
+   */
+  readonly proxyUrl?: string;
+
+  /**
+   * @schema ProbeSpecProber#scheme
+   */
+  readonly scheme?: ProbeSpecProberScheme;
+
+  /**
+   * @schema ProbeSpecProber#url
+   */
+  readonly url: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecProber' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecProber(obj: ProbeSpecProber | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'noProxy': obj.noProxy,
+    'path': obj.path,
+    'proxyConnectHeader': ((obj.proxyConnectHeader) === undefined) ? undefined : (Object.entries(obj.proxyConnectHeader).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1]?.map(y => toJson_ProbeSpecProberProxyConnectHeader(y)) }), {})),
+    'proxyFromEnvironment': obj.proxyFromEnvironment,
+    'proxyUrl': obj.proxyUrl,
+    'scheme': obj.scheme,
+    'url': obj.url,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecScrapeProtocols
+ */
+export enum ProbeSpecScrapeProtocols {
+  /** PrometheusProto */
+  PROMETHEUS_PROTO = "PrometheusProto",
+  /** OpenMetricsText0.0.1 */
+  OPEN_METRICS_TEXT0_0_1 = "OpenMetricsText0.0.1",
+  /** OpenMetricsText1.0.0 */
+  OPEN_METRICS_TEXT1_0_0 = "OpenMetricsText1.0.0",
+  /** PrometheusText0.0.4 */
+  PROMETHEUS_TEXT0_0_4 = "PrometheusText0.0.4",
+  /** PrometheusText1.0.0 */
+  PROMETHEUS_TEXT1_0_0 = "PrometheusText1.0.0",
+}
+
+/**
+ * @schema ProbeSpecTargets
+ */
+export interface ProbeSpecTargets {
+  /**
+   * @schema ProbeSpecTargets#ingress
+   */
+  readonly ingress?: ProbeSpecTargetsIngress;
+
+  /**
+   * @schema ProbeSpecTargets#staticConfig
+   */
+  readonly staticConfig?: ProbeSpecTargetsStaticConfig;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargets' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargets(obj: ProbeSpecTargets | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'ingress': toJson_ProbeSpecTargetsIngress(obj.ingress),
+    'staticConfig': toJson_ProbeSpecTargetsStaticConfig(obj.staticConfig),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfig
+ */
+export interface ProbeSpecTlsConfig {
+  /**
+   * @schema ProbeSpecTlsConfig#ca
+   */
+  readonly ca?: ProbeSpecTlsConfigCa;
+
+  /**
+   * @schema ProbeSpecTlsConfig#cert
+   */
+  readonly cert?: ProbeSpecTlsConfigCert;
+
+  /**
+   * @schema ProbeSpecTlsConfig#insecureSkipVerify
+   */
+  readonly insecureSkipVerify?: boolean;
+
+  /**
+   * @schema ProbeSpecTlsConfig#keySecret
+   */
+  readonly keySecret?: ProbeSpecTlsConfigKeySecret;
+
+  /**
+   * @schema ProbeSpecTlsConfig#maxVersion
+   */
+  readonly maxVersion?: ProbeSpecTlsConfigMaxVersion;
+
+  /**
+   * @schema ProbeSpecTlsConfig#minVersion
+   */
+  readonly minVersion?: ProbeSpecTlsConfigMinVersion;
+
+  /**
+   * @schema ProbeSpecTlsConfig#serverName
+   */
+  readonly serverName?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfig' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfig(obj: ProbeSpecTlsConfig | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'ca': toJson_ProbeSpecTlsConfigCa(obj.ca),
+    'cert': toJson_ProbeSpecTlsConfigCert(obj.cert),
+    'insecureSkipVerify': obj.insecureSkipVerify,
+    'keySecret': toJson_ProbeSpecTlsConfigKeySecret(obj.keySecret),
+    'maxVersion': obj.maxVersion,
+    'minVersion': obj.minVersion,
+    'serverName': obj.serverName,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecAuthorizationCredentials
+ */
+export interface ProbeSpecAuthorizationCredentials {
+  /**
+   * @schema ProbeSpecAuthorizationCredentials#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecAuthorizationCredentials#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecAuthorizationCredentials#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecAuthorizationCredentials' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecAuthorizationCredentials(obj: ProbeSpecAuthorizationCredentials | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecBasicAuthPassword
+ */
+export interface ProbeSpecBasicAuthPassword {
+  /**
+   * @schema ProbeSpecBasicAuthPassword#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecBasicAuthPassword#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecBasicAuthPassword#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecBasicAuthPassword' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecBasicAuthPassword(obj: ProbeSpecBasicAuthPassword | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecBasicAuthUsername
+ */
+export interface ProbeSpecBasicAuthUsername {
+  /**
+   * @schema ProbeSpecBasicAuthUsername#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecBasicAuthUsername#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecBasicAuthUsername#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecBasicAuthUsername' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecBasicAuthUsername(obj: ProbeSpecBasicAuthUsername | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecMetricRelabelingsAction
+ */
+export enum ProbeSpecMetricRelabelingsAction {
+  /** replace */
+  REPLACE = "replace",
+  /** keep */
+  KEEP = "keep",
+  /** drop */
+  DROP = "drop",
+  /** hashmod */
+  HASHMOD = "hashmod",
+  /** labelmap */
+  LABELMAP = "labelmap",
+  /** labeldrop */
+  LABELDROP = "labeldrop",
+  /** labelkeep */
+  LABELKEEP = "labelkeep",
+  /** lowercase */
+  LOWERCASE = "lowercase",
+  /** uppercase */
+  UPPERCASE = "uppercase",
+  /** keepequal */
+  KEEPEQUAL = "keepequal",
+  /** dropequal */
+  DROPEQUAL = "dropequal",
+}
+
+/**
+ * @schema ProbeSpecOauth2ClientId
+ */
+export interface ProbeSpecOauth2ClientId {
+  /**
+   * @schema ProbeSpecOauth2ClientId#configMap
+   */
+  readonly configMap?: ProbeSpecOauth2ClientIdConfigMap;
+
+  /**
+   * @schema ProbeSpecOauth2ClientId#secret
+   */
+  readonly secret?: ProbeSpecOauth2ClientIdSecret;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2ClientId' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2ClientId(obj: ProbeSpecOauth2ClientId | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'configMap': toJson_ProbeSpecOauth2ClientIdConfigMap(obj.configMap),
+    'secret': toJson_ProbeSpecOauth2ClientIdSecret(obj.secret),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2ClientSecret
+ */
+export interface ProbeSpecOauth2ClientSecret {
+  /**
+   * @schema ProbeSpecOauth2ClientSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2ClientSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2ClientSecret(obj: ProbeSpecOauth2ClientSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2ProxyConnectHeader
+ */
+export interface ProbeSpecOauth2ProxyConnectHeader {
+  /**
+   * @schema ProbeSpecOauth2ProxyConnectHeader#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2ProxyConnectHeader#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2ProxyConnectHeader#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2ProxyConnectHeader' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2ProxyConnectHeader(obj: ProbeSpecOauth2ProxyConnectHeader | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfig
+ */
+export interface ProbeSpecOauth2TlsConfig {
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#ca
+   */
+  readonly ca?: ProbeSpecOauth2TlsConfigCa;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#cert
+   */
+  readonly cert?: ProbeSpecOauth2TlsConfigCert;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#insecureSkipVerify
+   */
+  readonly insecureSkipVerify?: boolean;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#keySecret
+   */
+  readonly keySecret?: ProbeSpecOauth2TlsConfigKeySecret;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#maxVersion
+   */
+  readonly maxVersion?: ProbeSpecOauth2TlsConfigMaxVersion;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#minVersion
+   */
+  readonly minVersion?: ProbeSpecOauth2TlsConfigMinVersion;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfig#serverName
+   */
+  readonly serverName?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfig' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfig(obj: ProbeSpecOauth2TlsConfig | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'ca': toJson_ProbeSpecOauth2TlsConfigCa(obj.ca),
+    'cert': toJson_ProbeSpecOauth2TlsConfigCert(obj.cert),
+    'insecureSkipVerify': obj.insecureSkipVerify,
+    'keySecret': toJson_ProbeSpecOauth2TlsConfigKeySecret(obj.keySecret),
+    'maxVersion': obj.maxVersion,
+    'minVersion': obj.minVersion,
+    'serverName': obj.serverName,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecProberProxyConnectHeader
+ */
+export interface ProbeSpecProberProxyConnectHeader {
+  /**
+   * @schema ProbeSpecProberProxyConnectHeader#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecProberProxyConnectHeader#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecProberProxyConnectHeader#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecProberProxyConnectHeader' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecProberProxyConnectHeader(obj: ProbeSpecProberProxyConnectHeader | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecProberScheme
+ */
+export enum ProbeSpecProberScheme {
+  /** http */
+  HTTP = "http",
+  /** https */
+  HTTPS = "https",
+}
+
+/**
+ * @schema ProbeSpecTargetsIngress
+ */
+export interface ProbeSpecTargetsIngress {
+  /**
+   * @schema ProbeSpecTargetsIngress#namespaceSelector
+   */
+  readonly namespaceSelector?: ProbeSpecTargetsIngressNamespaceSelector;
+
+  /**
+   * @schema ProbeSpecTargetsIngress#relabelingConfigs
+   */
+  readonly relabelingConfigs?: ProbeSpecTargetsIngressRelabelingConfigs[];
+
+  /**
+   * @schema ProbeSpecTargetsIngress#selector
+   */
+  readonly selector?: ProbeSpecTargetsIngressSelector;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsIngress' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsIngress(obj: ProbeSpecTargetsIngress | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'namespaceSelector': toJson_ProbeSpecTargetsIngressNamespaceSelector(obj.namespaceSelector),
+    'relabelingConfigs': obj.relabelingConfigs?.map(y => toJson_ProbeSpecTargetsIngressRelabelingConfigs(y)),
+    'selector': toJson_ProbeSpecTargetsIngressSelector(obj.selector),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsStaticConfig
+ */
+export interface ProbeSpecTargetsStaticConfig {
+  /**
+   * @schema ProbeSpecTargetsStaticConfig#labels
+   */
+  readonly labels?: { [key: string]: string };
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfig#relabelingConfigs
+   */
+  readonly relabelingConfigs?: ProbeSpecTargetsStaticConfigRelabelingConfigs[];
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfig#static
+   */
+  readonly static?: string[];
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsStaticConfig' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsStaticConfig(obj: ProbeSpecTargetsStaticConfig | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'labels': ((obj.labels) === undefined) ? undefined : (Object.entries(obj.labels).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+    'relabelingConfigs': obj.relabelingConfigs?.map(y => toJson_ProbeSpecTargetsStaticConfigRelabelingConfigs(y)),
+    'static': obj.static?.map(y => y),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCa
+ */
+export interface ProbeSpecTlsConfigCa {
+  /**
+   * @schema ProbeSpecTlsConfigCa#configMap
+   */
+  readonly configMap?: ProbeSpecTlsConfigCaConfigMap;
+
+  /**
+   * @schema ProbeSpecTlsConfigCa#secret
+   */
+  readonly secret?: ProbeSpecTlsConfigCaSecret;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCa' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCa(obj: ProbeSpecTlsConfigCa | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'configMap': toJson_ProbeSpecTlsConfigCaConfigMap(obj.configMap),
+    'secret': toJson_ProbeSpecTlsConfigCaSecret(obj.secret),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCert
+ */
+export interface ProbeSpecTlsConfigCert {
+  /**
+   * @schema ProbeSpecTlsConfigCert#configMap
+   */
+  readonly configMap?: ProbeSpecTlsConfigCertConfigMap;
+
+  /**
+   * @schema ProbeSpecTlsConfigCert#secret
+   */
+  readonly secret?: ProbeSpecTlsConfigCertSecret;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCert' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCert(obj: ProbeSpecTlsConfigCert | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'configMap': toJson_ProbeSpecTlsConfigCertConfigMap(obj.configMap),
+    'secret': toJson_ProbeSpecTlsConfigCertSecret(obj.secret),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigKeySecret
+ */
+export interface ProbeSpecTlsConfigKeySecret {
+  /**
+   * @schema ProbeSpecTlsConfigKeySecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigKeySecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigKeySecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigKeySecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigKeySecret(obj: ProbeSpecTlsConfigKeySecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigMaxVersion
+ */
+export enum ProbeSpecTlsConfigMaxVersion {
+  /** TLS10 */
+  TLS10 = "TLS10",
+  /** TLS11 */
+  TLS11 = "TLS11",
+  /** TLS12 */
+  TLS12 = "TLS12",
+  /** TLS13 */
+  TLS13 = "TLS13",
+}
+
+/**
+ * @schema ProbeSpecTlsConfigMinVersion
+ */
+export enum ProbeSpecTlsConfigMinVersion {
+  /** TLS10 */
+  TLS10 = "TLS10",
+  /** TLS11 */
+  TLS11 = "TLS11",
+  /** TLS12 */
+  TLS12 = "TLS12",
+  /** TLS13 */
+  TLS13 = "TLS13",
+}
+
+/**
+ * @schema ProbeSpecOauth2ClientIdConfigMap
+ */
+export interface ProbeSpecOauth2ClientIdConfigMap {
+  /**
+   * @schema ProbeSpecOauth2ClientIdConfigMap#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientIdConfigMap#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientIdConfigMap#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2ClientIdConfigMap' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2ClientIdConfigMap(obj: ProbeSpecOauth2ClientIdConfigMap | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2ClientIdSecret
+ */
+export interface ProbeSpecOauth2ClientIdSecret {
+  /**
+   * @schema ProbeSpecOauth2ClientIdSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientIdSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2ClientIdSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2ClientIdSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2ClientIdSecret(obj: ProbeSpecOauth2ClientIdSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCa
+ */
+export interface ProbeSpecOauth2TlsConfigCa {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCa#configMap
+   */
+  readonly configMap?: ProbeSpecOauth2TlsConfigCaConfigMap;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCa#secret
+   */
+  readonly secret?: ProbeSpecOauth2TlsConfigCaSecret;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCa' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCa(obj: ProbeSpecOauth2TlsConfigCa | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'configMap': toJson_ProbeSpecOauth2TlsConfigCaConfigMap(obj.configMap),
+    'secret': toJson_ProbeSpecOauth2TlsConfigCaSecret(obj.secret),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCert
+ */
+export interface ProbeSpecOauth2TlsConfigCert {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCert#configMap
+   */
+  readonly configMap?: ProbeSpecOauth2TlsConfigCertConfigMap;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCert#secret
+   */
+  readonly secret?: ProbeSpecOauth2TlsConfigCertSecret;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCert' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCert(obj: ProbeSpecOauth2TlsConfigCert | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'configMap': toJson_ProbeSpecOauth2TlsConfigCertConfigMap(obj.configMap),
+    'secret': toJson_ProbeSpecOauth2TlsConfigCertSecret(obj.secret),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigKeySecret
+ */
+export interface ProbeSpecOauth2TlsConfigKeySecret {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigKeySecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigKeySecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigKeySecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigKeySecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigKeySecret(obj: ProbeSpecOauth2TlsConfigKeySecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigMaxVersion
+ */
+export enum ProbeSpecOauth2TlsConfigMaxVersion {
+  /** TLS10 */
+  TLS10 = "TLS10",
+  /** TLS11 */
+  TLS11 = "TLS11",
+  /** TLS12 */
+  TLS12 = "TLS12",
+  /** TLS13 */
+  TLS13 = "TLS13",
+}
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigMinVersion
+ */
+export enum ProbeSpecOauth2TlsConfigMinVersion {
+  /** TLS10 */
+  TLS10 = "TLS10",
+  /** TLS11 */
+  TLS11 = "TLS11",
+  /** TLS12 */
+  TLS12 = "TLS12",
+  /** TLS13 */
+  TLS13 = "TLS13",
+}
+
+/**
+ * @schema ProbeSpecTargetsIngressNamespaceSelector
+ */
+export interface ProbeSpecTargetsIngressNamespaceSelector {
+  /**
+   * @schema ProbeSpecTargetsIngressNamespaceSelector#any
+   */
+  readonly any?: boolean;
+
+  /**
+   * @schema ProbeSpecTargetsIngressNamespaceSelector#matchNames
+   */
+  readonly matchNames?: string[];
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsIngressNamespaceSelector' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsIngressNamespaceSelector(obj: ProbeSpecTargetsIngressNamespaceSelector | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'any': obj.any,
+    'matchNames': obj.matchNames?.map(y => y),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsIngressRelabelingConfigs
+ */
+export interface ProbeSpecTargetsIngressRelabelingConfigs {
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#action
+   */
+  readonly action?: ProbeSpecTargetsIngressRelabelingConfigsAction;
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#modulus
+   */
+  readonly modulus?: number;
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#regex
+   */
+  readonly regex?: string;
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#replacement
+   */
+  readonly replacement?: string;
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#separator
+   */
+  readonly separator?: string;
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#sourceLabels
+   */
+  readonly sourceLabels?: string[];
+
+  /**
+   * @schema ProbeSpecTargetsIngressRelabelingConfigs#targetLabel
+   */
+  readonly targetLabel?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsIngressRelabelingConfigs' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsIngressRelabelingConfigs(obj: ProbeSpecTargetsIngressRelabelingConfigs | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'action': obj.action,
+    'modulus': obj.modulus,
+    'regex': obj.regex,
+    'replacement': obj.replacement,
+    'separator': obj.separator,
+    'sourceLabels': obj.sourceLabels?.map(y => y),
+    'targetLabel': obj.targetLabel,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsIngressSelector
+ */
+export interface ProbeSpecTargetsIngressSelector {
+  /**
+   * @schema ProbeSpecTargetsIngressSelector#matchExpressions
+   */
+  readonly matchExpressions?: ProbeSpecTargetsIngressSelectorMatchExpressions[];
+
+  /**
+   * @schema ProbeSpecTargetsIngressSelector#matchLabels
+   */
+  readonly matchLabels?: { [key: string]: string };
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsIngressSelector' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsIngressSelector(obj: ProbeSpecTargetsIngressSelector | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'matchExpressions': obj.matchExpressions?.map(y => toJson_ProbeSpecTargetsIngressSelectorMatchExpressions(y)),
+    'matchLabels': ((obj.matchLabels) === undefined) ? undefined : (Object.entries(obj.matchLabels).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {})),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs
+ */
+export interface ProbeSpecTargetsStaticConfigRelabelingConfigs {
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#action
+   */
+  readonly action?: ProbeSpecTargetsStaticConfigRelabelingConfigsAction;
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#modulus
+   */
+  readonly modulus?: number;
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#regex
+   */
+  readonly regex?: string;
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#replacement
+   */
+  readonly replacement?: string;
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#separator
+   */
+  readonly separator?: string;
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#sourceLabels
+   */
+  readonly sourceLabels?: string[];
+
+  /**
+   * @schema ProbeSpecTargetsStaticConfigRelabelingConfigs#targetLabel
+   */
+  readonly targetLabel?: string;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsStaticConfigRelabelingConfigs' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsStaticConfigRelabelingConfigs(obj: ProbeSpecTargetsStaticConfigRelabelingConfigs | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'action': obj.action,
+    'modulus': obj.modulus,
+    'regex': obj.regex,
+    'replacement': obj.replacement,
+    'separator': obj.separator,
+    'sourceLabels': obj.sourceLabels?.map(y => y),
+    'targetLabel': obj.targetLabel,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCaConfigMap
+ */
+export interface ProbeSpecTlsConfigCaConfigMap {
+  /**
+   * @schema ProbeSpecTlsConfigCaConfigMap#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCaConfigMap#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCaConfigMap#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCaConfigMap' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCaConfigMap(obj: ProbeSpecTlsConfigCaConfigMap | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCaSecret
+ */
+export interface ProbeSpecTlsConfigCaSecret {
+  /**
+   * @schema ProbeSpecTlsConfigCaSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCaSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCaSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCaSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCaSecret(obj: ProbeSpecTlsConfigCaSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCertConfigMap
+ */
+export interface ProbeSpecTlsConfigCertConfigMap {
+  /**
+   * @schema ProbeSpecTlsConfigCertConfigMap#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCertConfigMap#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCertConfigMap#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCertConfigMap' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCertConfigMap(obj: ProbeSpecTlsConfigCertConfigMap | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTlsConfigCertSecret
+ */
+export interface ProbeSpecTlsConfigCertSecret {
+  /**
+   * @schema ProbeSpecTlsConfigCertSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCertSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecTlsConfigCertSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTlsConfigCertSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTlsConfigCertSecret(obj: ProbeSpecTlsConfigCertSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCaConfigMap
+ */
+export interface ProbeSpecOauth2TlsConfigCaConfigMap {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaConfigMap#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaConfigMap#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaConfigMap#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCaConfigMap' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCaConfigMap(obj: ProbeSpecOauth2TlsConfigCaConfigMap | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCaSecret
+ */
+export interface ProbeSpecOauth2TlsConfigCaSecret {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCaSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCaSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCaSecret(obj: ProbeSpecOauth2TlsConfigCaSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCertConfigMap
+ */
+export interface ProbeSpecOauth2TlsConfigCertConfigMap {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertConfigMap#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertConfigMap#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertConfigMap#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCertConfigMap' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCertConfigMap(obj: ProbeSpecOauth2TlsConfigCertConfigMap | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecOauth2TlsConfigCertSecret
+ */
+export interface ProbeSpecOauth2TlsConfigCertSecret {
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertSecret#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertSecret#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema ProbeSpecOauth2TlsConfigCertSecret#optional
+   */
+  readonly optional?: boolean;
+}
+
+/**
+ * Converts an object of type 'ProbeSpecOauth2TlsConfigCertSecret' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecOauth2TlsConfigCertSecret(obj: ProbeSpecOauth2TlsConfigCertSecret | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'name': obj.name,
+    'optional': obj.optional,
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsIngressRelabelingConfigsAction
+ */
+export enum ProbeSpecTargetsIngressRelabelingConfigsAction {
+  /** replace */
+  REPLACE = "replace",
+  /** keep */
+  KEEP = "keep",
+  /** drop */
+  DROP = "drop",
+  /** hashmod */
+  HASHMOD = "hashmod",
+  /** labelmap */
+  LABELMAP = "labelmap",
+  /** labeldrop */
+  LABELDROP = "labeldrop",
+  /** labelkeep */
+  LABELKEEP = "labelkeep",
+  /** lowercase */
+  LOWERCASE = "lowercase",
+  /** uppercase */
+  UPPERCASE = "uppercase",
+  /** keepequal */
+  KEEPEQUAL = "keepequal",
+  /** dropequal */
+  DROPEQUAL = "dropequal",
+}
+
+/**
+ * @schema ProbeSpecTargetsIngressSelectorMatchExpressions
+ */
+export interface ProbeSpecTargetsIngressSelectorMatchExpressions {
+  /**
+   * @schema ProbeSpecTargetsIngressSelectorMatchExpressions#key
+   */
+  readonly key: string;
+
+  /**
+   * @schema ProbeSpecTargetsIngressSelectorMatchExpressions#operator
+   */
+  readonly operator: string;
+
+  /**
+   * @schema ProbeSpecTargetsIngressSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+}
+
+/**
+ * Converts an object of type 'ProbeSpecTargetsIngressSelectorMatchExpressions' to JSON representation.
+ */
+/* eslint-disable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+export function toJson_ProbeSpecTargetsIngressSelectorMatchExpressions(obj: ProbeSpecTargetsIngressSelectorMatchExpressions | undefined): Record<string, any> | undefined {
+  if (obj === undefined) { return undefined; }
+  const result = {
+    'key': obj.key,
+    'operator': obj.operator,
+    'values': obj.values?.map(y => y),
+  };
+  // filter undefined values
+  return Object.entries(result).reduce((r, i) => (i[1] === undefined) ? r : ({ ...r, [i[0]]: i[1] }), {});
+}
+/* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
+
+/**
+ * @schema ProbeSpecTargetsStaticConfigRelabelingConfigsAction
+ */
+export enum ProbeSpecTargetsStaticConfigRelabelingConfigsAction {
+  /** replace */
+  REPLACE = "replace",
+  /** keep */
+  KEEP = "keep",
+  /** drop */
+  DROP = "drop",
+  /** hashmod */
+  HASHMOD = "hashmod",
+  /** labelmap */
+  LABELMAP = "labelmap",
+  /** labeldrop */
+  LABELDROP = "labeldrop",
+  /** labelkeep */
+  LABELKEEP = "labelkeep",
+  /** lowercase */
+  LOWERCASE = "lowercase",
+  /** uppercase */
+  UPPERCASE = "uppercase",
+  /** keepequal */
+  KEEPEQUAL = "keepequal",
+  /** dropequal */
+  DROPEQUAL = "dropequal",
+}
+
+
+/**
+ *
  *
  * @schema PrometheusRule
  */
@@ -2758,10 +4018,6 @@ export class PrometheusRule extends ApiObject {
 }
 
 /**
- * The `PrometheusRule` custom resource definition (CRD) defines [alerting](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and [recording](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/) rules to be evaluated by `Prometheus` or `ThanosRuler` objects.
- *
- * `Prometheus` and `ThanosRuler` objects select `PrometheusRule` objects using label and namespace selectors.
- *
  * @schema PrometheusRule
  */
 export interface PrometheusRuleProps {
@@ -2771,8 +4027,6 @@ export interface PrometheusRuleProps {
   readonly metadata?: ApiObjectMetadata;
 
   /**
-   * spec defines the specification of desired alerting rule definitions for Prometheus.
-   *
    * @schema PrometheusRule#spec
    */
   readonly spec: PrometheusRuleSpec;
@@ -2794,14 +4048,10 @@ export function toJson_PrometheusRuleProps(obj: PrometheusRuleProps | undefined)
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * spec defines the specification of desired alerting rule definitions for Prometheus.
- *
  * @schema PrometheusRuleSpec
  */
 export interface PrometheusRuleSpec {
   /**
-   * groups defines the content of Prometheus rule file
-   *
    * @schema PrometheusRuleSpec#groups
    */
   readonly groups?: PrometheusRuleSpecGroups[];
@@ -2822,67 +4072,40 @@ export function toJson_PrometheusRuleSpec(obj: PrometheusRuleSpec | undefined): 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * RuleGroup is a list of sequentially evaluated recording and alerting rules.
- *
  * @schema PrometheusRuleSpecGroups
  */
 export interface PrometheusRuleSpecGroups {
   /**
-   * interval defines how often rules in the group are evaluated.
-   *
    * @schema PrometheusRuleSpecGroups#interval
    */
   readonly interval?: string;
 
   /**
-   * labels define the labels to add or overwrite before storing the result for its rules.
-   * The labels defined at the rule level take precedence.
-   *
-   * It requires Prometheus >= 3.0.0.
-   * The field is ignored for Thanos Ruler.
-   *
    * @schema PrometheusRuleSpecGroups#labels
    */
   readonly labels?: { [key: string]: string };
 
   /**
-   * limit defines the number of alerts an alerting rule and series a recording
-   * rule can produce.
-   * Limit is supported starting with Prometheus >= 2.31 and Thanos Ruler >= 0.24.
-   *
    * @schema PrometheusRuleSpecGroups#limit
    */
   readonly limit?: number;
 
   /**
-   * name defines the name of the rule group.
-   *
    * @schema PrometheusRuleSpecGroups#name
    */
   readonly name: string;
 
   /**
-   * partial_response_strategy is only used by ThanosRuler and will
-   * be ignored by Prometheus instances.
-   * More info: https://github.com/thanos-io/thanos/blob/main/docs/components/rule.md#partial-response
-   *
    * @schema PrometheusRuleSpecGroups#partial_response_strategy
    */
   readonly partialResponseStrategy?: string;
 
   /**
-   * query_offset defines the offset the rule evaluation timestamp of this particular group by the specified duration into the past.
-   *
-   * It requires Prometheus >= v2.53.0.
-   * It is not supported for ThanosRuler.
-   *
    * @schema PrometheusRuleSpecGroups#query_offset
    */
   readonly queryOffset?: string;
 
   /**
-   * rules defines the list of alerting and recording rules.
-   *
    * @schema PrometheusRuleSpecGroups#rules
    */
   readonly rules?: PrometheusRuleSpecGroupsRules[];
@@ -2909,60 +4132,40 @@ export function toJson_PrometheusRuleSpecGroups(obj: PrometheusRuleSpecGroups | 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * Rule describes an alerting or recording rule
- * See Prometheus documentation: [alerting](https://www.prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) or [recording](https://www.prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules) rule
- *
  * @schema PrometheusRuleSpecGroupsRules
  */
 export interface PrometheusRuleSpecGroupsRules {
   /**
-   * alert defines the name of the alert. Must be a valid label value.
-   * Only one of `record` and `alert` must be set.
-   *
    * @schema PrometheusRuleSpecGroupsRules#alert
    */
   readonly alert?: string;
 
   /**
-   * annotations defines annotations to add to each alert.
-   * Only valid for alerting rules.
-   *
    * @schema PrometheusRuleSpecGroupsRules#annotations
    */
   readonly annotations?: { [key: string]: string };
 
   /**
-   * expr defines the PromQL expression to evaluate.
-   *
    * @schema PrometheusRuleSpecGroupsRules#expr
    */
   readonly expr: PrometheusRuleSpecGroupsRulesExpr;
 
   /**
-   * for defines how alerts are considered firing once they have been returned for this long.
-   *
    * @schema PrometheusRuleSpecGroupsRules#for
    */
   readonly for?: string;
 
   /**
-   * keep_firing_for defines how long an alert will continue firing after the condition that triggered it has cleared.
-   *
    * @schema PrometheusRuleSpecGroupsRules#keep_firing_for
    */
   readonly keepFiringFor?: string;
 
   /**
-   * labels defines labels to add or overwrite.
-   *
    * @schema PrometheusRuleSpecGroupsRules#labels
    */
   readonly labels?: { [key: string]: string };
 
   /**
-   * record defines the name of the time series to output to. Must be a valid metric name.
-   * Only one of `record` and `alert` must be set.
-   *
    * @schema PrometheusRuleSpecGroupsRules#record
    */
   readonly record?: string;
@@ -2989,8 +4192,6 @@ export function toJson_PrometheusRuleSpecGroupsRules(obj: PrometheusRuleSpecGrou
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * expr defines the PromQL expression to evaluate.
- *
  * @schema PrometheusRuleSpecGroupsRulesExpr
  */
 export class PrometheusRuleSpecGroupsRulesExpr {
@@ -3006,14 +4207,7 @@ export class PrometheusRuleSpecGroupsRulesExpr {
 
 
 /**
- * The `ServiceMonitor` custom resource definition (CRD) defines how `Prometheus` and `PrometheusAgent` can scrape metrics from a group of services.
-Among other things, it allows to specify:
-* The services to scrape via label selectors.
-* The container ports to scrape.
-* Authentication credentials to use.
-* Target and metric relabeling.
-
-`Prometheus` and `PrometheusAgent` objects select `ServiceMonitor` objects using label and namespace selectors.
+ *
  *
  * @schema ServiceMonitor
  */
@@ -3067,15 +4261,6 @@ export class ServiceMonitor extends ApiObject {
 }
 
 /**
- * The `ServiceMonitor` custom resource definition (CRD) defines how `Prometheus` and `PrometheusAgent` can scrape metrics from a group of services.
- * Among other things, it allows to specify:
- * * The services to scrape via label selectors.
- * * The container ports to scrape.
- * * Authentication credentials to use.
- * * Target and metric relabeling.
- *
- * `Prometheus` and `PrometheusAgent` objects select `ServiceMonitor` objects using label and namespace selectors.
- *
  * @schema ServiceMonitor
  */
 export interface ServiceMonitorProps {
@@ -3085,9 +4270,6 @@ export interface ServiceMonitorProps {
   readonly metadata?: ApiObjectMetadata;
 
   /**
-   * spec defines the specification of desired Service selection for target discovery by
-   * Prometheus.
-   *
    * @schema ServiceMonitor#spec
    */
   readonly spec: ServiceMonitorSpec;
@@ -3109,224 +4291,125 @@ export function toJson_ServiceMonitorProps(obj: ServiceMonitorProps | undefined)
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * spec defines the specification of desired Service selection for target discovery by
- * Prometheus.
- *
  * @schema ServiceMonitorSpec
  */
 export interface ServiceMonitorSpec {
   /**
-   * attachMetadata defines additional metadata which is added to the
-   * discovered targets.
-   *
-   * It requires Prometheus >= v2.37.0.
-   *
    * @schema ServiceMonitorSpec#attachMetadata
    */
   readonly attachMetadata?: ServiceMonitorSpecAttachMetadata;
 
   /**
-   * bodySizeLimit when defined, bodySizeLimit specifies a job level limit on the size
-   * of uncompressed response body that will be accepted by Prometheus.
-   *
-   * It requires Prometheus >= v2.28.0.
-   *
    * @schema ServiceMonitorSpec#bodySizeLimit
    */
   readonly bodySizeLimit?: string;
 
   /**
-   * convertClassicHistogramsToNHCB defines whether to convert all scraped classic histograms into a native histogram with custom buckets.
-   * It requires Prometheus >= v3.0.0.
-   *
    * @schema ServiceMonitorSpec#convertClassicHistogramsToNHCB
    */
   readonly convertClassicHistogramsToNhcb?: boolean;
 
   /**
-   * endpoints defines the list of endpoints part of this ServiceMonitor.
-   * Defines how to scrape metrics from Kubernetes [Endpoints](https://kubernetes.io/docs/concepts/services-networking/service/#endpoints) objects.
-   * In most cases, an Endpoints object is backed by a Kubernetes [Service](https://kubernetes.io/docs/concepts/services-networking/service/) object with the same name and labels.
-   *
    * @schema ServiceMonitorSpec#endpoints
    */
   readonly endpoints: ServiceMonitorSpecEndpoints[];
 
   /**
-   * fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
-   *
-   * It requires Prometheus >= v3.0.0.
-   *
    * @schema ServiceMonitorSpec#fallbackScrapeProtocol
    */
   readonly fallbackScrapeProtocol?: ServiceMonitorSpecFallbackScrapeProtocol;
 
   /**
-   * jobLabel selects the label from the associated Kubernetes `Service`
-   * object which will be used as the `job` label for all metrics.
-   *
-   * For example if `jobLabel` is set to `foo` and the Kubernetes `Service`
-   * object is labeled with `foo: bar`, then Prometheus adds the `job="bar"`
-   * label to all ingested metrics.
-   *
-   * If the value of this field is empty or if the label doesn't exist for
-   * the given Service, the `job` label of the metrics defaults to the name
-   * of the associated Kubernetes `Service`.
-   *
    * @schema ServiceMonitorSpec#jobLabel
    */
   readonly jobLabel?: string;
 
   /**
-   * keepDroppedTargets defines the per-scrape limit on the number of targets dropped by relabeling
-   * that will be kept in memory. 0 means no limit.
-   *
-   * It requires Prometheus >= v2.47.0.
-   *
    * @schema ServiceMonitorSpec#keepDroppedTargets
    */
   readonly keepDroppedTargets?: number;
 
   /**
-   * labelLimit defines the per-scrape limit on number of labels that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema ServiceMonitorSpec#labelLimit
    */
   readonly labelLimit?: number;
 
   /**
-   * labelNameLengthLimit defines the per-scrape limit on length of labels name that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema ServiceMonitorSpec#labelNameLengthLimit
    */
   readonly labelNameLengthLimit?: number;
 
   /**
-   * labelValueLengthLimit defines the per-scrape limit on length of labels value that will be accepted for a sample.
-   *
-   * It requires Prometheus >= v2.27.0.
-   *
    * @schema ServiceMonitorSpec#labelValueLengthLimit
    */
   readonly labelValueLengthLimit?: number;
 
   /**
-   * namespaceSelector defines in which namespace(s) Prometheus should discover the services.
-   * By default, the services are discovered in the same namespace as the `ServiceMonitor` object but it is possible to select pods across different/all namespaces.
-   *
    * @schema ServiceMonitorSpec#namespaceSelector
    */
   readonly namespaceSelector?: ServiceMonitorSpecNamespaceSelector;
 
   /**
-   * nativeHistogramBucketLimit defines ff there are more than this many buckets in a native histogram,
-   * buckets will be merged to stay within the limit.
-   * It requires Prometheus >= v2.45.0.
-   *
    * @schema ServiceMonitorSpec#nativeHistogramBucketLimit
    */
   readonly nativeHistogramBucketLimit?: number;
 
   /**
-   * nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
-   * buckets will be merged to increase the factor sufficiently.
-   * It requires Prometheus >= v2.50.0.
-   *
    * @schema ServiceMonitorSpec#nativeHistogramMinBucketFactor
    */
   readonly nativeHistogramMinBucketFactor?: ServiceMonitorSpecNativeHistogramMinBucketFactor;
 
   /**
-   * podTargetLabels defines the labels which are transferred from the
-   * associated Kubernetes `Pod` object onto the ingested metrics.
-   *
    * @schema ServiceMonitorSpec#podTargetLabels
    */
   readonly podTargetLabels?: string[];
 
   /**
-   * sampleLimit defines a per-scrape limit on the number of scraped samples
-   * that will be accepted.
-   *
    * @schema ServiceMonitorSpec#sampleLimit
    */
   readonly sampleLimit?: number;
 
   /**
-   * scrapeClass defines the scrape class to apply.
-   *
    * @schema ServiceMonitorSpec#scrapeClass
    */
   readonly scrapeClass?: string;
 
   /**
-   * scrapeClassicHistograms defines whether to scrape a classic histogram that is also exposed as a native histogram.
-   * It requires Prometheus >= v2.45.0.
-   *
-   * Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
-   *
    * @schema ServiceMonitorSpec#scrapeClassicHistograms
    */
   readonly scrapeClassicHistograms?: boolean;
 
   /**
-   * scrapeProtocols defines the protocols to negotiate during a scrape. It tells clients the
-   * protocols supported by Prometheus in order of preference (from most to least preferred).
-   *
-   * If unset, Prometheus uses its default value.
-   *
-   * It requires Prometheus >= v2.49.0.
-   *
+   * @schema ServiceMonitorSpec#scrapeNativeHistograms
+   */
+  readonly scrapeNativeHistograms?: boolean;
+
+  /**
    * @schema ServiceMonitorSpec#scrapeProtocols
    */
   readonly scrapeProtocols?: ServiceMonitorSpecScrapeProtocols[];
 
   /**
-   * selector defines the label selector to select the Kubernetes `Endpoints` objects to scrape metrics from.
-   *
    * @schema ServiceMonitorSpec#selector
    */
   readonly selector: ServiceMonitorSpecSelector;
 
   /**
-   * selectorMechanism defines the mechanism used to select the endpoints to scrape.
-   * By default, the selection process relies on relabel configurations to filter the discovered targets.
-   * Alternatively, you can opt in for role selectors, which may offer better efficiency in large clusters.
-   * Which strategy is best for your use case needs to be carefully evaluated.
-   *
-   * It requires Prometheus >= v2.17.0.
-   *
    * @schema ServiceMonitorSpec#selectorMechanism
    */
   readonly selectorMechanism?: ServiceMonitorSpecSelectorMechanism;
 
   /**
-   * serviceDiscoveryRole defines the service discovery role used to discover targets.
-   *
-   * If set, the value should be either "Endpoints" or "EndpointSlice".
-   * Otherwise it defaults to the value defined in the
-   * Prometheus/PrometheusAgent resource.
-   *
    * @schema ServiceMonitorSpec#serviceDiscoveryRole
    */
   readonly serviceDiscoveryRole?: ServiceMonitorSpecServiceDiscoveryRole;
 
   /**
-   * targetLabels defines the labels which are transferred from the
-   * associated Kubernetes `Service` object onto the ingested metrics.
-   *
    * @schema ServiceMonitorSpec#targetLabels
    */
   readonly targetLabels?: string[];
 
   /**
-   * targetLimit defines a limit on the number of scraped targets that will
-   * be accepted.
-   *
    * @schema ServiceMonitorSpec#targetLimit
    */
   readonly targetLimit?: number;
@@ -3356,6 +4439,7 @@ export function toJson_ServiceMonitorSpec(obj: ServiceMonitorSpec | undefined): 
     'sampleLimit': obj.sampleLimit,
     'scrapeClass': obj.scrapeClass,
     'scrapeClassicHistograms': obj.scrapeClassicHistograms,
+    'scrapeNativeHistograms': obj.scrapeNativeHistograms,
     'scrapeProtocols': obj.scrapeProtocols?.map(y => y),
     'selector': toJson_ServiceMonitorSpecSelector(obj.selector),
     'selectorMechanism': obj.selectorMechanism,
@@ -3369,21 +4453,10 @@ export function toJson_ServiceMonitorSpec(obj: ServiceMonitorSpec | undefined): 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * attachMetadata defines additional metadata which is added to the
- * discovered targets.
- *
- * It requires Prometheus >= v2.37.0.
- *
  * @schema ServiceMonitorSpecAttachMetadata
  */
 export interface ServiceMonitorSpecAttachMetadata {
   /**
-   * node when set to true, Prometheus attaches node metadata to the discovered
-   * targets.
-   *
-   * The Prometheus service account must have the `list` and `watch`
-   * permissions on the `Nodes` objects.
-   *
    * @schema ServiceMonitorSpecAttachMetadata#node
    */
   readonly node?: boolean;
@@ -3404,244 +4477,130 @@ export function toJson_ServiceMonitorSpecAttachMetadata(obj: ServiceMonitorSpecA
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * Endpoint defines an endpoint serving Prometheus metrics to be scraped by
- * Prometheus.
- *
  * @schema ServiceMonitorSpecEndpoints
  */
 export interface ServiceMonitorSpecEndpoints {
   /**
-   * authorization configures the Authorization header credentials to use when
-   * scraping the target.
-   *
-   * Cannot be set at the same time as `basicAuth`, or `oauth2`.
-   *
    * @schema ServiceMonitorSpecEndpoints#authorization
    */
   readonly authorization?: ServiceMonitorSpecEndpointsAuthorization;
 
   /**
-   * basicAuth defines the Basic Authentication credentials to use when
-   * scraping the target.
-   *
-   * Cannot be set at the same time as `authorization`, or `oauth2`.
-   *
    * @schema ServiceMonitorSpecEndpoints#basicAuth
    */
   readonly basicAuth?: ServiceMonitorSpecEndpointsBasicAuth;
 
   /**
-   * bearerTokenFile defines the file to read bearer token for scraping the target.
-   *
-   * Deprecated: use `authorization` instead.
-   *
    * @schema ServiceMonitorSpecEndpoints#bearerTokenFile
    */
   readonly bearerTokenFile?: string;
 
   /**
-   * bearerTokenSecret defines a key of a Secret containing the bearer
-   * token for scraping targets. The secret needs to be in the same namespace
-   * as the ServiceMonitor object and readable by the Prometheus Operator.
-   *
-   * Deprecated: use `authorization` instead.
-   *
    * @schema ServiceMonitorSpecEndpoints#bearerTokenSecret
    */
   readonly bearerTokenSecret?: ServiceMonitorSpecEndpointsBearerTokenSecret;
 
   /**
-   * enableHttp2 can be used to disable HTTP2 when scraping the target.
-   *
    * @schema ServiceMonitorSpecEndpoints#enableHttp2
    */
   readonly enableHttp2?: boolean;
 
   /**
-   * filterRunning when true, the pods which are not running (e.g. either in Failed or
-   * Succeeded state) are dropped during the target discovery.
-   *
-   * If unset, the filtering is enabled.
-   *
-   * More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
-   *
    * @schema ServiceMonitorSpecEndpoints#filterRunning
    */
   readonly filterRunning?: boolean;
 
   /**
-   * followRedirects defines whether the scrape requests should follow HTTP
-   * 3xx redirects.
-   *
    * @schema ServiceMonitorSpecEndpoints#followRedirects
    */
   readonly followRedirects?: boolean;
 
   /**
-   * honorLabels defines when true the metric's labels when they collide
-   * with the target's labels.
-   *
    * @schema ServiceMonitorSpecEndpoints#honorLabels
    */
   readonly honorLabels?: boolean;
 
   /**
-   * honorTimestamps defines whether Prometheus preserves the timestamps
-   * when exposed by the target.
-   *
    * @schema ServiceMonitorSpecEndpoints#honorTimestamps
    */
   readonly honorTimestamps?: boolean;
 
   /**
-   * interval at which Prometheus scrapes the metrics from the target.
-   *
-   * If empty, Prometheus uses the global scrape interval.
-   *
    * @schema ServiceMonitorSpecEndpoints#interval
    */
   readonly interval?: string;
 
   /**
-   * metricRelabelings defines the relabeling rules to apply to the
-   * samples before ingestion.
-   *
    * @schema ServiceMonitorSpecEndpoints#metricRelabelings
    */
   readonly metricRelabelings?: ServiceMonitorSpecEndpointsMetricRelabelings[];
 
   /**
-   * noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
-   * that should be excluded from proxying. IP and domain names can
-   * contain port numbers.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpoints#noProxy
    */
   readonly noProxy?: string;
 
   /**
-   * oauth2 defines the OAuth2 settings to use when scraping the target.
-   *
-   * It requires Prometheus >= 2.27.0.
-   *
-   * Cannot be set at the same time as `authorization`, or `basicAuth`.
-   *
    * @schema ServiceMonitorSpecEndpoints#oauth2
    */
   readonly oauth2?: ServiceMonitorSpecEndpointsOauth2;
 
   /**
-   * params define optional HTTP URL parameters.
-   *
    * @schema ServiceMonitorSpecEndpoints#params
    */
   readonly params?: { [key: string]: string[] };
 
   /**
-   * path defines the HTTP path from which to scrape for metrics.
-   *
-   * If empty, Prometheus uses the default value (e.g. `/metrics`).
-   *
    * @schema ServiceMonitorSpecEndpoints#path
    */
   readonly path?: string;
 
   /**
-   * port defines the name of the Service port which this endpoint refers to.
-   *
-   * It takes precedence over `targetPort`.
-   *
    * @schema ServiceMonitorSpecEndpoints#port
    */
   readonly port?: string;
 
   /**
-   * proxyConnectHeader optionally specifies headers to send to
-   * proxies during CONNECT requests.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpoints#proxyConnectHeader
    */
   readonly proxyConnectHeader?: { [key: string]: ServiceMonitorSpecEndpointsProxyConnectHeader[] };
 
   /**
-   * proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpoints#proxyFromEnvironment
    */
   readonly proxyFromEnvironment?: boolean;
 
   /**
-   * proxyUrl defines the HTTP proxy server to use.
-   *
    * @schema ServiceMonitorSpecEndpoints#proxyUrl
    */
   readonly proxyUrl?: string;
 
   /**
-   * relabelings defines the relabeling rules to apply the target's
-   * metadata labels.
-   *
-   * The Operator automatically adds relabelings for a few standard Kubernetes fields.
-   *
-   * The original scrape job's name is available via the `__tmp_prometheus_job_name` label.
-   *
-   * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-   *
    * @schema ServiceMonitorSpecEndpoints#relabelings
    */
   readonly relabelings?: ServiceMonitorSpecEndpointsRelabelings[];
 
   /**
-   * scheme defines the HTTP scheme to use for scraping.
-   *
-   * `http` and `https` are the expected values unless you rewrite the
-   * `__scheme__` label via relabeling.
-   *
-   * If empty, Prometheus uses the default value `http`.
-   *
    * @schema ServiceMonitorSpecEndpoints#scheme
    */
   readonly scheme?: ServiceMonitorSpecEndpointsScheme;
 
   /**
-   * scrapeTimeout defines the timeout after which Prometheus considers the scrape to be failed.
-   *
-   * If empty, Prometheus uses the global scrape timeout unless it is less
-   * than the target's scrape interval value in which the latter is used.
-   * The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
-   *
    * @schema ServiceMonitorSpecEndpoints#scrapeTimeout
    */
   readonly scrapeTimeout?: string;
 
   /**
-   * targetPort defines the name or number of the target port of the `Pod` object behind the
-   * Service. The port must be specified with the container's port property.
-   *
    * @schema ServiceMonitorSpecEndpoints#targetPort
    */
   readonly targetPort?: ServiceMonitorSpecEndpointsTargetPort;
 
   /**
-   * tlsConfig defines the TLS configuration to use when scraping the target.
-   *
    * @schema ServiceMonitorSpecEndpoints#tlsConfig
    */
   readonly tlsConfig?: ServiceMonitorSpecEndpointsTlsConfig;
 
   /**
-   * trackTimestampsStaleness defines whether Prometheus tracks staleness of
-   * the metrics that have an explicit timestamp present in scraped data.
-   * Has no effect if `honorTimestamps` is false.
-   *
-   * It requires Prometheus >= v2.48.0.
-   *
    * @schema ServiceMonitorSpecEndpoints#trackTimestampsStaleness
    */
   readonly trackTimestampsStaleness?: boolean;
@@ -3686,10 +4645,6 @@ export function toJson_ServiceMonitorSpecEndpoints(obj: ServiceMonitorSpecEndpoi
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
- *
- * It requires Prometheus >= v3.0.0.
- *
  * @schema ServiceMonitorSpecFallbackScrapeProtocol
  */
 export enum ServiceMonitorSpecFallbackScrapeProtocol {
@@ -3706,23 +4661,15 @@ export enum ServiceMonitorSpecFallbackScrapeProtocol {
 }
 
 /**
- * namespaceSelector defines in which namespace(s) Prometheus should discover the services.
- * By default, the services are discovered in the same namespace as the `ServiceMonitor` object but it is possible to select pods across different/all namespaces.
- *
  * @schema ServiceMonitorSpecNamespaceSelector
  */
 export interface ServiceMonitorSpecNamespaceSelector {
   /**
-   * any defines the boolean describing whether all namespaces are selected in contrast to a
-   * list restricting them.
-   *
    * @schema ServiceMonitorSpecNamespaceSelector#any
    */
   readonly any?: boolean;
 
   /**
-   * matchNames defines the list of namespace names to select from.
-   *
    * @schema ServiceMonitorSpecNamespaceSelector#matchNames
    */
   readonly matchNames?: string[];
@@ -3744,10 +4691,6 @@ export function toJson_ServiceMonitorSpecNamespaceSelector(obj: ServiceMonitorSp
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
- * buckets will be merged to increase the factor sufficiently.
- * It requires Prometheus >= v2.50.0.
- *
  * @schema ServiceMonitorSpecNativeHistogramMinBucketFactor
  */
 export class ServiceMonitorSpecNativeHistogramMinBucketFactor {
@@ -3762,14 +4705,6 @@ export class ServiceMonitorSpecNativeHistogramMinBucketFactor {
 }
 
 /**
- * ScrapeProtocol represents a protocol used by Prometheus for scraping metrics.
- * Supported values are:
- * * `OpenMetricsText0.0.1`
- * * `OpenMetricsText1.0.0`
- * * `PrometheusProto`
- * * `PrometheusText0.0.4`
- * * `PrometheusText1.0.0`
- *
  * @schema ServiceMonitorSpecScrapeProtocols
  */
 export enum ServiceMonitorSpecScrapeProtocols {
@@ -3786,23 +4721,15 @@ export enum ServiceMonitorSpecScrapeProtocols {
 }
 
 /**
- * selector defines the label selector to select the Kubernetes `Endpoints` objects to scrape metrics from.
- *
  * @schema ServiceMonitorSpecSelector
  */
 export interface ServiceMonitorSpecSelector {
   /**
-   * matchExpressions is a list of label selector requirements. The requirements are ANDed.
-   *
    * @schema ServiceMonitorSpecSelector#matchExpressions
    */
   readonly matchExpressions?: ServiceMonitorSpecSelectorMatchExpressions[];
 
   /**
-   * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-   * map is equivalent to an element of matchExpressions, whose key field is "key", the
-   * operator is "In", and the values array contains only "value". The requirements are ANDed.
-   *
    * @schema ServiceMonitorSpecSelector#matchLabels
    */
   readonly matchLabels?: { [key: string]: string };
@@ -3824,13 +4751,6 @@ export function toJson_ServiceMonitorSpecSelector(obj: ServiceMonitorSpecSelecto
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * selectorMechanism defines the mechanism used to select the endpoints to scrape.
- * By default, the selection process relies on relabel configurations to filter the discovered targets.
- * Alternatively, you can opt in for role selectors, which may offer better efficiency in large clusters.
- * Which strategy is best for your use case needs to be carefully evaluated.
- *
- * It requires Prometheus >= v2.17.0.
- *
  * @schema ServiceMonitorSpecSelectorMechanism
  */
 export enum ServiceMonitorSpecSelectorMechanism {
@@ -3841,12 +4761,6 @@ export enum ServiceMonitorSpecSelectorMechanism {
 }
 
 /**
- * serviceDiscoveryRole defines the service discovery role used to discover targets.
- *
- * If set, the value should be either "Endpoints" or "EndpointSlice".
- * Otherwise it defaults to the value defined in the
- * Prometheus/PrometheusAgent resource.
- *
  * @schema ServiceMonitorSpecServiceDiscoveryRole
  */
 export enum ServiceMonitorSpecServiceDiscoveryRole {
@@ -3857,28 +4771,15 @@ export enum ServiceMonitorSpecServiceDiscoveryRole {
 }
 
 /**
- * authorization configures the Authorization header credentials to use when
- * scraping the target.
- *
- * Cannot be set at the same time as `basicAuth`, or `oauth2`.
- *
  * @schema ServiceMonitorSpecEndpointsAuthorization
  */
 export interface ServiceMonitorSpecEndpointsAuthorization {
   /**
-   * credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
-   *
    * @schema ServiceMonitorSpecEndpointsAuthorization#credentials
    */
   readonly credentials?: ServiceMonitorSpecEndpointsAuthorizationCredentials;
 
   /**
-   * type defines the authentication type. The value is case-insensitive.
-   *
-   * "Basic" is not a supported value.
-   *
-   * Default: "Bearer"
-   *
    * @schema ServiceMonitorSpecEndpointsAuthorization#type
    */
   readonly type?: string;
@@ -3900,26 +4801,15 @@ export function toJson_ServiceMonitorSpecEndpointsAuthorization(obj: ServiceMoni
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * basicAuth defines the Basic Authentication credentials to use when
- * scraping the target.
- *
- * Cannot be set at the same time as `authorization`, or `oauth2`.
- *
  * @schema ServiceMonitorSpecEndpointsBasicAuth
  */
 export interface ServiceMonitorSpecEndpointsBasicAuth {
   /**
-   * password defines a key of a Secret containing the password for
-   * authentication.
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuth#password
    */
   readonly password?: ServiceMonitorSpecEndpointsBasicAuthPassword;
 
   /**
-   * username defines a key of a Secret containing the username for
-   * authentication.
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuth#username
    */
   readonly username?: ServiceMonitorSpecEndpointsBasicAuthUsername;
@@ -3941,36 +4831,20 @@ export function toJson_ServiceMonitorSpecEndpointsBasicAuth(obj: ServiceMonitorS
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * bearerTokenSecret defines a key of a Secret containing the bearer
- * token for scraping targets. The secret needs to be in the same namespace
- * as the ServiceMonitor object and readable by the Prometheus Operator.
- *
- * Deprecated: use `authorization` instead.
- *
  * @schema ServiceMonitorSpecEndpointsBearerTokenSecret
  */
 export interface ServiceMonitorSpecEndpointsBearerTokenSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsBearerTokenSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsBearerTokenSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsBearerTokenSecret#optional
    */
   readonly optional?: boolean;
@@ -3993,76 +4867,40 @@ export function toJson_ServiceMonitorSpecEndpointsBearerTokenSecret(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
- * scraped samples and remote write samples.
- *
- * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
- *
  * @schema ServiceMonitorSpecEndpointsMetricRelabelings
  */
 export interface ServiceMonitorSpecEndpointsMetricRelabelings {
   /**
-   * action to perform based on the regex matching.
-   *
-   * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
-   * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
-   *
-   * Default: "Replace"
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#action
    */
   readonly action?: ServiceMonitorSpecEndpointsMetricRelabelingsAction;
 
   /**
-   * modulus to take of the hash of the source label values.
-   *
-   * Only applicable when the action is `HashMod`.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#modulus
    */
   readonly modulus?: number;
 
   /**
-   * regex defines the regular expression against which the extracted value is matched.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#regex
    */
   readonly regex?: string;
 
   /**
-   * replacement value against which a Replace action is performed if the
-   * regular expression matches.
-   *
-   * Regex capture groups are available.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#replacement
    */
   readonly replacement?: string;
 
   /**
-   * separator defines the string between concatenated SourceLabels.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#separator
    */
   readonly separator?: string;
 
   /**
-   * sourceLabels defines the source labels select values from existing labels. Their content is
-   * concatenated using the configured Separator and matched against the
-   * configured regular expression.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#sourceLabels
    */
   readonly sourceLabels?: string[];
 
   /**
-   * targetLabel defines the label to which the resulting string is written in a replacement.
-   *
-   * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
-   * `KeepEqual` and `DropEqual` actions.
-   *
-   * Regex capture groups are available.
-   *
    * @schema ServiceMonitorSpecEndpointsMetricRelabelings#targetLabel
    */
   readonly targetLabel?: string;
@@ -4089,94 +4927,55 @@ export function toJson_ServiceMonitorSpecEndpointsMetricRelabelings(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * oauth2 defines the OAuth2 settings to use when scraping the target.
- *
- * It requires Prometheus >= 2.27.0.
- *
- * Cannot be set at the same time as `authorization`, or `basicAuth`.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2
  */
 export interface ServiceMonitorSpecEndpointsOauth2 {
   /**
-   * clientId defines a key of a Secret or ConfigMap containing the
-   * OAuth2 client's ID.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#clientId
    */
   readonly clientId: ServiceMonitorSpecEndpointsOauth2ClientId;
 
   /**
-   * clientSecret defines a key of a Secret containing the OAuth2
-   * client's secret.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#clientSecret
    */
   readonly clientSecret: ServiceMonitorSpecEndpointsOauth2ClientSecret;
 
   /**
-   * endpointParams configures the HTTP parameters to append to the token
-   * URL.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#endpointParams
    */
   readonly endpointParams?: { [key: string]: string };
 
   /**
-   * noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
-   * that should be excluded from proxying. IP and domain names can
-   * contain port numbers.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#noProxy
    */
   readonly noProxy?: string;
 
   /**
-   * proxyConnectHeader optionally specifies headers to send to
-   * proxies during CONNECT requests.
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#proxyConnectHeader
    */
   readonly proxyConnectHeader?: { [key: string]: ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader[] };
 
   /**
-   * proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
-   *
-   * It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#proxyFromEnvironment
    */
   readonly proxyFromEnvironment?: boolean;
 
   /**
-   * proxyUrl defines the HTTP proxy server to use.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#proxyUrl
    */
   readonly proxyUrl?: string;
 
   /**
-   * scopes defines the OAuth2 scopes used for the token request.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#scopes
    */
   readonly scopes?: string[];
 
   /**
-   * tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
-   * It requires Prometheus >= v2.43.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#tlsConfig
    */
   readonly tlsConfig?: ServiceMonitorSpecEndpointsOauth2TlsConfig;
 
   /**
-   * tokenUrl defines the URL to fetch the token from.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2#tokenUrl
    */
   readonly tokenUrl: string;
@@ -4206,32 +5005,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2(obj: ServiceMonitorSpec
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * SecretKeySelector selects a key of a Secret.
- *
  * @schema ServiceMonitorSpecEndpointsProxyConnectHeader
  */
 export interface ServiceMonitorSpecEndpointsProxyConnectHeader {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsProxyConnectHeader#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsProxyConnectHeader#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsProxyConnectHeader#optional
    */
   readonly optional?: boolean;
@@ -4254,76 +5041,40 @@ export function toJson_ServiceMonitorSpecEndpointsProxyConnectHeader(obj: Servic
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
- * scraped samples and remote write samples.
- *
- * More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
- *
  * @schema ServiceMonitorSpecEndpointsRelabelings
  */
 export interface ServiceMonitorSpecEndpointsRelabelings {
   /**
-   * action to perform based on the regex matching.
-   *
-   * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
-   * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
-   *
-   * Default: "Replace"
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#action
    */
   readonly action?: ServiceMonitorSpecEndpointsRelabelingsAction;
 
   /**
-   * modulus to take of the hash of the source label values.
-   *
-   * Only applicable when the action is `HashMod`.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#modulus
    */
   readonly modulus?: number;
 
   /**
-   * regex defines the regular expression against which the extracted value is matched.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#regex
    */
   readonly regex?: string;
 
   /**
-   * replacement value against which a Replace action is performed if the
-   * regular expression matches.
-   *
-   * Regex capture groups are available.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#replacement
    */
   readonly replacement?: string;
 
   /**
-   * separator defines the string between concatenated SourceLabels.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#separator
    */
   readonly separator?: string;
 
   /**
-   * sourceLabels defines the source labels select values from existing labels. Their content is
-   * concatenated using the configured Separator and matched against the
-   * configured regular expression.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#sourceLabels
    */
   readonly sourceLabels?: string[];
 
   /**
-   * targetLabel defines the label to which the resulting string is written in a replacement.
-   *
-   * It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
-   * `KeepEqual` and `DropEqual` actions.
-   *
-   * Regex capture groups are available.
-   *
    * @schema ServiceMonitorSpecEndpointsRelabelings#targetLabel
    */
   readonly targetLabel?: string;
@@ -4350,13 +5101,6 @@ export function toJson_ServiceMonitorSpecEndpointsRelabelings(obj: ServiceMonito
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * scheme defines the HTTP scheme to use for scraping.
- *
- * `http` and `https` are the expected values unless you rewrite the
- * `__scheme__` label via relabeling.
- *
- * If empty, Prometheus uses the default value `http`.
- *
  * @schema ServiceMonitorSpecEndpointsScheme
  */
 export enum ServiceMonitorSpecEndpointsScheme {
@@ -4367,9 +5111,6 @@ export enum ServiceMonitorSpecEndpointsScheme {
 }
 
 /**
- * targetPort defines the name or number of the target port of the `Pod` object behind the
- * Service. The port must be specified with the container's port property.
- *
  * @schema ServiceMonitorSpecEndpointsTargetPort
  */
 export class ServiceMonitorSpecEndpointsTargetPort {
@@ -4384,81 +5125,55 @@ export class ServiceMonitorSpecEndpointsTargetPort {
 }
 
 /**
- * tlsConfig defines the TLS configuration to use when scraping the target.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfig
  */
 export interface ServiceMonitorSpecEndpointsTlsConfig {
   /**
-   * ca defines the Certificate authority used when verifying server certificates.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#ca
    */
   readonly ca?: ServiceMonitorSpecEndpointsTlsConfigCa;
 
   /**
-   * caFile defines the path to the CA cert in the Prometheus container to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#caFile
    */
   readonly caFile?: string;
 
   /**
-   * cert defines the Client certificate to present when doing client-authentication.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#cert
    */
   readonly cert?: ServiceMonitorSpecEndpointsTlsConfigCert;
 
   /**
-   * certFile defines the path to the client cert file in the Prometheus container for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#certFile
    */
   readonly certFile?: string;
 
   /**
-   * insecureSkipVerify defines how to disable target certificate validation.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#insecureSkipVerify
    */
   readonly insecureSkipVerify?: boolean;
 
   /**
-   * keyFile defines the path to the client key file in the Prometheus container for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#keyFile
    */
   readonly keyFile?: string;
 
   /**
-   * keySecret defines the Secret containing the client key file for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#keySecret
    */
   readonly keySecret?: ServiceMonitorSpecEndpointsTlsConfigKeySecret;
 
   /**
-   * maxVersion defines the maximum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#maxVersion
    */
   readonly maxVersion?: ServiceMonitorSpecEndpointsTlsConfigMaxVersion;
 
   /**
-   * minVersion defines the minimum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#minVersion
    */
   readonly minVersion?: ServiceMonitorSpecEndpointsTlsConfigMinVersion;
 
   /**
-   * serverName is used to verify the hostname for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfig#serverName
    */
   readonly serverName?: string;
@@ -4488,33 +5203,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfig(obj: ServiceMonitorS
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * A label selector requirement is a selector that contains values, a key, and an operator that
- * relates the key and values.
- *
  * @schema ServiceMonitorSpecSelectorMatchExpressions
  */
 export interface ServiceMonitorSpecSelectorMatchExpressions {
   /**
-   * key is the label key that the selector applies to.
-   *
    * @schema ServiceMonitorSpecSelectorMatchExpressions#key
    */
   readonly key: string;
 
   /**
-   * operator represents a key's relationship to a set of values.
-   * Valid operators are In, NotIn, Exists and DoesNotExist.
-   *
    * @schema ServiceMonitorSpecSelectorMatchExpressions#operator
    */
   readonly operator: string;
 
   /**
-   * values is an array of string values. If the operator is In or NotIn,
-   * the values array must be non-empty. If the operator is Exists or DoesNotExist,
-   * the values array must be empty. This array is replaced during a strategic
-   * merge patch.
-   *
    * @schema ServiceMonitorSpecSelectorMatchExpressions#values
    */
   readonly values?: string[];
@@ -4537,32 +5239,20 @@ export function toJson_ServiceMonitorSpecSelectorMatchExpressions(obj: ServiceMo
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
- *
  * @schema ServiceMonitorSpecEndpointsAuthorizationCredentials
  */
 export interface ServiceMonitorSpecEndpointsAuthorizationCredentials {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsAuthorizationCredentials#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsAuthorizationCredentials#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsAuthorizationCredentials#optional
    */
   readonly optional?: boolean;
@@ -4585,33 +5275,20 @@ export function toJson_ServiceMonitorSpecEndpointsAuthorizationCredentials(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * password defines a key of a Secret containing the password for
- * authentication.
- *
  * @schema ServiceMonitorSpecEndpointsBasicAuthPassword
  */
 export interface ServiceMonitorSpecEndpointsBasicAuthPassword {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthPassword#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthPassword#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthPassword#optional
    */
   readonly optional?: boolean;
@@ -4634,33 +5311,20 @@ export function toJson_ServiceMonitorSpecEndpointsBasicAuthPassword(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * username defines a key of a Secret containing the username for
- * authentication.
- *
  * @schema ServiceMonitorSpecEndpointsBasicAuthUsername
  */
 export interface ServiceMonitorSpecEndpointsBasicAuthUsername {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthUsername#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthUsername#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsBasicAuthUsername#optional
    */
   readonly optional?: boolean;
@@ -4683,13 +5347,6 @@ export function toJson_ServiceMonitorSpecEndpointsBasicAuthUsername(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * action to perform based on the regex matching.
- *
- * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
- * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
- *
- * Default: "Replace"
- *
  * @schema ServiceMonitorSpecEndpointsMetricRelabelingsAction
  */
 export enum ServiceMonitorSpecEndpointsMetricRelabelingsAction {
@@ -4718,22 +5375,15 @@ export enum ServiceMonitorSpecEndpointsMetricRelabelingsAction {
 }
 
 /**
- * clientId defines a key of a Secret or ConfigMap containing the
- * OAuth2 client's ID.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2ClientId
  */
 export interface ServiceMonitorSpecEndpointsOauth2ClientId {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientId#configMap
    */
   readonly configMap?: ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientId#secret
    */
   readonly secret?: ServiceMonitorSpecEndpointsOauth2ClientIdSecret;
@@ -4755,33 +5405,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2ClientId(obj: ServiceMon
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * clientSecret defines a key of a Secret containing the OAuth2
- * client's secret.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2ClientSecret
  */
 export interface ServiceMonitorSpecEndpointsOauth2ClientSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientSecret#optional
    */
   readonly optional?: boolean;
@@ -4804,32 +5441,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2ClientSecret(obj: Servic
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * SecretKeySelector selects a key of a Secret.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader
  */
 export interface ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader#optional
    */
   readonly optional?: boolean;
@@ -4852,61 +5477,40 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2ProxyConnectHeader(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
- * It requires Prometheus >= v2.43.0.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfig {
   /**
-   * ca defines the Certificate authority used when verifying server certificates.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#ca
    */
   readonly ca?: ServiceMonitorSpecEndpointsOauth2TlsConfigCa;
 
   /**
-   * cert defines the Client certificate to present when doing client-authentication.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#cert
    */
   readonly cert?: ServiceMonitorSpecEndpointsOauth2TlsConfigCert;
 
   /**
-   * insecureSkipVerify defines how to disable target certificate validation.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#insecureSkipVerify
    */
   readonly insecureSkipVerify?: boolean;
 
   /**
-   * keySecret defines the Secret containing the client key file for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#keySecret
    */
   readonly keySecret?: ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret;
 
   /**
-   * maxVersion defines the maximum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#maxVersion
    */
   readonly maxVersion?: ServiceMonitorSpecEndpointsOauth2TlsConfigMaxVersion;
 
   /**
-   * minVersion defines the minimum acceptable TLS version.
-   *
-   * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#minVersion
    */
   readonly minVersion?: ServiceMonitorSpecEndpointsOauth2TlsConfigMinVersion;
 
   /**
-   * serverName is used to verify the hostname for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfig#serverName
    */
   readonly serverName?: string;
@@ -4933,13 +5537,6 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfig(obj: ServiceMo
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * action to perform based on the regex matching.
- *
- * `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
- * `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
- *
- * Default: "Replace"
- *
  * @schema ServiceMonitorSpecEndpointsRelabelingsAction
  */
 export enum ServiceMonitorSpecEndpointsRelabelingsAction {
@@ -4968,21 +5565,15 @@ export enum ServiceMonitorSpecEndpointsRelabelingsAction {
 }
 
 /**
- * ca defines the Certificate authority used when verifying server certificates.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCa
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCa {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCa#configMap
    */
   readonly configMap?: ServiceMonitorSpecEndpointsTlsConfigCaConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCa#secret
    */
   readonly secret?: ServiceMonitorSpecEndpointsTlsConfigCaSecret;
@@ -5004,21 +5595,15 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCa(obj: ServiceMonito
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * cert defines the Client certificate to present when doing client-authentication.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCert
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCert {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCert#configMap
    */
   readonly configMap?: ServiceMonitorSpecEndpointsTlsConfigCertConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCert#secret
    */
   readonly secret?: ServiceMonitorSpecEndpointsTlsConfigCertSecret;
@@ -5040,32 +5625,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCert(obj: ServiceMoni
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * keySecret defines the Secret containing the client key file for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigKeySecret
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigKeySecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigKeySecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigKeySecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigKeySecret#optional
    */
   readonly optional?: boolean;
@@ -5088,10 +5661,6 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigKeySecret(obj: Servic
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * maxVersion defines the maximum acceptable TLS version.
- *
- * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigMaxVersion
  */
 export enum ServiceMonitorSpecEndpointsTlsConfigMaxVersion {
@@ -5106,10 +5675,6 @@ export enum ServiceMonitorSpecEndpointsTlsConfigMaxVersion {
 }
 
 /**
- * minVersion defines the minimum acceptable TLS version.
- *
- * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigMinVersion
  */
 export enum ServiceMonitorSpecEndpointsTlsConfigMinVersion {
@@ -5124,32 +5689,20 @@ export enum ServiceMonitorSpecEndpointsTlsConfigMinVersion {
 }
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap
  */
 export interface ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap {
   /**
-   * The key to select.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap#optional
    */
   readonly optional?: boolean;
@@ -5172,32 +5725,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2ClientIdConfigMap(obj: S
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2ClientIdSecret
  */
 export interface ServiceMonitorSpecEndpointsOauth2ClientIdSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2ClientIdSecret#optional
    */
   readonly optional?: boolean;
@@ -5220,21 +5761,15 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2ClientIdSecret(obj: Serv
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * ca defines the Certificate authority used when verifying server certificates.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCa
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCa {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCa#configMap
    */
   readonly configMap?: ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCa#secret
    */
   readonly secret?: ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret;
@@ -5256,21 +5791,15 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigCa(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * cert defines the Client certificate to present when doing client-authentication.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCert
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCert {
   /**
-   * configMap defines the ConfigMap containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCert#configMap
    */
   readonly configMap?: ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap;
 
   /**
-   * secret defines the Secret containing data to use for the targets.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCert#secret
    */
   readonly secret?: ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret;
@@ -5292,32 +5821,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigCert(obj: Servi
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * keySecret defines the Secret containing the client key file for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret#optional
    */
   readonly optional?: boolean;
@@ -5340,10 +5857,6 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigKeySecret(obj: 
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * maxVersion defines the maximum acceptable TLS version.
- *
- * It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigMaxVersion
  */
 export enum ServiceMonitorSpecEndpointsOauth2TlsConfigMaxVersion {
@@ -5358,10 +5871,6 @@ export enum ServiceMonitorSpecEndpointsOauth2TlsConfigMaxVersion {
 }
 
 /**
- * minVersion defines the minimum acceptable TLS version.
- *
- * It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigMinVersion
  */
 export enum ServiceMonitorSpecEndpointsOauth2TlsConfigMinVersion {
@@ -5376,32 +5885,20 @@ export enum ServiceMonitorSpecEndpointsOauth2TlsConfigMinVersion {
 }
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCaConfigMap
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCaConfigMap {
   /**
-   * The key to select.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaConfigMap#optional
    */
   readonly optional?: boolean;
@@ -5424,32 +5921,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCaConfigMap(obj: Serv
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCaSecret
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCaSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCaSecret#optional
    */
   readonly optional?: boolean;
@@ -5472,32 +5957,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCaSecret(obj: Service
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCertConfigMap
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCertConfigMap {
   /**
-   * The key to select.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertConfigMap#optional
    */
   readonly optional?: boolean;
@@ -5520,32 +5993,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCertConfigMap(obj: Se
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsTlsConfigCertSecret
  */
 export interface ServiceMonitorSpecEndpointsTlsConfigCertSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsTlsConfigCertSecret#optional
    */
   readonly optional?: boolean;
@@ -5568,32 +6029,20 @@ export function toJson_ServiceMonitorSpecEndpointsTlsConfigCertSecret(obj: Servi
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap {
   /**
-   * The key to select.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap#optional
    */
   readonly optional?: boolean;
@@ -5616,32 +6065,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigCaConfigMap(obj
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret#optional
    */
   readonly optional?: boolean;
@@ -5664,32 +6101,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigCaSecret(obj: S
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * configMap defines the ConfigMap containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap {
   /**
-   * The key to select.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the ConfigMap or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap#optional
    */
   readonly optional?: boolean;
@@ -5712,32 +6137,20 @@ export function toJson_ServiceMonitorSpecEndpointsOauth2TlsConfigCertConfigMap(o
 /* eslint-enable max-len, @stylistic/max-len, quote-props, @stylistic/quote-props */
 
 /**
- * secret defines the Secret containing data to use for the targets.
- *
  * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret
  */
 export interface ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret {
   /**
-   * The key of the secret to select from.  Must be a valid secret key.
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret#key
    */
   readonly key: string;
 
   /**
-   * Name of the referent.
-   * This field is effectively required, but due to backwards compatibility is
-   * allowed to be empty. Instances of this type with an empty value here are
-   * almost certainly wrong.
-   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret#name
    */
   readonly name?: string;
 
   /**
-   * Specify whether the Secret or its key must be defined
-   *
    * @schema ServiceMonitorSpecEndpointsOauth2TlsConfigCertSecret#optional
    */
   readonly optional?: boolean;
